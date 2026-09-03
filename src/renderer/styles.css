@@ -1,4 +1,8 @@
+@import "../../assets/fonts/fonts.css";
+
 :root {
+  --font-display: "Outfit Variable", "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Azeret Mono Variable", "Azeret Mono", Consolas, monospace;
   --bg-app: #08070a;
   --bg-sidebar: #0e0c14;
   --bg-topbar: #12101b;
@@ -24,7 +28,8 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
   user-select: none;
 }
 
@@ -303,6 +308,7 @@ body {
 }
 
 .tab-badge {
+  font-family: var(--font-mono);
   font-size: 0.65rem;
   font-weight: 700;
   padding: 1px 5px;
@@ -478,7 +484,9 @@ body {
   border: none;
   outline: none;
   color: var(--text-primary);
-  font-size: 0.84rem;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: -0.01em;
 }
 
 .omnibox-input::placeholder {
@@ -558,6 +566,7 @@ body {
 .pane-badge {
   background: transparent;
   border: none;
+  font-family: var(--font-mono);
   font-size: 0.72rem;
   padding: 2px 8px;
   border-radius: 4px;

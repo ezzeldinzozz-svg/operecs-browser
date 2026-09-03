@@ -4,8 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Settings — Operecs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Azeret+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/fonts/fonts.css">
   <style>
     :root {
+      --font-display: "Outfit Variable", "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "Azeret Mono Variable", "Azeret Mono", Consolas, monospace;
       --bg: #08070a;
       --bg-card: rgba(255, 255, 255, 0.03);
       --bg-card-hover: rgba(255, 255, 255, 0.05);
@@ -21,7 +27,8 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: var(--font-display);
+      letter-spacing: -0.01em;
     }
 
     body {
@@ -117,6 +124,7 @@
       padding: 8px 14px;
       border-radius: 8px;
       font-size: 0.88rem;
+      font-family: var(--font-display);
       outline: none;
       transition: border-color 0.2s;
     }
@@ -130,6 +138,7 @@
       border-radius: 8px;
       font-size: 0.88rem;
       font-weight: 600;
+      font-family: var(--font-display);
       cursor: pointer;
       transition: all 0.2s;
       border: 1px solid var(--border);
@@ -158,6 +167,7 @@
       border-radius: 20px;
       font-size: 0.78rem;
       font-weight: 600;
+      font-family: var(--font-mono);
       background: rgba(34, 197, 94, 0.12);
       color: #4ade80;
       border: 1px solid rgba(34, 197, 94, 0.25);
