@@ -1,8 +1,8 @@
-# 🪐 OperEcs Browser
+# 🪐 Operecs Browser
 
 > A sleek, high-performance, multi-tab desktop browser built on Chromium with Electron.
 
-![OperEcs Browser](assets/icon.svg)
+![Operecs Browser](assets/icon.svg)
 
 ---
 
@@ -41,7 +41,7 @@ cd operecs-browser
 # Install dependencies
 npm install
 
-# Start OperEcs Browser
+# Start Operecs Browser
 npm start
 ```
 
@@ -60,7 +60,7 @@ The generated installers will be located in the `dist/` directory.
 
 ## 🌐 Landing Page
 
-OperEcs includes a modern product landing page located in [`landing-page/`](./landing-page/). You can open `landing-page/index.html` in any browser or host it for free on GitHub Pages, Vercel, or Cloudflare Pages.
+Operecs includes a modern product landing page located in [`landing-page/`](./landing-page/). You can open `landing-page/index.html` in any browser or host it for free on GitHub Pages, Vercel, or Cloudflare Pages.
 
 ---
 
@@ -68,7 +68,7 @@ OperEcs includes a modern product landing page located in [`landing-page/`](./la
 
 - **Context Isolation**: Renderer processes cannot directly access Node.js runtime APIs.
 - **OS Sandboxing**: Web tabs execute within low-integrity sandboxes.
-- **Navigation Guard**: Links requesting new windows (`target="_blank"`) are trapped and safely opened within internal OperEcs tabs.
+- **Navigation Guard**: Links requesting new windows (`target="_blank"`) are trapped and safely opened within internal Operecs tabs.
 - **Local Storage**: Bookmarks and history are saved strictly to user data on your local drive.
 
 ---

@@ -13,8 +13,8 @@
   },
   "build": {
     "appId": "com.operecs.browser",
-    "productName": "OperEcs Browser",
-    "copyright": "Copyright © 2026 OperEcs",
+    "productName": "Operecs Browser",
+    "copyright": "Copyright © 2026 Operecs",
     "directories": {
       "output": "dist"
     },
@@ -34,7 +34,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "OperEcs Browser"
+      "shortcutName": "Operecs Browser"
     }
   },
   "devDependencies": {
