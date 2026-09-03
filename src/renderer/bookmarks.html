@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bookmarks — Operecs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Azeret+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/fonts/fonts.css">
+  <style>
+    :root {
+      --font-display: "Outfit Variable", "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "Azeret Mono Variable", "Azeret Mono", monospace;
+      --bg: #08070a;
+      --bg-sidebar: #0e0c14;
+      --bg-card: rgba(255, 255, 255, 0.03);
+      --bg-card-hover: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f5f3f7;
+      --text-muted: #948fa3;
+      --accent: #7c3aed;
+      --accent-hover: #8b5cf6;
+      --accent-dot: #c7adff;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-display);
+      letter-spacing: -0.01em;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    /* Left Sidebar */
+    .bookmarks-sidebar {
+      width: 260px;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .brand-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .folder-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      list-style: none;
+    }
+
+    .folder-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .folder-item:hover {
+      background: var(--bg-card-hover);
+      color: var(--text);
+    }
+
+    .folder-item.active {
+      background: rgba(124, 58, 237, 0.15);
+      color: #c7adff;
+      font-weight: 600;
+    }
+
+    /* Main Bookmarks Area */
+    .bookmarks-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 32px 48px;
+      max-width: 980px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .bookmarks-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .search-box {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #14111d;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 16px;
+      transition: border-color 0.2s;
+    }
+
+    .search-box:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+    }
+
+    .search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .btn-add {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .btn-add:hover {
+      background: var(--accent-hover);
+    }
+
+    .folder-title-header {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .bookmarks-list {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .bookmark-row {
+      display: flex;
+      align-items: center;
+      padding: 14px 18px;
+      gap: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      transition: background 0.15s;
+    }
+
+    .bookmark-row:last-child {
+      border-bottom: none;
+    }
+
+    .bookmark-row:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .bm-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .bm-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      min-width: 0;
+    }
+
+    .bm-title {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bm-title:hover {
+      color: #c7adff;
+    }
+
+    .bm-url {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bm-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .action-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .action-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      color: var(--text-muted);
+      gap: 16px;
+    }
+
+    /* Modal for Add / Edit Bookmark */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(8px);
+    }
+
+    .modal-overlay.hidden {
+      display: none;
+    }
+
+    .modal-card {
+      background: #120f1c;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 440px;
+      padding: 24px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .form-input, .form-select {
+      background: #1a1528;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: var(--accent);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="bookmarks-sidebar">
+    <div class="brand-header">
+      <svg viewBox="0 0 64 64" width="28" height="28">
+        <rect width="64" height="64" rx="16" fill="#0b0910"/>
+        <path d="M32 12c12 0 21 8.5 21 20s-9 20-21 20S11 43.5 11 32s9-20 21-20Zm0 9c-6.8 0-11.5 4.5-11.5 11S25.2 43 32 43s11.5-4.5 11.5-11S38.8 21 32 21Z" fill="#6d28d9"/>
+        <circle cx="47" cy="17" r="5" fill="#c7adff"/>
+      </svg>
+      <span class="brand-title">Bookmarks</span>
+    </div>
+
+    <ul class="folder-list">
+      <li class="folder-item active" data-folder="bookmarks-bar">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span>Bookmarks bar</span>
+      </li>
+      <li class="folder-item" data-folder="other-bookmarks">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span>Other bookmarks</span>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Main Stage -->
+  <main class="bookmarks-main">
+    <div class="bookmarks-top">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="search-input" class="search-input" placeholder="Search bookmarks..." />
+      </div>
+      <button class="btn-add" id="btn-add-bookmark">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Add bookmark</span>
+      </button>
+    </div>
+
+    <div class="folder-title-header">
+      <span id="current-folder-title">Bookmarks bar</span>
+    </div>
+
+    <div class="bookmarks-list" id="bookmarks-container">
+      <!-- Dynamically generated -->
+    </div>
+  </main>
+
+  <!-- Add / Edit Modal -->
+  <div class="modal-overlay hidden" id="bm-modal">
+    <div class="modal-card">
+      <div class="modal-title" id="modal-title">Add bookmark</div>
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input type="text" id="bm-name-input" class="form-input" placeholder="e.g. GitHub" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL</label>
+        <input type="text" id="bm-url-input" class="form-input" placeholder="https://..." />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Folder</label>
+        <select id="bm-folder-select" class="form-select">
+          <option value="bookmarks-bar">Bookmarks bar</option>
+          <option value="other-bookmarks">Other bookmarks</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-modal-cancel">Cancel</button>
+        <button class="btn-primary" id="btn-modal-save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let bookmarks = [];
+    let currentFolder = 'bookmarks-bar';
+    let editingId = null;
+
+    async function loadBookmarks() {
+      if (window.operecs && window.operecs.getBookmarks) {
+        bookmarks = await window.operecs.getBookmarks();
+      }
+      render();
+    }
+
+    function render() {
+      const container = document.getElementById('bookmarks-container');
+      container.innerHTML = '';
+
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      let filtered = bookmarks;
+
+      if (query) {
+        filtered = bookmarks.filter(b => 
+          (b.title && b.title.toLowerCase().includes(query)) || 
+          (b.url && b.url.toLowerCase().includes(query))
+        );
+      } else {
+        filtered = bookmarks.filter(b => (b.folder || 'bookmarks-bar') === currentFolder);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            <p>No bookmarks found in this folder.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(bm => {
+        const row = document.createElement('div');
+        row.className = 'bookmark-row';
+
+        const icon = document.createElement('img');
+        icon.className = 'bm-icon';
+        icon.src = bm.favicon || 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(bm.url);
+        icon.onerror = () => { icon.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="%23948fa3"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'; };
+
+        const info = document.createElement('div');
+        info.className = 'bm-info';
+        info.onclick = () => {
+          if (window.operecs && window.operecs.navigate) {
+            window.operecs.navigate(bm.url);
+          } else {
+            window.location.href = bm.url;
+          }
+        };
+
+        const title = document.createElement('span');
+        title.className = 'bm-title';
+        title.textContent = bm.title || bm.url;
+
+        const url = document.createElement('span');
+        url.className = 'bm-url';
+        url.textContent = bm.url;
+
+        info.appendChild(title);
+        info.appendChild(url);
+
+        const actions = document.createElement('div');
+        actions.className = 'bm-actions';
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'action-btn';
+        editBtn.title = 'Edit';
+        editBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>';
+        editBtn.onclick = (e) => {
+          e.stopPropagation();
+          openEditModal(bm);
+        };
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'action-btn';
+        delBtn.title = 'Delete';
+        delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+        delBtn.onclick = async (e) => {
+          e.stopPropagation();
+          if (window.operecs && window.operecs.removeBookmark) {
+            await window.operecs.removeBookmark(bm.id || bm.url);
+          }
+          loadBookmarks();
+        };
+
+        actions.appendChild(editBtn);
+        actions.appendChild(delBtn);
+
+        row.appendChild(icon);
+        row.appendChild(info);
+        row.appendChild(actions);
+
+        container.appendChild(row);
+      });
+    }
+
+    // Folders switch
+    document.querySelectorAll('.folder-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.folder-item').forEach(el => el.classList.remove('active'));
+        item.classList.add('active');
+        currentFolder = item.dataset.folder;
+        document.getElementById('current-folder-title').textContent = item.querySelector('span').textContent;
+        render();
+      });
+    });
+
+    document.getElementById('search-input').addEventListener('input', () => {
+      render();
+    });
+
+    function openEditModal(bm) {
+      editingId = bm ? (bm.id || bm.url) : null;
+      document.getElementById('modal-title').textContent = bm ? 'Edit bookmark' : 'Add bookmark';
+      document.getElementById('bm-name-input').value = bm ? bm.title : '';
+      document.getElementById('bm-url-input').value = bm ? bm.url : '';
+      document.getElementById('bm-folder-select').value = bm ? (bm.folder || 'bookmarks-bar') : currentFolder;
+      document.getElementById('bm-modal').classList.remove('hidden');
+    }
+
+    document.getElementById('btn-add-bookmark').addEventListener('click', () => openEditModal(null));
+    document.getElementById('btn-modal-cancel').addEventListener('click', () => {
+      document.getElementById('bm-modal').classList.add('hidden');
+    });
+
+    document.getElementById('btn-modal-save').addEventListener('click', async () => {
+      const title = document.getElementById('bm-name-input').value.trim();
+      const url = document.getElementById('bm-url-input').value.trim();
+      const folder = document.getElementById('bm-folder-select').value;
+
+      if (!url) return;
+
+      if (editingId) {
+        if (window.operecs && window.operecs.updateBookmark) {
+          await window.operecs.updateBookmark(editingId, { title, url, folder });
+        }
+      } else {
+        if (window.operecs && window.operecs.addBookmark) {
+          await window.operecs.addBookmark({ title, url, folder });
+        }
+      }
+
+      document.getElementById('bm-modal').classList.add('hidden');
+      loadBookmarks();
+    });
+
+    loadBookmarks();
+  </script>
+</body>
+</html>

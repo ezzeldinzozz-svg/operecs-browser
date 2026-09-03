@@ -50,16 +50,30 @@ contextBridge.exposeInMainWorld('browserAPI', {
   // Bookmarks
   getBookmarks: () => ipcRenderer.invoke('bookmarks:get'),
   addBookmark: (bookmark) => ipcRenderer.invoke('bookmarks:add', bookmark),
+  updateBookmark: (id, data) => ipcRenderer.invoke('bookmarks:update', id, data),
   removeBookmark: (url) => ipcRenderer.invoke('bookmarks:remove', url),
+  searchBookmarks: (query) => ipcRenderer.invoke('bookmarks:search', query),
+  getBookmarkFolders: () => ipcRenderer.invoke('bookmarks:get-folders'),
   isBookmarked: (url) => ipcRenderer.invoke('bookmarks:is-bookmarked', url),
 
   // History
   getHistory: () => ipcRenderer.invoke('history:get'),
+  searchHistory: (query) => ipcRenderer.invoke('history:search', query),
+  removeHistoryItem: (idOrUrl) => ipcRenderer.invoke('history:remove-item', idOrUrl),
   clearHistory: () => ipcRenderer.invoke('history:clear'),
+  clearHistoryRange: (range) => ipcRenderer.invoke('history:clear-range', range),
 
-  // Settings
+  // Settings & Clear Data
   getSettings: () => ipcRenderer.invoke('settings:get'),
   saveSettings: (settings) => ipcRenderer.invoke('settings:save', settings),
+  resetSettings: () => ipcRenderer.invoke('settings:reset'),
+  clearBrowsingData: (options) => ipcRenderer.invoke('browser:clear-browsing-data', options),
+
+  // Windows & Layout
+  newWindow: () => ipcRenderer.invoke('window:new-window'),
+  newIncognitoWindow: () => ipcRenderer.invoke('window:new-incognito'),
+  setLayoutBounds: (bounds) => ipcRenderer.invoke('layout:set-bounds', bounds),
+  print: () => ipcRenderer.invoke('browser:print'),
 
   // Window Controls
   minimizeWindow: () => ipcRenderer.invoke('window:minimize'),
@@ -96,6 +110,21 @@ contextBridge.exposeInMainWorld('browserAPI', {
     const handler = () => callback();
     ipcRenderer.on('toggle-sidebar', handler);
     return () => ipcRenderer.removeListener('toggle-sidebar', handler);
+  },
+  onToggleBookmarksBar: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on('toggle-bookmarks-bar', handler);
+    return () => ipcRenderer.removeListener('toggle-bookmarks-bar', handler);
+  },
+  onOpenClearBrowsingData: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on('open-clear-browsing-data', handler);
+    return () => ipcRenderer.removeListener('open-clear-browsing-data', handler);
+  },
+  onSettingsUpdated: (callback) => {
+    const handler = (_event, data) => callback(data);
+    ipcRenderer.on('settings:updated', handler);
+    return () => ipcRenderer.removeListener('settings:updated', handler);
   },
   onOpenCommandPalette: (callback) => {
     const handler = () => callback();

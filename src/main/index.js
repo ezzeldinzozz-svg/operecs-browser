@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu, globalShortcut } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, globalShortcut, dialog, session } = require('electron');
 const path = require('path');
 const BrowserStore = require('./store');
 const TabManager = require('./tab-manager');
@@ -47,8 +47,15 @@ function createWindow() {
   mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
 
   mainWindow.webContents.on('did-finish-load', () => {
-    // Open the initial tab
-    tabManager.createTab('', true);
+    // Check if onStartup is restore
+    const settings = store.getSettings();
+    if (settings && settings.onStartup === 'restore' && settings.startupUrls && settings.startupUrls.length > 0) {
+      settings.startupUrls.forEach((url, i) => {
+        tabManager.createTab(url, i === 0);
+      });
+    } else {
+      tabManager.createTab('', true);
+    }
   });
 
   mainWindow.on('closed', () => {
@@ -56,6 +63,69 @@ function createWindow() {
     tabManager = null;
   });
 }
+
+function createIncognitoWindow() {
+  const incognitoWin = new BrowserWindow({
+    title: 'Operecs Browser (Incognito)',
+    icon: path.join(__dirname, '../../assets/icon.png'),
+    width: 1280,
+    height: 850,
+    minWidth: 700,
+    minHeight: 500,
+    frame: false,
+    backgroundColor: '#09080e',
+    show: true,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: false,
+      partition: `incognito-${Date.now()}` // Isolated session, not stored to disk
+    }
+  });
+
+  const incognitoShield = new PrivacyShield(store, incognitoWin);
+  const incognitoDownloads = new DownloadsManager(incognitoWin);
+  const incognitoTabMgr = new TabManager(incognitoWin, store, incognitoShield);
+
+  incognitoWin.loadFile(path.join(__dirname, '../renderer/index.html'), {
+    query: { incognito: 'true' }
+  });
+
+  incognitoWin.webContents.on('did-finish-load', () => {
+    incognitoTabMgr.createTab('operecs://incognito', true);
+  });
+}
+
+// IPC Handlers: Windows
+ipcMain.handle('window:new-window', () => {
+  createWindow();
+});
+
+ipcMain.handle('window:new-incognito', () => {
+  createIncognitoWindow();
+});
+
+ipcMain.handle('dialog:choose-download-dir', async () => {
+  if (!mainWindow) return null;
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: 'Select Download Folder',
+    properties: ['openDirectory', 'createDirectory']
+  });
+  if (!result.canceled && result.filePaths.length > 0) {
+    return result.filePaths[0];
+  }
+  return null;
+});
+
+ipcMain.handle('dialog:open-clear-data', () => {
+  if (mainWindow) mainWindow.webContents.send('open-clear-browsing-data');
+});
+
+// IPC Handlers: Layout Bounds
+ipcMain.handle('layout:set-bounds', (_event, bounds) => {
+  if (tabManager) tabManager.setLayoutBounds(bounds);
+});
 
 // IPC Handlers: Navigation
 ipcMain.handle('browser:navigate', (_event, url) => {
@@ -80,6 +150,13 @@ ipcMain.handle('browser:stop', () => {
 
 ipcMain.handle('browser:open-devtools', () => {
   tabManager.openDevTools();
+});
+
+ipcMain.handle('browser:print', () => {
+  const activeTab = tabManager.tabs.get(tabManager.activeTabId);
+  if (activeTab && activeTab.view) {
+    activeTab.view.webContents.print();
+  }
 });
 
 // IPC Handlers: Tabs
@@ -125,8 +202,20 @@ ipcMain.handle('bookmarks:add', (_event, bookmark) => {
   return store.addBookmark(bookmark);
 });
 
+ipcMain.handle('bookmarks:update', (_event, id, data) => {
+  return store.updateBookmark(id, data);
+});
+
 ipcMain.handle('bookmarks:remove', (_event, url) => {
   return store.removeBookmark(url);
+});
+
+ipcMain.handle('bookmarks:search', (_event, query) => {
+  return store.searchBookmarks(query);
+});
+
+ipcMain.handle('bookmarks:get-folders', () => {
+  return store.getBookmarkFolders();
 });
 
 ipcMain.handle('bookmarks:is-bookmarked', (_event, url) => {
@@ -138,8 +227,42 @@ ipcMain.handle('history:get', () => {
   return store.getHistory();
 });
 
+ipcMain.handle('history:search', (_event, query) => {
+  return store.searchHistory(query);
+});
+
+ipcMain.handle('history:remove-item', (_event, idOrUrl) => {
+  return store.removeHistoryItem(idOrUrl);
+});
+
 ipcMain.handle('history:clear', () => {
   return store.clearHistory();
+});
+
+ipcMain.handle('history:clear-range', (_event, range) => {
+  return store.clearHistoryRange(range);
+});
+
+// IPC Handlers: Clear Browsing Data
+ipcMain.handle('browser:clear-browsing-data', async (_event, options = {}) => {
+  try {
+    const ses = session.defaultSession;
+    if (options.clearCache) {
+      await ses.clearCache();
+    }
+    if (options.clearCookies || options.clearStorage) {
+      await ses.clearStorageData({
+        storages: ['cookies', 'localstorage', 'indexdb', 'websql', 'serviceworkers', 'cachestorage']
+      });
+    }
+    if (options.clearHistory) {
+      store.clearHistoryRange(options.timeRange || 'all');
+    }
+    return { success: true };
+  } catch (err) {
+    console.error('Failed to clear browsing data:', err);
+    return { success: false, error: err.message };
+  }
 });
 
 // IPC Handlers: Settings
@@ -148,7 +271,19 @@ ipcMain.handle('settings:get', () => {
 });
 
 ipcMain.handle('settings:save', (_event, newSettings) => {
-  return store.updateSettings(newSettings);
+  const updated = store.updateSettings(newSettings);
+  if (mainWindow) {
+    mainWindow.webContents.send('settings:updated', updated);
+  }
+  return updated;
+});
+
+ipcMain.handle('settings:reset', () => {
+  const res = store.resetSettings();
+  if (mainWindow) {
+    mainWindow.webContents.send('settings:updated', res);
+  }
+  return res;
 });
 
 // IPC Handlers: Tab Power Tools
@@ -292,8 +427,32 @@ app.whenReady().then(() => {
       if (mainWindow) mainWindow.webContents.send('toggle-sidebar');
     });
 
-    globalShortcut.register('Alt+S', () => {
-      if (tabManager) tabManager.toggleSplitView();
+    globalShortcut.register('CommandOrControl+Shift+N', () => {
+      createIncognitoWindow();
+    });
+
+    globalShortcut.register('CommandOrControl+N', () => {
+      createWindow();
+    });
+
+    globalShortcut.register('CommandOrControl+Shift+B', () => {
+      if (mainWindow) mainWindow.webContents.send('toggle-bookmarks-bar');
+    });
+
+    globalShortcut.register('CommandOrControl+Shift+Delete', () => {
+      if (mainWindow) mainWindow.webContents.send('open-clear-browsing-data');
+    });
+
+    globalShortcut.register('CommandOrControl+H', () => {
+      if (tabManager) tabManager.createTab('operecs://history', true);
+    });
+
+    globalShortcut.register('CommandOrControl+Shift+O', () => {
+      if (tabManager) tabManager.createTab('operecs://bookmarks', true);
+    });
+
+    globalShortcut.register('CommandOrControl+,', () => {
+      if (tabManager) tabManager.createTab('operecs://settings', true);
     });
   } catch (err) {
     console.warn('Failed to register some global shortcuts:', err);

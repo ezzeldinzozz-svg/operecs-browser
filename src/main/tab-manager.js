@@ -12,11 +12,14 @@ class TabManager {
     this.recentlyClosed = []; // URL stack for reopenClosedTab
 
     // Layout dimensions
-    this.sidebarWidth = 240; // Default expanded sidebar width in pixels
-    this.topBarHeight = 46;  // Slim top omnibox & navigation bar height in pixels
+    this.sidebarWidth = 0;   // Default 0 for horizontal Chrome mode
+    this.topBarHeight = 84;  // Chrome Tab Strip (40px) + Navigation Bar (44px)
     this.newTabPath = `file://${path.join(__dirname, '../renderer/newtab.html').replace(/\\/g, '/')}`;
     this.settingsPath = `file://${path.join(__dirname, '../renderer/settings.html').replace(/\\/g, '/')}`;
     this.downloadsPath = `file://${path.join(__dirname, '../renderer/downloads.html').replace(/\\/g, '/')}`;
+    this.historyPath = `file://${path.join(__dirname, '../renderer/history.html').replace(/\\/g, '/')}`;
+    this.bookmarksPath = `file://${path.join(__dirname, '../renderer/bookmarks.html').replace(/\\/g, '/')}`;
+    this.incognitoPath = `file://${path.join(__dirname, '../renderer/incognito.html').replace(/\\/g, '/')}`;
 
     // Split View State
     this.isSplitView = false;
@@ -61,7 +64,13 @@ class TabManager {
   }
 
   setSidebarWidth(width) {
-    this.sidebarWidth = Number(width) || 240;
+    this.sidebarWidth = Number(width) || 0;
+    this.updateActiveTabBounds();
+  }
+
+  setLayoutBounds({ sidebarWidth, topBarHeight }) {
+    if (sidebarWidth !== undefined) this.sidebarWidth = Number(sidebarWidth);
+    if (topBarHeight !== undefined) this.topBarHeight = Number(topBarHeight);
     this.updateActiveTabBounds();
   }
 
@@ -107,16 +116,31 @@ class TabManager {
   }
 
   resolveUrl(input) {
-    if (!input || input.trim() === '' || input === 'browser://newtab' || input === 'operecs://newtab') {
+    if (!input || input.trim() === '') {
       return this.newTabPath;
     }
     const trimmed = input.trim();
-    if (trimmed === 'browser://settings' || trimmed === 'operecs://settings') {
+    const lower = trimmed.toLowerCase();
+
+    if (lower === 'browser://newtab' || lower === 'operecs://newtab' || lower === 'chrome://newtab') {
+      return this.newTabPath;
+    }
+    if (lower === 'browser://settings' || lower === 'operecs://settings' || lower === 'chrome://settings') {
       return this.settingsPath;
     }
-    if (trimmed === 'browser://downloads' || trimmed === 'operecs://downloads') {
+    if (lower === 'browser://downloads' || lower === 'operecs://downloads' || lower === 'chrome://downloads') {
       return this.downloadsPath;
     }
+    if (lower === 'browser://history' || lower === 'operecs://history' || lower === 'chrome://history') {
+      return this.historyPath;
+    }
+    if (lower === 'browser://bookmarks' || lower === 'operecs://bookmarks' || lower === 'chrome://bookmarks') {
+      return this.bookmarksPath;
+    }
+    if (lower === 'browser://incognito' || lower === 'operecs://incognito' || lower === 'chrome://incognito') {
+      return this.incognitoPath;
+    }
+
     if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('file://')) {
       return trimmed;
     }

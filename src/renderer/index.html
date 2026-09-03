@@ -13,178 +13,36 @@
 </head>
 <body>
   <div class="browser-app">
-    <!-- LEFT COLUMN: VERTICAL SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <!-- Sidebar Header & Brand -->
-      <div class="sidebar-header">
-        <div class="brand-badge">
-          <svg viewBox="0 0 64 64" width="26" height="26" style="border-radius:6px;flex-shrink:0;">
-            <rect width="64" height="64" rx="16" fill="#0b0910"/>
-            <path d="M32 12c12 0 21 8.5 21 20s-9 20-21 20S11 43.5 11 32s9-20 21-20Zm0 9c-6.8 0-11.5 4.5-11.5 11S25.2 43 32 43s11.5-4.5 11.5-11S38.8 21 32 21Z" fill="#6d28d9"/>
-            <circle cx="47" cy="17" r="5" fill="#c7adff"/>
-          </svg>
-          <span class="brand-title">Operecs</span>
-        </div>
-        <button class="sidebar-toggle-btn" id="btn-toggle-sidebar" title="Toggle Sidebar (Ctrl+S)">
-          <svg id="sidebar-collapse-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Pinned Web Apps Shelf -->
-      <div class="pinned-shelf">
-        <button class="pinned-item" data-url="https://www.google.com" title="Google">
-          <img src="https://www.google.com/favicon.ico" alt="Google" onerror="this.style.display='none'">
-        </button>
-        <button class="pinned-item" data-url="https://www.youtube.com" title="YouTube">
-          <img src="https://www.youtube.com/favicon.ico" alt="YouTube" onerror="this.style.display='none'">
-        </button>
-        <button class="pinned-item" data-url="https://github.com" title="GitHub">
-          <img src="https://github.githubassets.com/favicons/favicon.png" alt="GitHub" onerror="this.style.display='none'">
-        </button>
-        <button class="pinned-item" data-url="https://chatgpt.com" title="ChatGPT">
-          <img src="https://chatgpt.com/favicon.ico" alt="ChatGPT" onerror="this.style.display='none'">
-        </button>
-      </div>
-
-      <!-- Vertical Tabs Section Header -->
-      <div class="sidebar-section-head">
-        <span class="section-label">OPEN TABS</span>
-        <button class="sidebar-add-tab-btn" id="btn-new-tab" title="New Tab (Ctrl+T)">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Scrollable Vertical Tabs List -->
-      <div class="vertical-tab-strip" id="tab-strip">
-        <!-- Tabs dynamically rendered here -->
-      </div>
-
-      <!-- Sidebar Footer Quick Actions -->
-      <div class="sidebar-footer">
-        <button class="sidebar-footer-btn" id="btn-history-toggle" title="Browsing History">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <polyline points="12 6 12 12 16 14"></polyline>
-          </svg>
-          <span class="footer-btn-label">History</span>
-        </button>
-        <button class="sidebar-footer-btn" id="btn-settings" title="Settings (operecs://settings)">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- TOP CHROME HEADER -->
+    <header class="chrome-header" id="chrome-header">
+      <!-- ROW 1: CHROME HORIZONTAL TAB STRIP -->
+      <div class="tab-strip-row" id="tab-strip-row">
+        <!-- Incognito Indicator Badge (if incognito window) -->
+        <div class="incognito-badge hidden" id="incognito-badge" title="Incognito Mode">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
             <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
-          <span class="footer-btn-label">Settings</span>
-        </button>
-      </div>
-    </aside>
-
-    <!-- RIGHT STAGE: TOP TOOLBAR & SPLIT STAGE -->
-    <div class="main-stage">
-      <!-- Top Omnibox Navigation Bar -->
-      <header class="top-nav-bar">
-        <!-- Navigation Controls -->
-        <div class="nav-controls">
-          <button class="nav-btn" id="btn-back" title="Back (Alt+Left)" disabled>
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-          </button>
-          <button class="nav-btn" id="btn-forward" title="Forward (Alt+Right)" disabled>
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </button>
-          <button class="nav-btn" id="btn-reload" title="Reload (Ctrl+R)">
-            <svg id="reload-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l6.73-5.19"></path>
-            </svg>
-            <svg id="stop-icon" class="hidden" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-          <button class="nav-btn" id="btn-home" title="Home">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-              <polyline points="9 22 9 12 15 12 15 22"></polyline>
-            </svg>
-          </button>
+          <span>Incognito</span>
         </div>
 
-        <!-- Omnibox (Search & Address Bar) -->
-        <div class="omnibox-wrapper">
-          <div class="omnibox-icon" id="security-badge" title="Connection is secure (HTTPS)">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
+        <!-- Scrollable Tabs Strip -->
+        <div class="chrome-tabs-container" id="chrome-tabs-container">
+          <div class="chrome-tabs-list" id="chrome-tabs-list">
+            <!-- Dynamic Chrome Tabs rendered here -->
           </div>
-          <input type="text" id="omnibox-input" class="omnibox-input" placeholder="Search or enter address..." spellcheck="false" autocomplete="off" />
-          
-          <!-- Zoom Reset Badge -->
-          <button class="zoom-badge hidden" id="btn-zoom-reset" title="Reset Zoom (Ctrl+0)">100%</button>
-
-          <!-- Privacy Shield Button -->
-          <button class="shield-btn" id="btn-shield" title="Operecs Privacy Shield">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-            </svg>
-            <span class="shield-counter" id="shield-counter">0</span>
-          </button>
-
-          <!-- Bookmark Button -->
-          <button class="star-btn" id="btn-bookmark" title="Bookmark this tab">
-            <svg id="star-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          <button class="new-tab-btn" id="btn-top-new-tab" title="New Tab (Ctrl+T)">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
           </button>
         </div>
 
-        <!-- Split View Controls -->
-        <div class="split-controls">
-          <button class="split-btn" id="btn-split-toggle" title="Toggle Split View (Alt+S)">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="12" y1="3" x2="12" y2="21"></line>
-            </svg>
-            <span class="split-label">Split</span>
-          </button>
-
-          <!-- Split pane indicators (visible in split mode) -->
-          <div class="split-pane-badges hidden" id="split-pane-badges">
-            <button class="pane-badge active" id="badge-pane-left">Left</button>
-            <button class="pane-badge" id="badge-pane-right">Right</button>
-          </div>
-        </div>
-
-        <!-- Utility Controls: Downloads & Command Palette -->
-        <div class="utility-controls">
-          <button class="nav-btn" id="btn-downloads" title="Downloads (Ctrl+J)">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            <span class="downloads-badge hidden" id="downloads-badge">0</span>
-          </button>
-
-          <button class="nav-btn" id="btn-cmd-palette" title="Command Palette (Ctrl+K)">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-          </button>
-        </div>
-
-        <!-- Window Drag Spacer -->
+        <!-- Window Drag Region -->
         <div class="drag-region"></div>
 
-        <!-- Windows Controls -->
+        <!-- Window Controls -->
         <div class="window-controls">
           <button class="window-btn minimize-btn" id="btn-minimize" title="Minimize">
             <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2">
@@ -203,25 +61,361 @@
             </svg>
           </button>
         </div>
-      </header>
+      </div>
 
-      <!-- Split Divider Line (rendered centrally in split mode) -->
-      <div class="split-divider hidden" id="split-divider"></div>
+      <!-- ROW 2: CHROME NAVIGATION TOOLBAR -->
+      <div class="nav-toolbar-row" id="nav-toolbar-row">
+        <!-- Navigation Buttons -->
+        <div class="nav-controls">
+          <button class="nav-btn" id="btn-back" title="Click to go back (Alt+Left)" disabled>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <button class="nav-btn" id="btn-forward" title="Click to go forward (Alt+Right)" disabled>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+          <button class="nav-btn" id="btn-reload" title="Reload this page (Ctrl+R)">
+            <svg id="reload-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l6.73-5.19"></path>
+            </svg>
+            <svg id="stop-icon" class="hidden" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+          <button class="nav-btn" id="btn-home" title="Open the home page">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Omnibox (Address & Search Bar) -->
+        <div class="omnibox-wrapper" id="omnibox-wrapper">
+          <!-- Site Info / Tune Security Button -->
+          <div class="omnibox-icon" id="security-badge" title="View site information">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="21" x2="4" y2="14"></line>
+              <line x1="4" y1="10" x2="4" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12" y2="3"></line>
+              <line x1="20" y1="21" x2="20" y2="16"></line>
+              <line x1="20" y1="12" x2="20" y2="3"></line>
+              <line x1="1" y1="14" x2="7" y2="14"></line>
+              <line x1="9" y1="8" x2="15" y2="8"></line>
+              <line x1="17" y1="16" x2="23" y2="16"></line>
+            </svg>
+          </div>
+
+          <input type="text" id="omnibox-input" class="omnibox-input" placeholder="Search Google or type a URL" spellcheck="false" autocomplete="off" />
+
+          <!-- Zoom Reset Badge -->
+          <button class="zoom-badge hidden" id="btn-zoom-reset" title="Reset Zoom (Ctrl+0)">100%</button>
+
+          <!-- Privacy Shield Button -->
+          <button class="shield-btn" id="btn-shield" title="Operecs Privacy Shield">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span class="shield-counter" id="shield-counter">0</span>
+          </button>
+
+          <!-- Bookmark Star Button -->
+          <button class="star-btn" id="btn-bookmark" title="Bookmark this tab">
+            <svg id="star-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </button>
+
+          <!-- Omnibox Suggestions Dropdown -->
+          <div class="omnibox-dropdown hidden" id="omnibox-dropdown">
+            <!-- Autocomplete suggestions injected here -->
+          </div>
+        </div>
+
+        <!-- Utility Action Controls -->
+        <div class="utility-controls">
+          <!-- Split View Toggle -->
+          <button class="nav-btn" id="btn-split-toggle" title="Toggle Split View (Alt+S)">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="12" y1="3" x2="12" y2="21"></line>
+            </svg>
+          </button>
+
+          <!-- Command Palette Spark -->
+          <button class="nav-btn" id="btn-cmd-palette" title="Command Palette (Ctrl+K)">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>
+            </svg>
+          </button>
+
+          <!-- Downloads Button -->
+          <button class="nav-btn" id="btn-downloads" title="Downloads (Ctrl+J)">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span class="downloads-badge hidden" id="downloads-badge">0</span>
+          </button>
+
+          <!-- Profile / Avatar Button -->
+          <button class="profile-avatar-btn" id="btn-profile-menu" title="Operecs Profile">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </button>
+
+          <!-- Chrome 3-Dot Kebab Menu Button -->
+          <button class="nav-btn chrome-menu-btn" id="btn-chrome-menu" title="Customize and control Operecs">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <circle cx="12" cy="5" r="2"></circle>
+              <circle cx="12" cy="12" r="2"></circle>
+              <circle cx="12" cy="19" r="2"></circle>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ROW 3: CHROME BOOKMARKS BAR -->
+      <div class="bookmarks-bar" id="bookmarks-bar">
+        <div class="bookmarks-chips-list" id="bookmarks-chips-list">
+          <!-- Bookmark chips rendered dynamically -->
+        </div>
+        <button class="other-bookmarks-btn" id="btn-other-bookmarks" title="Other Bookmarks">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span>All Bookmarks</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- BODY STAGE: (Optional Sidebar for vertical mode + Web View Stage) -->
+    <div class="browser-body">
+      <!-- VERTICAL SIDEBAR (Visible only when tab layout is set to vertical in settings) -->
+      <aside class="sidebar hidden" id="sidebar">
+        <div class="sidebar-header">
+          <div class="brand-badge">
+            <svg viewBox="0 0 64 64" width="24" height="24">
+              <rect width="64" height="64" rx="16" fill="#0b0910"/>
+              <path d="M32 12c12 0 21 8.5 21 20s-9 20-21 20S11 43.5 11 32s9-20 21-20Zm0 9c-6.8 0-11.5 4.5-11.5 11S25.2 43 32 43s11.5-4.5 11.5-11S38.8 21 32 21Z" fill="#6d28d9"/>
+              <circle cx="47" cy="17" r="5" fill="#c7adff"/>
+            </svg>
+            <span class="brand-title">Operecs</span>
+          </div>
+          <button class="sidebar-toggle-btn" id="btn-toggle-sidebar" title="Toggle Sidebar (Ctrl+S)">
+            <svg id="sidebar-collapse-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+        </div>
+        <div class="sidebar-section-head">
+          <span class="section-label">OPEN TABS</span>
+          <button class="sidebar-add-tab-btn" id="btn-sidebar-new-tab" title="New Tab (Ctrl+T)">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="vertical-tab-strip" id="tab-strip"></div>
+      </aside>
+
+      <!-- Web Content View Stage -->
+      <div class="web-stage" id="web-stage">
+        <!-- Split Divider Line -->
+        <div class="split-divider hidden" id="split-divider"></div>
+      </div>
     </div>
   </div>
 
-  <!-- History Dropdown Modal -->
-  <div class="history-dropdown hidden" id="history-dropdown">
-    <div class="history-header">
-      <span>Browsing History</span>
-      <button class="clear-history-btn" id="btn-clear-history">Clear</button>
+  <!-- ================= POPUPS & MODALS ================= -->
+
+  <!-- CHROME 3-DOT KEBAB DROPDOWN MENU -->
+  <div class="chrome-menu-dropdown hidden" id="chrome-menu-dropdown">
+    <div class="chrome-menu-item" id="menu-new-tab">
+      <span class="menu-label">New tab</span>
+      <span class="menu-shortcut">Ctrl+T</span>
     </div>
-    <div class="history-list" id="history-list">
-      <!-- History items inserted dynamically -->
+    <div class="chrome-menu-item" id="menu-new-window">
+      <span class="menu-label">New window</span>
+      <span class="menu-shortcut">Ctrl+N</span>
+    </div>
+    <div class="chrome-menu-item" id="menu-new-incognito">
+      <span class="menu-label">New Incognito window</span>
+      <span class="menu-shortcut">Ctrl+Shift+N</span>
+    </div>
+    <div class="chrome-menu-divider"></div>
+    <div class="chrome-menu-item" id="menu-history">
+      <span class="menu-label">History</span>
+      <span class="menu-shortcut">Ctrl+H</span>
+    </div>
+    <div class="chrome-menu-item" id="menu-downloads">
+      <span class="menu-label">Downloads</span>
+      <span class="menu-shortcut">Ctrl+J</span>
+    </div>
+    <div class="chrome-menu-item" id="menu-bookmarks">
+      <span class="menu-label">Bookmarks</span>
+      <span class="menu-shortcut">Ctrl+Shift+O</span>
+    </div>
+    <div class="chrome-menu-divider"></div>
+    <div class="chrome-menu-item zoom-menu-row">
+      <span class="menu-label">Zoom</span>
+      <div class="zoom-actions">
+        <button class="zoom-btn" id="menu-zoom-out" title="Zoom out">-</button>
+        <span class="zoom-val" id="menu-zoom-val">100%</span>
+        <button class="zoom-btn" id="menu-zoom-in" title="Zoom in">+</button>
+        <button class="zoom-btn" id="menu-zoom-full" title="Fullscreen">⛶</button>
+      </div>
+    </div>
+    <div class="chrome-menu-item" id="menu-print">
+      <span class="menu-label">Print...</span>
+      <span class="menu-shortcut">Ctrl+P</span>
+    </div>
+    <div class="chrome-menu-item" id="menu-find">
+      <span class="menu-label">Find in page...</span>
+      <span class="menu-shortcut">Ctrl+F</span>
+    </div>
+    <div class="chrome-menu-divider"></div>
+    <div class="chrome-menu-item" id="menu-settings">
+      <span class="menu-label">Settings</span>
+      <span class="menu-shortcut">Ctrl+,</span>
+    </div>
+    <div class="chrome-menu-item" id="menu-clear-data">
+      <span class="menu-label">Clear browsing data...</span>
+      <span class="menu-shortcut">Ctrl+Shift+Del</span>
+    </div>
+    <div class="chrome-menu-item" id="menu-about">
+      <span class="menu-label">About Operecs Browser</span>
+    </div>
+    <div class="chrome-menu-divider"></div>
+    <div class="chrome-menu-item" id="menu-exit">
+      <span class="menu-label">Exit</span>
     </div>
   </div>
 
-  <!-- In-Page Find Bar (Ctrl+F) -->
+  <!-- SITE INFO / SECURITY FLYOUT -->
+  <div class="site-info-popup hidden" id="site-info-popup">
+    <div class="site-info-head">
+      <div class="site-security-icon" id="site-security-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#34d399" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <div>
+        <div class="site-security-status" id="site-security-status">Connection is secure</div>
+        <div class="site-security-desc" id="site-domain-desc">Your information is private when it is sent to this site.</div>
+      </div>
+    </div>
+    <div class="site-info-section">
+      <div class="site-info-row">
+        <span>Certificate (Valid)</span>
+        <span class="cert-status">🔒 256-bit SSL</span>
+      </div>
+      <div class="site-info-row">
+        <span>Cookies in use</span>
+        <span class="cookies-count" id="site-cookies-count">Active</span>
+      </div>
+    </div>
+    <div class="site-permissions-title">Permissions for this site</div>
+    <div class="site-permissions-list">
+      <div class="perm-item">
+        <span>Location</span>
+        <span class="perm-status">Ask (default)</span>
+      </div>
+      <div class="perm-item">
+        <span>Camera & Microphone</span>
+        <span class="perm-status">Ask (default)</span>
+      </div>
+      <div class="perm-item">
+        <span>Notifications</span>
+        <span class="perm-status">Ask (default)</span>
+      </div>
+      <div class="perm-item">
+        <span>JavaScript</span>
+        <span class="perm-status allowed">Allowed</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOKMARK ADDED / EDIT POPUP -->
+  <div class="bookmark-popup hidden" id="bookmark-popup">
+    <div class="bm-popup-title" id="bm-popup-title">Bookmark added</div>
+    <div class="bm-form-row">
+      <label class="bm-form-label">Name</label>
+      <input type="text" id="bm-popup-name" class="bm-form-input" />
+    </div>
+    <div class="bm-form-row">
+      <label class="bm-form-label">Folder</label>
+      <select id="bm-popup-folder" class="bm-form-select">
+        <option value="bookmarks-bar">Bookmarks bar</option>
+        <option value="other-bookmarks">Other bookmarks</option>
+      </select>
+    </div>
+    <div class="bm-popup-actions">
+      <button class="btn-bm-remove" id="btn-bm-remove">Remove</button>
+      <button class="btn-bm-done" id="btn-bm-done">Done</button>
+    </div>
+  </div>
+
+  <!-- CLEAR BROWSING DATA MODAL DIALOG -->
+  <div class="modal-backdrop hidden" id="clear-data-modal">
+    <div class="clear-data-card">
+      <div class="clear-data-head">
+        <h2>Clear browsing data</h2>
+        <button class="modal-close-x" id="btn-close-clear-modal">✕</button>
+      </div>
+      <div class="clear-data-body">
+        <div class="clear-data-time-row">
+          <label>Time range</label>
+          <select id="clear-data-range" class="clear-data-select">
+            <option value="hour">Last hour</option>
+            <option value="day">Last 24 hours</option>
+            <option value="week">Last 7 days</option>
+            <option value="month">Last 4 weeks</option>
+            <option value="all" selected>All time</option>
+          </select>
+        </div>
+        <div class="clear-data-checklist">
+          <label class="check-option">
+            <input type="checkbox" id="chk-clear-history" checked>
+            <div>
+              <div class="check-title">Browsing history</div>
+              <div class="check-sub">Clears history from all tabs and windows</div>
+            </div>
+          </label>
+          <label class="check-option">
+            <input type="checkbox" id="chk-clear-cookies" checked>
+            <div>
+              <div class="check-title">Cookies and other site data</div>
+              <div class="check-sub">Signs you out of most websites</div>
+            </div>
+          </label>
+          <label class="check-option">
+            <input type="checkbox" id="chk-clear-cache" checked>
+            <div>
+              <div class="check-title">Cached images and files</div>
+              <div class="check-sub">Frees up storage and reloads fresh web assets</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="clear-data-footer">
+        <button class="btn-secondary" id="btn-cancel-clear-data">Cancel</button>
+        <button class="btn-primary-danger" id="btn-confirm-clear-data">Clear data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- IN-PAGE FIND BAR (Ctrl+F) -->
   <div class="find-bar hidden" id="find-bar">
     <input type="text" id="find-input" placeholder="Find in page..." spellcheck="false" autocomplete="off" />
     <span class="find-count" id="find-count">0/0</span>
@@ -243,7 +437,7 @@
     </button>
   </div>
 
-  <!-- Privacy Shield Popover -->
+  <!-- PRIVACY SHIELD POPOVER -->
   <div class="shield-popup hidden" id="shield-popup">
     <div class="shield-popup-header">
       <div class="shield-popup-title">
@@ -274,7 +468,7 @@
     </div>
   </div>
 
-  <!-- Downloads Flyout -->
+  <!-- DOWNLOADS SHELF POPOVER -->
   <div class="downloads-popup hidden" id="downloads-popup">
     <div class="downloads-header">
       <span>Downloads</span>
@@ -285,7 +479,7 @@
     </div>
   </div>
 
-  <!-- Spotlight Command Palette (Ctrl+K) -->
+  <!-- SPOTLIGHT COMMAND PALETTE (Ctrl+K) -->
   <div class="cmd-backdrop hidden" id="cmd-backdrop">
     <div class="cmd-palette-modal">
       <div class="cmd-search-wrapper">
@@ -296,9 +490,7 @@
         <input type="text" id="cmd-input" placeholder="Type a command or search tabs, history, bookmarks..." autocomplete="off" spellcheck="false" />
         <span class="cmd-esc-badge">ESC</span>
       </div>
-      <div class="cmd-results" id="cmd-results">
-        <!-- Results rendered dynamically -->
-      </div>
+      <div class="cmd-results" id="cmd-results"></div>
       <div class="cmd-footer">
         <span><kbd>↑</kbd> <kbd>↓</kbd> navigate</span>
         <span><kbd>↵</kbd> select</span>
@@ -307,15 +499,19 @@
     </div>
   </div>
 
-  <!-- Tab Right-Click Context Menu -->
+  <!-- TAB RIGHT-CLICK CONTEXT MENU -->
   <div class="context-menu hidden" id="tab-context-menu">
-    <div class="context-menu-item" id="ctx-pin">
-      <span class="ctx-icon">📌</span>
-      <span class="ctx-label">Pin Tab</span>
+    <div class="context-menu-item" id="ctx-new-tab">
+      <span class="ctx-icon">＋</span>
+      <span class="ctx-label">New Tab to the Right</span>
     </div>
     <div class="context-menu-item" id="ctx-duplicate">
       <span class="ctx-icon">🔄</span>
       <span class="ctx-label">Duplicate Tab</span>
+    </div>
+    <div class="context-menu-item" id="ctx-pin">
+      <span class="ctx-icon">📌</span>
+      <span class="ctx-label">Pin Tab</span>
     </div>
     <div class="context-menu-item" id="ctx-mute">
       <span class="ctx-icon">🔇</span>
@@ -343,3 +539,4 @@
   <script src="app.js"></script>
 </body>
 </html>
+

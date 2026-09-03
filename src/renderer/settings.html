@@ -11,8 +11,9 @@
   <style>
     :root {
       --font-display: "Outfit Variable", "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --font-mono: "Azeret Mono Variable", "Azeret Mono", Consolas, monospace;
+      --font-mono: "Azeret Mono Variable", "Azeret Mono", monospace;
       --bg: #08070a;
+      --bg-sidebar: #0e0c14;
       --bg-card: rgba(255, 255, 255, 0.03);
       --bg-card-hover: rgba(255, 255, 255, 0.05);
       --border: rgba(255, 255, 255, 0.08);
@@ -21,6 +22,7 @@
       --accent: #7c3aed;
       --accent-hover: #8b5cf6;
       --accent-dot: #c7adff;
+      --danger: #ef4444;
     }
 
     * {
@@ -36,66 +38,113 @@
       color: var(--text);
       min-height: 100vh;
       display: flex;
-      justify-content: center;
-      padding: 48px 24px;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    /* Left Sidebar */
+    .settings-sidebar {
+      width: 260px;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex-shrink: 0;
       overflow-y: auto;
     }
 
-    .settings-container {
-      max-width: 760px;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 32px;
-    }
-
-    .settings-header {
+    .brand-header {
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding-bottom: 24px;
+      gap: 12px;
+      padding: 0 8px 16px;
       border-bottom: 1px solid var(--border);
     }
 
-    .settings-header svg {
-      border-radius: 12px;
-      box-shadow: 0 4px 18px rgba(109, 40, 217, 0.35);
-    }
-
-    .settings-title {
-      font-size: 1.8rem;
+    .brand-title {
+      font-size: 1.15rem;
       font-weight: 700;
-      letter-spacing: -0.5px;
+      color: #fff;
     }
 
-    .settings-subtitle {
-      font-size: 0.95rem;
+    .nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      list-style: none;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-weight: 500;
       color: var(--text-muted);
-      margin-top: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-card-hover);
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      background: rgba(124, 58, 237, 0.15);
+      color: #c7adff;
+      font-weight: 600;
+    }
+
+    /* Main Settings Area */
+    .settings-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 36px 48px;
+      max-width: 860px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .section-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .settings-group {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 36px;
+      scroll-margin-top: 24px;
     }
 
     .settings-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 24px;
+      padding: 22px 24px;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
     }
 
-    .card-title {
-      font-size: 1.15rem;
-      font-weight: 600;
+    .card-head {
       display: flex;
       align-items: center;
       gap: 10px;
-    }
-
-    .card-desc {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      line-height: 1.5;
+      font-size: 1.1rem;
+      font-weight: 600;
     }
 
     .setting-row {
@@ -104,17 +153,29 @@
       justify-content: space-between;
       padding: 12px 0;
       border-top: 1px solid rgba(255, 255, 255, 0.04);
+      gap: 20px;
+    }
+
+    .setting-row:first-of-type {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .setting-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
 
     .setting-label {
-      font-size: 0.92rem;
+      font-size: 0.94rem;
       font-weight: 500;
     }
 
-    .setting-sublabel {
-      font-size: 0.8rem;
+    .setting-desc {
+      font-size: 0.82rem;
       color: var(--text-muted);
-      margin-top: 2px;
+      line-height: 1.4;
     }
 
     select, input[type="text"] {
@@ -134,11 +195,10 @@
     }
 
     .btn {
-      padding: 9px 18px;
+      padding: 8px 16px;
       border-radius: 8px;
       font-size: 0.88rem;
       font-weight: 600;
-      font-family: var(--font-display);
       cursor: pointer;
       transition: all 0.2s;
       border: 1px solid var(--border);
@@ -150,205 +210,537 @@
       background: rgba(255, 255, 255, 0.1);
     }
 
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
     .btn-danger {
-      color: #ff6b6b;
-      border-color: rgba(255, 107, 107, 0.2);
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
     }
 
     .btn-danger:hover {
-      background: rgba(255, 107, 107, 0.12);
+      background: rgba(239, 68, 68, 0.25);
+      color: #fff;
     }
 
-    .badge-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      font-family: var(--font-mono);
-      background: rgba(34, 197, 94, 0.12);
-      color: #4ade80;
-      border: 1px solid rgba(34, 197, 94, 0.25);
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
     }
 
-    .status-dot {
-      width: 6px;
-      height: 6px;
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(255, 255, 255, 0.15);
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
       border-radius: 50%;
-      background: #4ade80;
     }
 
-    .about-details {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      font-size: 0.86rem;
-      color: var(--text-muted);
+    input:checked + .toggle-slider {
+      background-color: var(--accent);
     }
 
-    .about-details strong {
-      color: var(--text);
+    input:checked + .toggle-slider:before {
+      transform: translateX(20px);
     }
 
-    .about-links {
-      display: flex;
-      gap: 16px;
-      margin-top: 6px;
-    }
-
-    .about-links a {
-      color: var(--accent-dot);
-      text-decoration: none;
-      font-size: 0.85rem;
-    }
-
-    .about-links a:hover {
-      text-decoration: underline;
-    }
-
+    /* Toast */
     .save-toast {
       position: fixed;
       bottom: 24px;
       right: 24px;
-      background: #181426;
+      background: #1e192f;
       border: 1px solid var(--accent);
       color: #fff;
-      padding: 10px 20px;
-      border-radius: 8px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-      font-size: 0.88rem;
+      transform: translateY(100px);
       opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.25s ease;
-      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
     }
 
     .save-toast.visible {
-      opacity: 1;
       transform: translateY(0);
+      opacity: 1;
+    }
+
+    .about-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: #34d399;
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 0.82rem;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
-  <div class="settings-container">
-    <!-- Header -->
-    <div class="settings-header">
-      <svg viewBox="0 0 64 64" width="46" height="46">
+  <!-- Sidebar -->
+  <aside class="settings-sidebar">
+    <div class="brand-header">
+      <svg viewBox="0 0 64 64" width="28" height="28">
         <rect width="64" height="64" rx="16" fill="#0b0910"/>
         <path d="M32 12c12 0 21 8.5 21 20s-9 20-21 20S11 43.5 11 32s9-20 21-20Zm0 9c-6.8 0-11.5 4.5-11.5 11S25.2 43 32 43s11.5-4.5 11.5-11S38.8 21 32 21Z" fill="#6d28d9"/>
         <circle cx="47" cy="17" r="5" fill="#c7adff"/>
       </svg>
-      <div>
-        <h1 class="settings-title">Settings</h1>
-        <p class="settings-subtitle">Manage your Operecs Browser preferences, privacy, and engine configuration</p>
-      </div>
+      <span class="brand-title">Settings</span>
     </div>
 
-    <!-- Section: Search & Navigation -->
-    <div class="settings-card">
-      <h2 class="card-title">🔍 Search & Omnibox</h2>
-      <p class="card-desc">Choose which search engine Operecs queries when you type search terms in the address bar.</p>
-      
-      <div class="setting-row">
-        <div>
-          <div class="setting-label">Default Search Engine</div>
-          <div class="setting-sublabel">Used for direct omnibox queries</div>
+    <ul class="nav-list">
+      <li class="nav-item active" data-target="section-profile">
+        <span>👤 You and Operecs</span>
+      </li>
+      <li class="nav-item" data-target="section-appearance">
+        <span>🎨 Appearance</span>
+      </li>
+      <li class="nav-item" data-target="section-search">
+        <span>🔍 Search engine</span>
+      </li>
+      <li class="nav-item" data-target="section-privacy">
+        <span>🔒 Privacy and security</span>
+      </li>
+      <li class="nav-item" data-target="section-startup">
+        <span>🚀 On startup</span>
+      </li>
+      <li class="nav-item" data-target="section-downloads">
+        <span>📥 Downloads</span>
+      </li>
+      <li class="nav-item" data-target="section-performance">
+        <span>⚡ Performance</span>
+      </li>
+      <li class="nav-item" data-target="section-system">
+        <span>⚙️ System</span>
+      </li>
+      <li class="nav-item" data-target="section-reset">
+        <span>🔄 Reset settings</span>
+      </li>
+      <li class="nav-item" data-target="section-about">
+        <span>ℹ️ About Operecs</span>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Main Settings Container -->
+  <main class="settings-main">
+    <!-- You and Operecs -->
+    <section class="settings-group" id="section-profile">
+      <div class="section-title">You and Operecs</div>
+      <div class="settings-card">
+        <div class="card-head">Profile & Sync</div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Profile Name</div>
+            <div class="setting-desc">Personalize your browser workspace</div>
+          </div>
+          <input type="text" id="input-profile-name" value="User" style="width: 200px;">
         </div>
-        <select id="search-engine-select">
-          <option value="https://www.google.com/search?q=">Google</option>
-          <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
-          <option value="https://search.brave.com/search?q=">Brave Search</option>
-          <option value="https://www.bing.com/search?q=">Microsoft Bing</option>
-          <option value="https://www.ecosia.org/search?q=">Ecosia</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Section: Privacy & Security -->
-    <div class="settings-card">
-      <h2 class="card-title">🛡️ Security & Privacy</h2>
-      <p class="card-desc">Chromium security mechanisms protecting your browsing session.</p>
-
-      <div class="setting-row">
-        <div>
-          <div class="setting-label">OS Sandboxing</div>
-          <div class="setting-sublabel">Tabs execute in low-integrity Chromium process sandboxes</div>
-        </div>
-        <span class="badge-status"><span class="status-dot"></span> Active</span>
-      </div>
-
-      <div class="setting-row">
-        <div>
-          <div class="setting-label">Context Isolation</div>
-          <div class="setting-sublabel">Webpages cannot access Node.js runtime or filesystem</div>
-        </div>
-        <span class="badge-status"><span class="status-dot"></span> Protected</span>
-      </div>
-
-      <div class="setting-row">
-        <div>
-          <div class="setting-label">Browsing Data</div>
-          <div class="setting-sublabel">Clear locally stored history and cache</div>
-        </div>
-        <button class="btn btn-danger" id="btn-clear-data">Clear History</button>
-      </div>
-    </div>
-
-    <!-- Section: About -->
-    <div class="settings-card">
-      <h2 class="card-title">🪐 About Operecs Browser</h2>
-      <div class="about-details">
-        <div><strong>Version:</strong> 1.0.0 (Stable 64-bit)</div>
-        <div><strong>Engine:</strong> Chromium 132 (Blink & V8) via Electron 34</div>
-        <div><strong>Platform:</strong> Windows (x64)</div>
-        <div class="about-links">
-          <a href="https://operecs.ezzeddin.work" target="_blank">operecs.ezzeddin.work ↗</a>
-          <a href="https://github.com/ezzeldinzozz-svg/operecs-browser" target="_blank">GitHub Repository ↗</a>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Local Data Storage</div>
+            <div class="setting-desc">Bookmarks, history, and preferences are encrypted locally</div>
+          </div>
+          <span class="about-badge">✓ Active & Secured</span>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <div class="save-toast" id="toast">Settings updated</div>
+    <!-- Appearance -->
+    <section class="settings-group" id="section-appearance">
+      <div class="section-title">Appearance</div>
+      <div class="settings-card">
+        <div class="card-head">Tab Layout & Themes</div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Tab Layout Mode</div>
+            <div class="setting-desc">Choose between authentic Chrome horizontal tabs or vertical sidebar</div>
+          </div>
+          <select id="select-tab-layout">
+            <option value="horizontal">Chrome Horizontal Tabs</option>
+            <option value="vertical">Vertical Sidebar Tabs</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Color Theme</div>
+            <div class="setting-desc">Select primary color scheme</div>
+          </div>
+          <select id="select-theme">
+            <option value="operecs">Operecs Cyber Violet (Default)</option>
+            <option value="chrome-dark">Chrome Dark</option>
+            <option value="chrome-light">Chrome Light</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Show Bookmarks Bar</div>
+            <div class="setting-desc">Display the bookmarks strip under the address bar (Ctrl+Shift+B)</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-bookmarks-bar" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Show Home Button</div>
+            <div class="setting-desc">Display the home button in the navigation toolbar</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-home-btn" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Font Size</div>
+            <div class="setting-desc">Browser UI font scale</div>
+          </div>
+          <select id="select-font-size">
+            <option value="small">Small</option>
+            <option value="medium" selected>Medium (Recommended)</option>
+            <option value="large">Large</option>
+            <option value="very-large">Very Large</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Page Zoom</div>
+            <div class="setting-desc">Default zoom level for web pages</div>
+          </div>
+          <select id="select-default-zoom">
+            <option value="80">80%</option>
+            <option value="90">90%</option>
+            <option value="100" selected>100%</option>
+            <option value="110">110%</option>
+            <option value="125">125%</option>
+            <option value="150">150%</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search Engine -->
+    <section class="settings-group" id="section-search">
+      <div class="section-title">Search engine</div>
+      <div class="settings-card">
+        <div class="card-head">Default Search</div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Search engine used in address bar</div>
+            <div class="setting-desc">Used when entering queries in the Omnibox</div>
+          </div>
+          <select id="select-search-engine">
+            <option value="https://www.google.com/search?q=">Google</option>
+            <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
+            <option value="https://www.bing.com/search?q=">Bing</option>
+            <option value="https://search.brave.com/search?q=">Brave</option>
+            <option value="https://ecosia.org/search?q=">Ecosia</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Privacy & Security -->
+    <section class="settings-group" id="section-privacy">
+      <div class="section-title">Privacy and security</div>
+      <div class="settings-card">
+        <div class="card-head">Protection & Browsing Data</div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Clear browsing data</div>
+            <div class="setting-desc">Clear history, cookies, cache, and other site data</div>
+          </div>
+          <button class="btn btn-danger" id="btn-open-clear-data">Clear data...</button>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Operecs Privacy Shield</div>
+            <div class="setting-desc">Blocks ad networks, telemetry trackers, and invasive scripts</div>
+          </div>
+          <select id="select-tracking-level">
+            <option value="standard" selected>Standard (Recommended)</option>
+            <option value="strict">Strict (Maximum Privacy)</option>
+            <option value="off">Off</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Site Permissions</div>
+            <div class="setting-desc">Control access to camera, microphone, and location</div>
+          </div>
+          <span style="font-size: 0.88rem; color: var(--accent-dot);">Prompt on request</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- On Startup -->
+    <section class="settings-group" id="section-startup">
+      <div class="section-title">On startup</div>
+      <div class="settings-card">
+        <div class="card-head">Startup Behavior</div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">When Operecs starts</div>
+            <div class="setting-desc">Configure what happens upon opening the browser</div>
+          </div>
+          <select id="select-on-startup">
+            <option value="newtab" selected>Open the New Tab page</option>
+            <option value="restore">Continue where you left off</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Downloads -->
+    <section class="settings-group" id="section-downloads">
+      <div class="section-title">Downloads</div>
+      <div class="settings-card">
+        <div class="card-head">Download Location</div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Location</div>
+            <div class="setting-desc" id="download-path-display">Default system Downloads folder</div>
+          </div>
+          <button class="btn" id="btn-change-download-path">Change</button>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Ask where to save each file before downloading</div>
+            <div class="setting-desc">Shows a file save dialog for every download</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-ask-download">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Performance -->
+    <section class="settings-group" id="section-performance">
+      <div class="section-title">Performance</div>
+      <div class="settings-card">
+        <div class="card-head">Memory & Energy</div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Memory Saver</div>
+            <div class="setting-desc">Frees up memory from inactive background tabs</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-memory-saver">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- System -->
+    <section class="settings-group" id="section-system">
+      <div class="section-title">System</div>
+      <div class="settings-card">
+        <div class="card-head">System & Hardware</div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Use graphics acceleration when available</div>
+            <div class="setting-desc">Improves rendering performance for rich media</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-hardware-accel" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reset Settings -->
+    <section class="settings-group" id="section-reset">
+      <div class="section-title">Reset settings</div>
+      <div class="settings-card">
+        <div class="card-head">Restore Defaults</div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Restore settings to their original defaults</div>
+            <div class="setting-desc">Resets homepage, new tab page, search engine, and UI preferences</div>
+          </div>
+          <button class="btn btn-danger" id="btn-reset-settings">Reset settings</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Operecs -->
+    <section class="settings-group" id="section-about">
+      <div class="section-title">About Operecs</div>
+      <div class="settings-card">
+        <div class="card-head">
+          <svg viewBox="0 0 64 64" width="24" height="24">
+            <rect width="64" height="64" rx="16" fill="#0b0910"/>
+            <path d="M32 12c12 0 21 8.5 21 20s-9 20-21 20S11 43.5 11 32s9-20 21-20Zm0 9c-6.8 0-11.5 4.5-11.5 11S25.2 43 32 43s11.5-4.5 11.5-11S38.8 21 32 21Z" fill="#6d28d9"/>
+            <circle cx="47" cy="17" r="5" fill="#c7adff"/>
+          </svg>
+          <span>Operecs Browser</span>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Version 1.0.0 (Official Build) 64-bit</div>
+            <div class="setting-desc">Chromium 132 Engine / Electron 34 Architecture</div>
+          </div>
+          <span class="about-badge">✓ Operecs is up to date</span>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Official Website & Community</div>
+            <div class="setting-desc">Explore docs, updates, and open source repositories</div>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn" onclick="window.open('https://operecs.ezzeddin.work', '_blank')">operecs.ezzeddin.work ↗</button>
+            <button class="btn" onclick="window.open('https://github.com/ezzeldinzozz-svg/operecs-browser', '_blank')">GitHub ↗</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="save-toast" id="toast">Settings saved</div>
 
   <script>
-    const searchSelect = document.getElementById('search-engine-select');
-    const btnClearData = document.getElementById('btn-clear-data');
+    const api = window.operecs || window.browserAPI;
     const toast = document.getElementById('toast');
 
-    function showToast(msg = 'Settings updated') {
+    function showToast(msg = 'Settings saved') {
       toast.textContent = msg;
       toast.classList.add('visible');
       setTimeout(() => toast.classList.remove('visible'), 2000);
     }
 
-    if (window.opener || window.browserAPI) {
-      const api = window.browserAPI || window.opener.browserAPI;
-      if (api && api.getSettings) {
-        api.getSettings().then(settings => {
-          if (settings && settings.searchEngine) {
-            searchSelect.value = settings.searchEngine;
-          }
-        });
-      }
-
-      searchSelect.addEventListener('change', async () => {
-        const engine = searchSelect.value;
-        if (api && api.saveSettings) {
-          await api.saveSettings({ searchEngine: engine });
-          showToast('Search engine updated');
+    // Sidebar navigation scroll
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        item.classList.add('active');
+        const targetId = item.dataset.target;
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'smooth' });
         }
       });
+    });
 
-      btnClearData.addEventListener('click', async () => {
-        if (api && api.clearHistory) {
-          await api.clearHistory();
-          showToast('Browsing history cleared');
-        }
-      });
+    async function loadSettings() {
+      if (!api || !api.getSettings) return;
+      const s = await api.getSettings();
+      if (!s) return;
+
+      if (s.profileName) document.getElementById('input-profile-name').value = s.profileName;
+      if (s.tabLayout) document.getElementById('select-tab-layout').value = s.tabLayout;
+      if (s.theme) document.getElementById('select-theme').value = s.theme;
+      if (s.showBookmarksBar !== undefined) document.getElementById('toggle-bookmarks-bar').checked = s.showBookmarksBar;
+      if (s.showHomeButton !== undefined) document.getElementById('toggle-home-btn').checked = s.showHomeButton;
+      if (s.fontSize) document.getElementById('select-font-size').value = s.fontSize;
+      if (s.defaultZoom) document.getElementById('select-default-zoom').value = s.defaultZoom;
+      if (s.searchEngine) document.getElementById('select-search-engine').value = s.searchEngine;
+      if (s.trackingProtection) document.getElementById('select-tracking-level').value = s.trackingProtection;
+      if (s.onStartup) document.getElementById('select-on-startup').value = s.onStartup;
+      if (s.downloadPath) document.getElementById('download-path-display').textContent = s.downloadPath;
+      if (s.askDownloadLocation !== undefined) document.getElementById('toggle-ask-download').checked = s.askDownloadLocation;
+      if (s.memorySaver !== undefined) document.getElementById('toggle-memory-saver').checked = s.memorySaver;
+      if (s.hardwareAcceleration !== undefined) document.getElementById('toggle-hardware-accel').checked = s.hardwareAcceleration;
     }
+
+    async function save(changes) {
+      if (api && api.saveSettings) {
+        await api.saveSettings(changes);
+        showToast('Settings saved');
+      }
+    }
+
+    document.getElementById('input-profile-name').addEventListener('change', (e) => save({ profileName: e.target.value }));
+    document.getElementById('select-tab-layout').addEventListener('change', (e) => save({ tabLayout: e.target.value }));
+    document.getElementById('select-theme').addEventListener('change', (e) => save({ theme: e.target.value }));
+    document.getElementById('toggle-bookmarks-bar').addEventListener('change', (e) => save({ showBookmarksBar: e.target.checked }));
+    document.getElementById('toggle-home-btn').addEventListener('change', (e) => save({ showHomeButton: e.target.checked }));
+    document.getElementById('select-font-size').addEventListener('change', (e) => save({ fontSize: e.target.value }));
+    document.getElementById('select-default-zoom').addEventListener('change', (e) => save({ defaultZoom: Number(e.target.value) }));
+    document.getElementById('select-search-engine').addEventListener('change', (e) => save({ searchEngine: e.target.value }));
+    document.getElementById('select-tracking-level').addEventListener('change', (e) => save({ trackingProtection: e.target.value }));
+    document.getElementById('select-on-startup').addEventListener('change', (e) => save({ onStartup: e.target.value }));
+    document.getElementById('toggle-ask-download').addEventListener('change', (e) => save({ askDownloadLocation: e.target.checked }));
+    document.getElementById('toggle-memory-saver').addEventListener('change', (e) => save({ memorySaver: e.target.checked }));
+    document.getElementById('toggle-hardware-accel').addEventListener('change', (e) => save({ hardwareAcceleration: e.target.checked }));
+
+    document.getElementById('btn-open-clear-data').addEventListener('click', () => {
+      if (api && api.openClearBrowsingData) {
+        api.openClearBrowsingData();
+      }
+    });
+
+    document.getElementById('btn-change-download-path').addEventListener('click', async () => {
+      if (api && api.chooseDownloadDir) {
+        const selected = await api.chooseDownloadDir();
+        if (selected) {
+          document.getElementById('download-path-display').textContent = selected;
+          save({ downloadPath: selected });
+        }
+      }
+    });
+
+    document.getElementById('btn-reset-settings').addEventListener('click', async () => {
+      if (confirm('Reset all settings to default values?')) {
+        if (api && api.resetSettings) {
+          await api.resetSettings();
+          showToast('Settings reset to defaults');
+          loadSettings();
+        }
+      }
+    });
+
+    loadSettings();
   </script>
 </body>
 </html>

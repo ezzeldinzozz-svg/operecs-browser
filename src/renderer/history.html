@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>History — Operecs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Azeret+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/fonts/fonts.css">
+  <style>
+    :root {
+      --font-display: "Outfit Variable", "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "Azeret Mono Variable", "Azeret Mono", monospace;
+      --bg: #08070a;
+      --bg-sidebar: #0e0c14;
+      --bg-card: rgba(255, 255, 255, 0.03);
+      --bg-card-hover: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f5f3f7;
+      --text-muted: #948fa3;
+      --accent: #7c3aed;
+      --accent-hover: #8b5cf6;
+      --accent-dot: #c7adff;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-display);
+      letter-spacing: -0.01em;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    /* Chrome-style Left Sidebar */
+    .history-sidebar {
+      width: 250px;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .brand-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      list-style: none;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-card-hover);
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      background: rgba(124, 58, 237, 0.15);
+      color: #c7adff;
+      font-weight: 600;
+    }
+
+    .nav-item svg {
+      flex-shrink: 0;
+    }
+
+    .sidebar-spacer {
+      flex: 1;
+    }
+
+    .clear-data-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      color: #fca5a5;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .clear-data-btn:hover {
+      background: rgba(239, 68, 68, 0.22);
+      color: #fff;
+    }
+
+    /* Main History Stage */
+    .history-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 32px 48px;
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .search-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .search-box {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #14111d;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 16px;
+      transition: border-color 0.2s;
+    }
+
+    .search-box:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+    }
+
+    .search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .selection-toolbar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(124, 58, 237, 0.15);
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      border-radius: 10px;
+      padding: 10px 18px;
+      margin-bottom: 20px;
+    }
+
+    .selection-toolbar.visible {
+      display: flex;
+    }
+
+    .selected-count {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #c7adff;
+    }
+
+    .delete-selected-btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      background: var(--danger);
+      border: none;
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .delete-selected-btn:hover {
+      background: var(--danger-hover);
+    }
+
+    /* History Groups */
+    .history-group {
+      margin-bottom: 32px;
+    }
+
+    .group-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .group-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .history-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      gap: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      transition: background 0.15s;
+    }
+
+    .history-row:last-child {
+      border-bottom: none;
+    }
+
+    .history-row:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .row-checkbox {
+      accent-color: var(--accent);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .row-time {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      width: 72px;
+      flex-shrink: 0;
+    }
+
+    .row-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .row-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      cursor: pointer;
+    }
+
+    .row-title {
+      font-size: 0.94rem;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .row-title:hover {
+      color: #c7adff;
+    }
+
+    .row-url {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .row-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .action-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .action-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      color: var(--text-muted);
+      gap: 16px;
+    }
+
+    .empty-state svg {
+      opacity: 0.4;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="history-sidebar">
+    <div class="brand-header">
+      <svg viewBox="0 0 64 64" width="28" height="28">
+        <rect width="64" height="64" rx="16" fill="#0b0910"/>
+        <path d="M32 12c12 0 21 8.5 21 20s-9 20-21 20S11 43.5 11 32s9-20 21-20Zm0 9c-6.8 0-11.5 4.5-11.5 11S25.2 43 32 43s11.5-4.5 11.5-11S38.8 21 32 21Z" fill="#6d28d9"/>
+        <circle cx="47" cy="17" r="5" fill="#c7adff"/>
+      </svg>
+      <span class="brand-title">History</span>
+    </div>
+
+    <ul class="nav-list">
+      <li class="nav-item active" id="nav-all-history">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span>Operecs History</span>
+      </li>
+      <li class="nav-item" id="nav-tabs-devices">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+        <span>Tabs from other devices</span>
+      </li>
+    </ul>
+
+    <div class="sidebar-spacer"></div>
+
+    <button class="clear-data-btn" id="btn-sidebar-clear-data">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+      </svg>
+      <span>Clear browsing data</span>
+    </button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="history-main">
+    <div class="search-header">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="search-input" class="search-input" placeholder="Search history..." />
+      </div>
+    </div>
+
+    <!-- Selection Bar -->
+    <div class="selection-toolbar" id="selection-toolbar">
+      <span class="selected-count" id="selected-count">0 items selected</span>
+      <button class="delete-selected-btn" id="btn-delete-selected">Delete</button>
+    </div>
+
+    <!-- Container for date-grouped items -->
+    <div id="history-groups-container">
+      <!-- Generated dynamically -->
+    </div>
+  </main>
+
+  <script>
+    let allHistory = [];
+    let selectedIds = new Set();
+
+    async function loadHistory() {
+      if (window.operecs && window.operecs.getHistory) {
+        allHistory = await window.operecs.getHistory();
+      } else {
+        // Fallback for direct browser preview
+        allHistory = [];
+      }
+      renderHistory(allHistory);
+    }
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      const today = new Date();
+      const yesterday = new Date();
+      yesterday.setDate(today.getDate() - 1);
+
+      if (d.toDateString() === today.toDateString()) return 'Today — ' + d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+      if (d.toDateString() === yesterday.toDateString()) return 'Yesterday — ' + d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+      return d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function formatTime(dateStr) {
+      const d = new Date(dateStr);
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderHistory(items) {
+      const container = document.getElementById('history-groups-container');
+      container.innerHTML = '';
+      selectedIds.clear();
+      updateSelectionToolbar();
+
+      if (!items || items.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <p>Your browsing history is clean.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Group by Date
+      const groups = {};
+      items.forEach(item => {
+        const groupLabel = formatDate(item.visitedAt);
+        if (!groups[groupLabel]) groups[groupLabel] = [];
+        groups[groupLabel].push(item);
+      });
+
+      for (const [dateLabel, groupItems] of Object.entries(groups)) {
+        const groupEl = document.createElement('div');
+        groupEl.className = 'history-group';
+
+        const titleEl = document.createElement('div');
+        titleEl.className = 'group-title';
+        titleEl.textContent = dateLabel;
+        groupEl.appendChild(titleEl);
+
+        const cardEl = document.createElement('div');
+        cardEl.className = 'group-card';
+
+        groupItems.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'history-row';
+
+          const chk = document.createElement('input');
+          chk.type = 'checkbox';
+          chk.className = 'row-checkbox';
+          chk.dataset.id = item.id || item.url;
+          chk.onchange = (e) => {
+            if (e.target.checked) selectedIds.add(chk.dataset.id);
+            else selectedIds.delete(chk.dataset.id);
+            updateSelectionToolbar();
+          };
+
+          const timeEl = document.createElement('span');
+          timeEl.className = 'row-time';
+          timeEl.textContent = formatTime(item.visitedAt);
+
+          const icon = document.createElement('img');
+          icon.className = 'row-icon';
+          icon.src = item.favicon || 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(item.url);
+          icon.onerror = () => { icon.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="%23948fa3"><circle cx="12" cy="12" r="10"/></svg>'; };
+
+          const details = document.createElement('div');
+          details.className = 'row-details';
+          details.onclick = () => {
+            if (window.operecs && window.operecs.navigate) {
+              window.operecs.navigate(item.url);
+            } else {
+              window.location.href = item.url;
+            }
+          };
+
+          const title = document.createElement('span');
+          title.className = 'row-title';
+          title.textContent = item.title || item.url;
+
+          const url = document.createElement('span');
+          url.className = 'row-url';
+          url.textContent = item.url;
+
+          details.appendChild(title);
+          details.appendChild(url);
+
+          const actions = document.createElement('div');
+          actions.className = 'row-actions';
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'action-btn';
+          delBtn.title = 'Remove from history';
+          delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+          delBtn.onclick = async (e) => {
+            e.stopPropagation();
+            if (window.operecs && window.operecs.removeHistoryItem) {
+              await window.operecs.removeHistoryItem(item.id || item.url);
+            }
+            loadHistory();
+          };
+
+          actions.appendChild(delBtn);
+
+          row.appendChild(chk);
+          row.appendChild(timeEl);
+          row.appendChild(icon);
+          row.appendChild(details);
+          row.appendChild(actions);
+
+          cardEl.appendChild(row);
+        });
+
+        groupEl.appendChild(cardEl);
+        container.appendChild(groupEl);
+      }
+    }
+
+    function updateSelectionToolbar() {
+      const bar = document.getElementById('selection-toolbar');
+      const countEl = document.getElementById('selected-count');
+      if (selectedIds.size > 0) {
+        bar.classList.add('visible');
+        countEl.textContent = `${selectedIds.size} ${selectedIds.size === 1 ? 'item' : 'items'} selected`;
+      } else {
+        bar.classList.remove('visible');
+      }
+    }
+
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      if (!q) {
+        renderHistory(allHistory);
+        return;
+      }
+      const filtered = allHistory.filter(h => 
+        (h.title && h.title.toLowerCase().includes(q)) || 
+        (h.url && h.url.toLowerCase().includes(q))
+      );
+      renderHistory(filtered);
+    });
+
+    document.getElementById('btn-delete-selected').addEventListener('click', async () => {
+      if (window.operecs && window.operecs.removeHistoryItem) {
+        for (const id of selectedIds) {
+          await window.operecs.removeHistoryItem(id);
+        }
+      }
+      loadHistory();
+    });
+
+    document.getElementById('btn-sidebar-clear-data').addEventListener('click', () => {
+      if (window.operecs && window.operecs.openClearBrowsingData) {
+        window.operecs.openClearBrowsingData();
+      }
+    });
+
+    loadHistory();
+  </script>
+</body>
+</html>

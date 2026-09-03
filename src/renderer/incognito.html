@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Incognito Tab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Azeret+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/fonts/fonts.css">
+  <style>
+    :root {
+      --font-display: "Outfit Variable", "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "Azeret Mono Variable", "Azeret Mono", monospace;
+      --bg: #09080e;
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f5f3f7;
+      --text-muted: #948fa3;
+      --accent: #a78bfa;
+      --violet-glow: rgba(124, 58, 237, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-display);
+      letter-spacing: -0.01em;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      user-select: none;
+      overflow-y: auto;
+    }
+
+    .incognito-card {
+      max-width: 680px;
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 44px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 40px var(--violet-glow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 24px;
+    }
+
+    .incognito-icon-wrapper {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(167, 139, 250, 0.12);
+      border: 1px solid rgba(167, 139, 250, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .incognito-title {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .incognito-subtitle {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 540px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      width: 100%;
+      text-align: left;
+      margin-top: 12px;
+    }
+
+    .info-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .info-box-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-box-title.saved {
+      color: #f87171;
+    }
+
+    .info-box-title.visible {
+      color: #fbbf24;
+    }
+
+    .info-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .info-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .bullet {
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    .cookie-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-top: 4px;
+      text-align: left;
+    }
+
+    .cookie-label {
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    .cookie-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(255, 255, 255, 0.15);
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: var(--accent);
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+  </style>
+</head>
+<body>
+  <div class="incognito-card">
+    <div class="incognito-icon-wrapper">
+      <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
+      </svg>
+    </div>
+
+    <h1 class="incognito-title">You've gone Incognito</h1>
+    <p class="incognito-subtitle">
+      Now you can browse privately, and other people who use this device won’t see your activity. However, downloads and bookmarks will be saved.
+    </p>
+
+    <div class="info-grid">
+      <div class="info-box">
+        <div class="info-box-title saved">
+          <span>Operecs won’t save:</span>
+        </div>
+        <ul class="info-list">
+          <li><span class="bullet">•</span> Your browsing history</li>
+          <li><span class="bullet">•</span> Cookies and site data</li>
+          <li><span class="bullet">•</span> Information entered in forms</li>
+        </ul>
+      </div>
+
+      <div class="info-box">
+        <div class="info-box-title visible">
+          <span>Your activity might still be visible to:</span>
+        </div>
+        <ul class="info-list">
+          <li><span class="bullet">•</span> Websites that you visit</li>
+          <li><span class="bullet">•</span> Your employer or school</li>
+          <li><span class="bullet">•</span> Your internet service provider</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cookie-toggle-row">
+      <div>
+        <div class="cookie-label">Block third-party cookies</div>
+        <div class="cookie-desc">When on, sites can’t use cookies that track you across the web.</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" checked id="toggle-incognito-cookies">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+</body>
+</html>
