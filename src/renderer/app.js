@@ -6,7 +6,7 @@ const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
 const tabStrip = document.getElementById('tab-strip');
 const btnNewTab = document.getElementById('btn-new-tab');
 const btnHistoryToggle = document.getElementById('btn-history-toggle');
-const btnDevtools = document.getElementById('btn-devtools');
+const btnSettings = document.getElementById('btn-settings');
 const pinnedItems = document.querySelectorAll('.pinned-item');
 
 // DOM Elements: Top Navigation & Omnibox
@@ -102,7 +102,16 @@ function setupEventListeners() {
     }
   });
   btnHome.addEventListener('click', () => window.browserAPI.navigate('operecs://newtab'));
-  btnDevtools.addEventListener('click', () => window.browserAPI.openDevTools());
+  if (btnSettings) {
+    btnSettings.addEventListener('click', () => {
+      const existingTab = currentTabs.find(t => t.url === 'operecs://settings' || (t.url && t.url.includes('settings.html')));
+      if (existingTab) {
+        window.browserAPI.switchTab(existingTab.id);
+      } else {
+        window.browserAPI.createTab('operecs://settings');
+      }
+    });
+  }
 
   // Split View Controls
   btnSplitToggle.addEventListener('click', () => {

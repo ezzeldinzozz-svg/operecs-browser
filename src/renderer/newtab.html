@@ -277,7 +277,7 @@
     const form = document.getElementById('search-form');
     const input = document.getElementById('search-input');
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const query = input.value.trim();
       if (!query) return;
@@ -288,7 +288,14 @@
       } else if (domainRegex.test(query)) {
         window.location.href = `https://${query}`;
       } else {
-        window.location.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+        let engine = 'https://www.google.com/search?q=';
+        if (window.browserAPI && window.browserAPI.getSettings) {
+          try {
+            const settings = await window.browserAPI.getSettings();
+            if (settings && settings.searchEngine) engine = settings.searchEngine;
+          } catch (err) {}
+        }
+        window.location.href = `${engine}${encodeURIComponent(query)}`;
       }
     });
   </script>

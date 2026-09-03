@@ -102,6 +102,16 @@ class BrowserStore {
     this.save();
     return [];
   }
+
+  getSettings() {
+    return this.data.settings;
+  }
+
+  updateSettings(newSettings) {
+    this.data.settings = { ...this.data.settings, ...newSettings };
+    this.save();
+    return this.data.settings;
+  }
 }
 
 module.exports = BrowserStore;

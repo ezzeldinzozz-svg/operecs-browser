@@ -13,6 +13,7 @@ class TabManager {
     this.sidebarWidth = 240; // Default expanded sidebar width in pixels
     this.topBarHeight = 46;  // Slim top omnibox & navigation bar height in pixels
     this.newTabPath = `file://${path.join(__dirname, '../renderer/newtab.html').replace(/\\/g, '/')}`;
+    this.settingsPath = `file://${path.join(__dirname, '../renderer/settings.html').replace(/\\/g, '/')}`;
 
     // Split View State
     this.isSplitView = false;
@@ -107,6 +108,9 @@ class TabManager {
       return this.newTabPath;
     }
     const trimmed = input.trim();
+    if (trimmed === 'browser://settings' || trimmed === 'operecs://settings') {
+      return this.settingsPath;
+    }
     if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('file://')) {
       return trimmed;
     }
@@ -115,8 +119,10 @@ class TabManager {
     if (domainRegex.test(trimmed)) {
       return `https://${trimmed}`;
     }
-    // Otherwise it's a search query
-    return `https://www.google.com/search?q=${encodeURIComponent(trimmed)}`;
+    // Search query using configured search engine
+    const settings = this.store.getSettings();
+    const engine = (settings && settings.searchEngine) ? settings.searchEngine : 'https://www.google.com/search?q=';
+    return `${engine}${encodeURIComponent(trimmed)}`;
   }
 
   createTab(initialUrl = '', makeActive = true) {
@@ -125,6 +131,7 @@ class TabManager {
 
     const view = new WebContentsView({
       webPreferences: {
+        preload: path.join(__dirname, 'tab-preload.js'),
         nodeIntegration: false,
         contextIsolation: true,
         sandbox: true,
@@ -162,6 +169,10 @@ class TabManager {
       if (currentUrl.startsWith('file://') && currentUrl.includes('newtab.html')) {
         tab.url = 'operecs://newtab';
         tab.displayUrl = '';
+      } else if (currentUrl.startsWith('file://') && currentUrl.includes('settings.html')) {
+        tab.url = 'operecs://settings';
+        tab.displayUrl = 'operecs://settings';
+        tab.title = 'Settings';
       } else {
         tab.url = currentUrl;
         tab.displayUrl = currentUrl;
@@ -173,6 +184,8 @@ class TabManager {
     wc.on('page-title-updated', (event, title) => {
       if (tab.url === 'operecs://newtab') {
         tab.title = 'New Tab';
+      } else if (tab.url === 'operecs://settings') {
+        tab.title = 'Settings';
       } else {
         tab.title = title || 'Untitled';
       }
@@ -192,6 +205,10 @@ class TabManager {
       if (url.startsWith('file://') && url.includes('newtab.html')) {
         tab.url = 'operecs://newtab';
         tab.displayUrl = '';
+      } else if (url.startsWith('file://') && url.includes('settings.html')) {
+        tab.url = 'operecs://settings';
+        tab.displayUrl = 'operecs://settings';
+        tab.title = 'Settings';
       } else {
         tab.url = url;
         tab.displayUrl = url;

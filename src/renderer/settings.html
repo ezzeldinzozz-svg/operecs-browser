@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — Operecs</title>
+  <style>
+    :root {
+      --bg: #08070a;
+      --bg-card: rgba(255, 255, 255, 0.03);
+      --bg-card-hover: rgba(255, 255, 255, 0.05);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f5f3f7;
+      --text-muted: #948fa3;
+      --accent: #7c3aed;
+      --accent-hover: #8b5cf6;
+      --accent-dot: #c7adff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 48px 24px;
+      overflow-y: auto;
+    }
+
+    .settings-container {
+      max-width: 760px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .settings-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .settings-header svg {
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(109, 40, 217, 0.35);
+    }
+
+    .settings-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .settings-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .settings-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .setting-label {
+      font-size: 0.92rem;
+      font-weight: 500;
+    }
+
+    .setting-sublabel {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    select, input[type="text"] {
+      background: #151220;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    select:focus, input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    .btn {
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-danger {
+      color: #ff6b6b;
+      border-color: rgba(255, 107, 107, 0.2);
+    }
+
+    .btn-danger:hover {
+      background: rgba(255, 107, 107, 0.12);
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: rgba(34, 197, 94, 0.12);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.25);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4ade80;
+    }
+
+    .about-details {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+    }
+
+    .about-details strong {
+      color: var(--text);
+    }
+
+    .about-links {
+      display: flex;
+      gap: 16px;
+      margin-top: 6px;
+    }
+
+    .about-links a {
+      color: var(--accent-dot);
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+
+    .about-links a:hover {
+      text-decoration: underline;
+    }
+
+    .save-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #181426;
+      border: 1px solid var(--accent);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      font-size: 0.88rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+
+    .save-toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="settings-container">
+    <!-- Header -->
+    <div class="settings-header">
+      <svg viewBox="0 0 64 64" width="46" height="46">
+        <rect width="64" height="64" rx="16" fill="#0b0910"/>
+        <path d="M32 12c12 0 21 8.5 21 20s-9 20-21 20S11 43.5 11 32s9-20 21-20Zm0 9c-6.8 0-11.5 4.5-11.5 11S25.2 43 32 43s11.5-4.5 11.5-11S38.8 21 32 21Z" fill="#6d28d9"/>
+        <circle cx="47" cy="17" r="5" fill="#c7adff"/>
+      </svg>
+      <div>
+        <h1 class="settings-title">Settings</h1>
+        <p class="settings-subtitle">Manage your Operecs Browser preferences, privacy, and engine configuration</p>
+      </div>
+    </div>
+
+    <!-- Section: Search & Navigation -->
+    <div class="settings-card">
+      <h2 class="card-title">🔍 Search & Omnibox</h2>
+      <p class="card-desc">Choose which search engine Operecs queries when you type search terms in the address bar.</p>
+      
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Default Search Engine</div>
+          <div class="setting-sublabel">Used for direct omnibox queries</div>
+        </div>
+        <select id="search-engine-select">
+          <option value="https://www.google.com/search?q=">Google</option>
+          <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
+          <option value="https://search.brave.com/search?q=">Brave Search</option>
+          <option value="https://www.bing.com/search?q=">Microsoft Bing</option>
+          <option value="https://www.ecosia.org/search?q=">Ecosia</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Section: Privacy & Security -->
+    <div class="settings-card">
+      <h2 class="card-title">🛡️ Security & Privacy</h2>
+      <p class="card-desc">Chromium security mechanisms protecting your browsing session.</p>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">OS Sandboxing</div>
+          <div class="setting-sublabel">Tabs execute in low-integrity Chromium process sandboxes</div>
+        </div>
+        <span class="badge-status"><span class="status-dot"></span> Active</span>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Context Isolation</div>
+          <div class="setting-sublabel">Webpages cannot access Node.js runtime or filesystem</div>
+        </div>
+        <span class="badge-status"><span class="status-dot"></span> Protected</span>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Browsing Data</div>
+          <div class="setting-sublabel">Clear locally stored history and cache</div>
+        </div>
+        <button class="btn btn-danger" id="btn-clear-data">Clear History</button>
+      </div>
+    </div>
+
+    <!-- Section: About -->
+    <div class="settings-card">
+      <h2 class="card-title">🪐 About Operecs Browser</h2>
+      <div class="about-details">
+        <div><strong>Version:</strong> 1.0.0 (Stable 64-bit)</div>
+        <div><strong>Engine:</strong> Chromium 132 (Blink & V8) via Electron 34</div>
+        <div><strong>Platform:</strong> Windows (x64)</div>
+        <div class="about-links">
+          <a href="https://operecs.ezzeddin.work" target="_blank">operecs.ezzeddin.work ↗</a>
+          <a href="https://github.com/ezzeldinzozz-svg/operecs-browser" target="_blank">GitHub Repository ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="save-toast" id="toast">Settings updated</div>
+
+  <script>
+    const searchSelect = document.getElementById('search-engine-select');
+    const btnClearData = document.getElementById('btn-clear-data');
+    const toast = document.getElementById('toast');
+
+    function showToast(msg = 'Settings updated') {
+      toast.textContent = msg;
+      toast.classList.add('visible');
+      setTimeout(() => toast.classList.remove('visible'), 2000);
+    }
+
+    if (window.opener || window.browserAPI) {
+      const api = window.browserAPI || window.opener.browserAPI;
+      if (api && api.getSettings) {
+        api.getSettings().then(settings => {
+          if (settings && settings.searchEngine) {
+            searchSelect.value = settings.searchEngine;
+          }
+        });
+      }
+
+      searchSelect.addEventListener('change', async () => {
+        const engine = searchSelect.value;
+        if (api && api.saveSettings) {
+          await api.saveSettings({ searchEngine: engine });
+          showToast('Search engine updated');
+        }
+      });
+
+      btnClearData.addEventListener('click', async () => {
+        if (api && api.clearHistory) {
+          await api.clearHistory();
+          showToast('Browsing history cleared');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

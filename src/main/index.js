@@ -136,6 +136,15 @@ ipcMain.handle('history:clear', () => {
   return store.clearHistory();
 });
 
+// IPC Handlers: Settings
+ipcMain.handle('settings:get', () => {
+  return store.getSettings();
+});
+
+ipcMain.handle('settings:save', (_event, newSettings) => {
+  return store.updateSettings(newSettings);
+});
+
 // IPC Handlers: Window Controls
 ipcMain.handle('window:minimize', () => {
   if (mainWindow) mainWindow.minimize();
