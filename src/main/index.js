@@ -13,12 +13,13 @@ let store = null;
 function createWindow() {
   mainWindow = new BrowserWindow({
     title: 'Operecs Browser',
+    icon: path.join(__dirname, '../../assets/icon.png'),
     width: 1280,
     height: 850,
     minWidth: 700,
     minHeight: 500,
     frame: false, // Custom frameless titlebar for modern Chrome-like aesthetic
-    backgroundColor: '#121214',
+    backgroundColor: '#08070a',
     show: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

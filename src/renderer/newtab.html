@@ -6,14 +6,15 @@
   <title>New Tab</title>
   <style>
     :root {
-      --bg-gradient: radial-gradient(circle at 50% 30%, #1c1f2e 0%, #0c0d14 100%);
-      --accent: #4f8cff;
-      --accent-hover: #3d79eb;
-      --text: #f0f3f8;
-      --text-muted: #8e9bb0;
-      --card-bg: rgba(255, 255, 255, 0.04);
+      --bg-gradient: radial-gradient(circle at 50% 25%, #181426 0%, #08070a 100%);
+      --accent: #7c3aed;
+      --accent-hover: #8b5cf6;
+      --accent-dot: #c7adff;
+      --text: #f5f3f7;
+      --text-muted: #948fa3;
+      --card-bg: rgba(255, 255, 255, 0.03);
       --card-border: rgba(255, 255, 255, 0.08);
-      --card-hover: rgba(255, 255, 255, 0.08);
+      --card-hover: rgba(255, 255, 255, 0.06);
     }
 
     * {
@@ -176,6 +177,13 @@
 <body>
   <div class="container">
     <div class="time-section">
+      <div style="margin-bottom: 12px; display: inline-flex;">
+        <svg viewBox="0 0 64 64" width="42" height="42" style="border-radius:12px;box-shadow:0 4px 20px rgba(109,40,217,0.4);">
+          <rect width="64" height="64" rx="16" fill="#0b0910"/>
+          <path d="M32 12c12 0 21 8.5 21 20s-9 20-21 20S11 43.5 11 32s9-20 21-20Zm0 9c-6.8 0-11.5 4.5-11.5 11S25.2 43 32 43s11.5-4.5 11.5-11S38.8 21 32 21Z" fill="#6d28d9"/>
+          <circle cx="47" cy="17" r="5" fill="#c7adff"/>
+        </svg>
+      </div>
       <div class="clock" id="clock">12:00</div>
       <div class="greeting" id="greeting">Welcome to Operecs</div>
     </div>

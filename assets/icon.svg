@@ -1,49 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <defs>
-    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#1e2238" />
-      <stop offset="100%" stop-color="#0c0e18" />
-    </radialGradient>
-    <linearGradient id="planetGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#4facfe" />
-      <stop offset="50%" stop-color="#00f2fe" />
-      <stop offset="100%" stop-color="#6b11ff" />
-    </linearGradient>
-    <linearGradient id="ringGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#6b11ff" stop-opacity="0.2" />
-      <stop offset="40%" stop-color="#00f2fe" stop-opacity="0.9" />
-      <stop offset="70%" stop-color="#4facfe" stop-opacity="1" />
-      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.8" />
-    </linearGradient>
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="10" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-    </filter>
-  </defs>
-
-  <!-- Background rounded rect -->
-  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
-  
-  <!-- Subtle background glow -->
-  <circle cx="256" cy="256" r="140" fill="#00f2fe" opacity="0.12" filter="url(#glow)" />
-
-  <!-- Back part of the orbital ring -->
-  <g transform="rotate(-32 256 256)">
-    <path d="M 96 256 A 160 52 0 0 1 416 256" fill="none" stroke="url(#ringGrad)" stroke-width="14" stroke-linecap="round" opacity="0.5" />
-  </g>
-
-  <!-- Central Planet Sphere -->
-  <circle cx="256" cy="256" r="105" fill="url(#planetGrad)" filter="url(#glow)" />
-
-  <!-- Planet surface shine -->
-  <circle cx="215" cy="215" r="45" fill="#ffffff" opacity="0.22" filter="url(#glow)" />
-
-  <!-- Front part of the orbital ring -->
-  <g transform="rotate(-32 256 256)">
-    <path d="M 416 256 A 160 52 0 0 1 96 256" fill="none" stroke="url(#ringGrad)" stroke-width="16" stroke-linecap="round" />
-  </g>
-
-  <!-- Small orbital satellite / star -->
-  <circle cx="390" cy="180" r="10" fill="#ffffff" filter="url(#glow)" />
-  <circle cx="390" cy="180" r="5" fill="#00f2fe" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="16" fill="#0b0910"/>
+  <path d="M32 12c12 0 21 8.5 21 20s-9 20-21 20S11 43.5 11 32s9-20 21-20Zm0 9c-6.8 0-11.5 4.5-11.5 11S25.2 43 32 43s11.5-4.5 11.5-11S38.8 21 32 21Z" fill="#6d28d9"/>
+  <circle cx="47" cy="17" r="5" fill="#c7adff"/>
 </svg>

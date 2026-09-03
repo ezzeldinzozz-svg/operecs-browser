@@ -1,16 +1,18 @@
 :root {
-  --bg-main: #13141b;
-  --bg-toolbar: #1a1b24;
-  --bg-omnibox: #232533;
+  --bg-main: #08070a;
+  --bg-toolbar: #100e16;
+  --bg-omnibox: #161320;
   --bg-tab-inactive: transparent;
-  --bg-tab-hover: rgba(255, 255, 255, 0.05);
-  --bg-tab-active: #20222f;
-  --border-color: rgba(255, 255, 255, 0.07);
-  --text-primary: #edf2f7;
-  --text-secondary: #909bb0;
-  --accent: #4f8cff;
+  --bg-tab-hover: rgba(255, 255, 255, 0.04);
+  --bg-tab-active: #181524;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --text-primary: #f5f3f7;
+  --text-secondary: #948fa3;
+  --accent: #7c3aed;
+  --accent-glow: rgba(124, 58, 237, 0.35);
+  --accent-dot: #c7adff;
   --accent-star: #f59e0b;
-  --btn-hover: rgba(255, 255, 255, 0.08);
+  --btn-hover: rgba(255, 255, 255, 0.07);
   --btn-active: rgba(255, 255, 255, 0.12);
   --tab-height: 38px;
 }
@@ -35,7 +37,7 @@ body {
   flex-direction: column;
   background: var(--bg-toolbar);
   border-bottom: 1px solid var(--border-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
   z-index: 100;
   position: relative;
 }
@@ -45,7 +47,7 @@ body {
   display: flex;
   align-items: center;
   height: 42px;
-  background: #111218;
+  background: #08070a;
   padding-left: 8px;
   -webkit-app-region: drag;
 }
