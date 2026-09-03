@@ -118,13 +118,26 @@
 
         <!-- Omnibox (Search & Address Bar) -->
         <div class="omnibox-wrapper">
-          <div class="omnibox-icon" id="security-badge">
+          <div class="omnibox-icon" id="security-badge" title="Connection is secure (HTTPS)">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
               <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
             </svg>
           </div>
-          <input type="text" id="omnibox-input" class="omnibox-input" placeholder="Search Google or enter address..." spellcheck="false" autocomplete="off" />
+          <input type="text" id="omnibox-input" class="omnibox-input" placeholder="Search or enter address..." spellcheck="false" autocomplete="off" />
+          
+          <!-- Zoom Reset Badge -->
+          <button class="zoom-badge hidden" id="btn-zoom-reset" title="Reset Zoom (Ctrl+0)">100%</button>
+
+          <!-- Privacy Shield Button -->
+          <button class="shield-btn" id="btn-shield" title="Operecs Privacy Shield">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span class="shield-counter" id="shield-counter">0</span>
+          </button>
+
+          <!-- Bookmark Button -->
           <button class="star-btn" id="btn-bookmark" title="Bookmark this tab">
             <svg id="star-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
@@ -147,6 +160,25 @@
             <button class="pane-badge active" id="badge-pane-left">Left</button>
             <button class="pane-badge" id="badge-pane-right">Right</button>
           </div>
+        </div>
+
+        <!-- Utility Controls: Downloads & Command Palette -->
+        <div class="utility-controls">
+          <button class="nav-btn" id="btn-downloads" title="Downloads (Ctrl+J)">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span class="downloads-badge hidden" id="downloads-badge">0</span>
+          </button>
+
+          <button class="nav-btn" id="btn-cmd-palette" title="Command Palette (Ctrl+K)">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
         </div>
 
         <!-- Window Drag Spacer -->
@@ -186,6 +218,125 @@
     </div>
     <div class="history-list" id="history-list">
       <!-- History items inserted dynamically -->
+    </div>
+  </div>
+
+  <!-- In-Page Find Bar (Ctrl+F) -->
+  <div class="find-bar hidden" id="find-bar">
+    <input type="text" id="find-input" placeholder="Find in page..." spellcheck="false" autocomplete="off" />
+    <span class="find-count" id="find-count">0/0</span>
+    <button class="find-btn" id="btn-find-prev" title="Previous (Shift+Enter)">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    </button>
+    <button class="find-btn" id="btn-find-next" title="Next (Enter)">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+    <button class="find-btn find-close-btn" id="btn-find-close" title="Close (Escape)">
+      <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Privacy Shield Popover -->
+  <div class="shield-popup hidden" id="shield-popup">
+    <div class="shield-popup-header">
+      <div class="shield-popup-title">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#a78bfa" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+        <span>Privacy Shield</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="shield-toggle-input" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="shield-stat-box">
+      <div class="shield-stat-number" id="shield-stat-count">0</div>
+      <div class="shield-stat-label">Trackers & Ads Blocked on this tab</div>
+    </div>
+    <div class="shield-features-list">
+      <div class="shield-feature-item">
+        <span class="shield-check">✓</span> Analytics & Telemetry Filter
+      </div>
+      <div class="shield-feature-item">
+        <span class="shield-check">✓</span> Third-party Ad Network Blocker
+      </div>
+      <div class="shield-feature-item">
+        <span class="shield-check">✓</span> Tracking Pixel Shield
+      </div>
+    </div>
+  </div>
+
+  <!-- Downloads Flyout -->
+  <div class="downloads-popup hidden" id="downloads-popup">
+    <div class="downloads-header">
+      <span>Downloads</span>
+      <button class="clear-history-btn" id="btn-open-downloads-tab">View All</button>
+    </div>
+    <div class="downloads-list" id="downloads-list">
+      <div class="empty-downloads">No recent downloads</div>
+    </div>
+  </div>
+
+  <!-- Spotlight Command Palette (Ctrl+K) -->
+  <div class="cmd-backdrop hidden" id="cmd-backdrop">
+    <div class="cmd-palette-modal">
+      <div class="cmd-search-wrapper">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="cmd-input" placeholder="Type a command or search tabs, history, bookmarks..." autocomplete="off" spellcheck="false" />
+        <span class="cmd-esc-badge">ESC</span>
+      </div>
+      <div class="cmd-results" id="cmd-results">
+        <!-- Results rendered dynamically -->
+      </div>
+      <div class="cmd-footer">
+        <span><kbd>↑</kbd> <kbd>↓</kbd> navigate</span>
+        <span><kbd>↵</kbd> select</span>
+        <span><kbd>ESC</kbd> dismiss</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Right-Click Context Menu -->
+  <div class="context-menu hidden" id="tab-context-menu">
+    <div class="context-menu-item" id="ctx-pin">
+      <span class="ctx-icon">📌</span>
+      <span class="ctx-label">Pin Tab</span>
+    </div>
+    <div class="context-menu-item" id="ctx-duplicate">
+      <span class="ctx-icon">🔄</span>
+      <span class="ctx-label">Duplicate Tab</span>
+    </div>
+    <div class="context-menu-item" id="ctx-mute">
+      <span class="ctx-icon">🔇</span>
+      <span class="ctx-label">Mute Tab</span>
+    </div>
+    <div class="context-menu-item" id="ctx-reload">
+      <span class="ctx-icon">↻</span>
+      <span class="ctx-label">Reload</span>
+    </div>
+    <div class="context-menu-divider"></div>
+    <div class="context-menu-item" id="ctx-close">
+      <span class="ctx-icon">✕</span>
+      <span class="ctx-label">Close Tab</span>
+    </div>
+    <div class="context-menu-item" id="ctx-close-others">
+      <span class="ctx-icon">🧹</span>
+      <span class="ctx-label">Close Other Tabs</span>
+    </div>
+    <div class="context-menu-item" id="ctx-close-right">
+      <span class="ctx-icon">➡️</span>
+      <span class="ctx-label">Close Tabs to Right</span>
     </div>
   </div>
 

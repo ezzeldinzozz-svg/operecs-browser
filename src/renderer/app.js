@@ -37,12 +37,54 @@ const historyDropdown = document.getElementById('history-dropdown');
 const historyList = document.getElementById('history-list');
 const btnClearHistory = document.getElementById('btn-clear-history');
 
+// DOM Elements: Omnibox Shield & Zoom
+const btnShield = document.getElementById('btn-shield');
+const shieldCounter = document.getElementById('shield-counter');
+const shieldPopup = document.getElementById('shield-popup');
+const shieldToggleInput = document.getElementById('shield-toggle-input');
+const shieldStatCount = document.getElementById('shield-stat-count');
+const btnZoomReset = document.getElementById('btn-zoom-reset');
+
+// DOM Elements: Downloads
+const btnDownloads = document.getElementById('btn-downloads');
+const downloadsBadge = document.getElementById('downloads-badge');
+const downloadsPopup = document.getElementById('downloads-popup');
+const btnOpenDownloadsTab = document.getElementById('btn-open-downloads-tab');
+const downloadsList = document.getElementById('downloads-list');
+
+// DOM Elements: Command Palette
+const btnCmdPalette = document.getElementById('btn-cmd-palette');
+const cmdBackdrop = document.getElementById('cmd-backdrop');
+const cmdInput = document.getElementById('cmd-input');
+const cmdResults = document.getElementById('cmd-results');
+
+// DOM Elements: Find Bar
+const findBar = document.getElementById('find-bar');
+const findInput = document.getElementById('find-input');
+const findCount = document.getElementById('find-count');
+const btnFindPrev = document.getElementById('btn-find-prev');
+const btnFindNext = document.getElementById('btn-find-next');
+const btnFindClose = document.getElementById('btn-find-close');
+
+// DOM Elements: Tab Context Menu
+const tabContextMenu = document.getElementById('tab-context-menu');
+const ctxPin = document.getElementById('ctx-pin');
+const ctxDuplicate = document.getElementById('ctx-duplicate');
+const ctxMute = document.getElementById('ctx-mute');
+const ctxReload = document.getElementById('ctx-reload');
+const ctxClose = document.getElementById('ctx-close');
+const ctxCloseOthers = document.getElementById('ctx-close-others');
+const ctxCloseRight = document.getElementById('ctx-close-right');
+
 // Application State
 let currentTabs = [];
 let activeTabId = null;
 let activeTab = null;
 let isOmniboxFocused = false;
 let isSidebarCollapsed = false;
+let contextMenuTargetTab = null;
+let selectedCmdIndex = 0;
+let currentCmdItems = [];
 let splitState = {
   isSplitView: false,
   leftTabId: null,
@@ -186,10 +228,121 @@ function setupEventListeners() {
     renderHistoryList([]);
   });
 
-  // Close history dropdown on outside click
+  // Privacy Shield Toggle Popover
+  btnShield.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleShieldPopup();
+  });
+
+  shieldToggleInput.addEventListener('change', async () => {
+    const enabled = await window.browserAPI.toggleShield();
+    shieldToggleInput.checked = enabled;
+    if (enabled) {
+      btnShield.classList.remove('shield-disabled');
+    } else {
+      btnShield.classList.add('shield-disabled');
+    }
+  });
+
+  // Zoom Reset
+  btnZoomReset.addEventListener('click', () => {
+    window.browserAPI.resetZoom();
+  });
+
+  // Downloads Toggle Popover
+  btnDownloads.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDownloadsPopup();
+  });
+
+  btnOpenDownloadsTab.addEventListener('click', () => {
+    window.browserAPI.createTab('operecs://downloads');
+    downloadsPopup.classList.add('hidden');
+  });
+
+  // Command Palette
+  btnCmdPalette.addEventListener('click', () => {
+    openCommandPalette();
+  });
+
+  cmdBackdrop.addEventListener('click', (e) => {
+    if (e.target === cmdBackdrop) closeCommandPalette();
+  });
+
+  cmdInput.addEventListener('input', () => {
+    filterCommandPalette(cmdInput.value);
+  });
+
+  cmdInput.addEventListener('keydown', (e) => {
+    handleCommandPaletteKey(e);
+  });
+
+  // Find in Page
+  btnFindPrev.addEventListener('click', () => findNext(false));
+  btnFindNext.addEventListener('click', () => findNext(true));
+  btnFindClose.addEventListener('click', () => closeFindBar());
+
+  findInput.addEventListener('input', () => {
+    doFind();
+  });
+
+  findInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      findNext(!e.shiftKey);
+    } else if (e.key === 'Escape') {
+      closeFindBar();
+    }
+  });
+
+  // Tab Context Menu Actions
+  ctxPin.addEventListener('click', () => {
+    if (contextMenuTargetTab) window.browserAPI.togglePinTab(contextMenuTargetTab.id);
+    hideTabContextMenu();
+  });
+
+  ctxDuplicate.addEventListener('click', () => {
+    if (contextMenuTargetTab) window.browserAPI.duplicateTab(contextMenuTargetTab.id);
+    hideTabContextMenu();
+  });
+
+  ctxMute.addEventListener('click', () => {
+    if (contextMenuTargetTab) window.browserAPI.toggleMuteTab(contextMenuTargetTab.id);
+    hideTabContextMenu();
+  });
+
+  ctxReload.addEventListener('click', () => {
+    if (contextMenuTargetTab) window.browserAPI.reload();
+    hideTabContextMenu();
+  });
+
+  ctxClose.addEventListener('click', () => {
+    if (contextMenuTargetTab) window.browserAPI.closeTab(contextMenuTargetTab.id);
+    hideTabContextMenu();
+  });
+
+  ctxCloseOthers.addEventListener('click', () => {
+    if (contextMenuTargetTab) window.browserAPI.closeOtherTabs(contextMenuTargetTab.id);
+    hideTabContextMenu();
+  });
+
+  ctxCloseRight.addEventListener('click', () => {
+    if (contextMenuTargetTab) window.browserAPI.closeTabsToRight(contextMenuTargetTab.id);
+    hideTabContextMenu();
+  });
+
+  // Close all popovers and context menus on outside click
   document.addEventListener('click', (e) => {
     if (!historyDropdown.contains(e.target) && e.target !== btnHistoryToggle) {
       historyDropdown.classList.add('hidden');
+    }
+    if (!shieldPopup.contains(e.target) && !btnShield.contains(e.target)) {
+      shieldPopup.classList.add('hidden');
+    }
+    if (!downloadsPopup.contains(e.target) && !btnDownloads.contains(e.target)) {
+      downloadsPopup.classList.add('hidden');
+    }
+    if (!tabContextMenu.contains(e.target)) {
+      hideTabContextMenu();
     }
   });
 
@@ -207,6 +360,24 @@ function setupEventListeners() {
     } else if (e.altKey && e.key.toLowerCase() === 's') {
       e.preventDefault();
       window.browserAPI.toggleSplitView();
+    } else if (e.ctrlKey && (e.key.toLowerCase() === 'k' || e.key.toLowerCase() === 'p')) {
+      e.preventDefault();
+      openCommandPalette();
+    } else if (e.ctrlKey && e.key.toLowerCase() === 'f') {
+      e.preventDefault();
+      openFindBar();
+    } else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 't') {
+      e.preventDefault();
+      window.browserAPI.reopenClosedTab();
+    } else if (e.ctrlKey && (e.key === '=' || e.key === '+')) {
+      e.preventDefault();
+      window.browserAPI.zoomIn();
+    } else if (e.ctrlKey && e.key === '-') {
+      e.preventDefault();
+      window.browserAPI.zoomOut();
+    } else if (e.ctrlKey && e.key === '0') {
+      e.preventDefault();
+      window.browserAPI.resetZoom();
     } else if (e.ctrlKey && e.key.toLowerCase() === 'r') {
       e.preventDefault();
       window.browserAPI.reload();
@@ -220,9 +391,6 @@ function setupEventListeners() {
     } else if (e.altKey && e.key === 'ArrowRight') {
       e.preventDefault();
       window.browserAPI.goForward();
-    } else if (e.key === 'F12') {
-      e.preventDefault();
-      window.browserAPI.openDevTools();
     }
   });
 }
@@ -294,6 +462,33 @@ function setupIpcListeners() {
   if (window.browserAPI.onToggleSidebar) {
     window.browserAPI.onToggleSidebar(() => toggleSidebar());
   }
+
+  if (window.browserAPI.onOpenCommandPalette) {
+    window.browserAPI.onOpenCommandPalette(() => openCommandPalette());
+  }
+
+  if (window.browserAPI.onOpenFindBar) {
+    window.browserAPI.onOpenFindBar(() => openFindBar());
+  }
+
+  if (window.browserAPI.onFindResult) {
+    window.browserAPI.onFindResult((res) => updateFindResult(res));
+  }
+
+  if (window.browserAPI.onShieldCountUpdated) {
+    window.browserAPI.onShieldCountUpdated(({ wcId, count }) => {
+      if (activeTab && activeTab.wcId === wcId) {
+        shieldCounter.textContent = count;
+        shieldStatCount.textContent = count;
+      }
+    });
+  }
+
+  if (window.browserAPI.onDownloadsUpdated) {
+    window.browserAPI.onDownloadsUpdated((downloads) => {
+      updateDownloadsUi(downloads);
+    });
+  }
 }
 
 // ================= SPLIT VIEW UI =================
@@ -333,6 +528,7 @@ function renderTabs() {
     if (isActive) classes.push('active');
     if (isLeft) classes.push('split-left');
     if (isRight) classes.push('split-right');
+    if (tab.isPinned) classes.push('pinned');
     tabEl.className = classes.join(' ');
     tabEl.id = `tab-el-${tab.id}`;
 
@@ -360,6 +556,33 @@ function renderTabs() {
 
     tabEl.appendChild(iconContainer);
     tabEl.appendChild(titleEl);
+
+    // Audio / Mute Indicator
+    if (tab.isAudible) {
+      const audioBtn = document.createElement('button');
+      audioBtn.className = 'tab-audio-btn';
+      audioBtn.title = tab.isMuted ? 'Unmute tab' : 'Mute tab';
+      if (tab.isMuted) {
+        audioBtn.innerHTML = `
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>`;
+      } else {
+        audioBtn.innerHTML = `
+          <div class="sound-waves">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>`;
+      }
+      audioBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.browserAPI.toggleMuteTab(tab.id);
+      });
+      tabEl.appendChild(audioBtn);
+    }
 
     // Split Badge if active in split view
     if (isLeft) {
@@ -393,6 +616,12 @@ function renderTabs() {
 
     tabEl.addEventListener('click', () => {
       window.browserAPI.switchTab(tab.id);
+    });
+
+    // Right-click Context Menu
+    tabEl.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      openTabContextMenu(e.clientX, e.clientY, tab);
     });
 
     tabStrip.appendChild(tabEl);
@@ -448,6 +677,23 @@ async function updateToolbar() {
     reloadIcon.classList.remove('hidden');
     stopIcon.classList.add('hidden');
     btnReload.title = 'Reload (Ctrl+R)';
+  }
+
+  // Zoom Reset Badge
+  if (activeTab.zoomLevel && activeTab.zoomLevel !== 0) {
+    btnZoomReset.classList.remove('hidden');
+    const pct = Math.round((1 + activeTab.zoomLevel * 0.2) * 100);
+    btnZoomReset.textContent = `${pct}%`;
+  } else {
+    btnZoomReset.classList.add('hidden');
+  }
+
+  // Privacy Shield Count
+  if (activeTab.wcId) {
+    window.browserAPI.getBlockedCount(activeTab.wcId).then(count => {
+      shieldCounter.textContent = count || 0;
+      shieldStatCount.textContent = count || 0;
+    });
   }
 
   // Bookmark status
@@ -513,6 +759,304 @@ function escapeHtml(str) {
     '"': '&quot;',
     "'": '&#39;'
   })[m]);
+}
+
+// ================= PRIVACY SHIELD =================
+function toggleShieldPopup() {
+  if (shieldPopup.classList.contains('hidden')) {
+    shieldPopup.classList.remove('hidden');
+    historyDropdown.classList.add('hidden');
+    downloadsPopup.classList.add('hidden');
+    if (activeTab && activeTab.wcId) {
+      window.browserAPI.getBlockedCount(activeTab.wcId).then(count => {
+        shieldStatCount.textContent = count || 0;
+      });
+    }
+  } else {
+    shieldPopup.classList.add('hidden');
+  }
+}
+
+// ================= DOWNLOADS =================
+function toggleDownloadsPopup() {
+  if (downloadsPopup.classList.contains('hidden')) {
+    downloadsPopup.classList.remove('hidden');
+    historyDropdown.classList.add('hidden');
+    shieldPopup.classList.add('hidden');
+    window.browserAPI.getDownloads().then(updateDownloadsUi);
+  } else {
+    downloadsPopup.classList.add('hidden');
+  }
+}
+
+function updateDownloadsUi(downloads) {
+  if (!downloads) downloads = [];
+  const activeCount = downloads.filter(d => d.state === 'progressing').length;
+  if (activeCount > 0) {
+    downloadsBadge.textContent = activeCount;
+    downloadsBadge.classList.remove('hidden');
+  } else {
+    downloadsBadge.classList.add('hidden');
+  }
+
+  if (downloads.length === 0) {
+    downloadsList.innerHTML = '<div class="empty-downloads">No recent downloads</div>';
+    return;
+  }
+
+  downloadsList.innerHTML = '';
+  downloads.slice(0, 10).forEach(d => {
+    const item = document.createElement('div');
+    item.className = 'download-item';
+    item.innerHTML = `
+      <div class="download-item-top">
+        <span class="download-filename" title="${escapeHtml(d.fileName)}">${escapeHtml(d.fileName)}</span>
+        <div class="download-actions">
+          ${d.savePath ? `<button class="download-action-btn" title="Open" data-id="${d.id}" data-action="open">📂</button>` : ''}
+          ${d.savePath ? `<button class="download-action-btn" title="Show in folder" data-id="${d.id}" data-action="folder">🔍</button>` : ''}
+          ${d.state === 'progressing' ? `<button class="download-action-btn" title="Cancel" data-id="${d.id}" data-action="cancel">✕</button>` : ''}
+        </div>
+      </div>
+      ${d.state === 'progressing' ? `
+        <div class="download-progress-bar-bg">
+          <div class="download-progress-bar-fill" style="width: ${d.percentage}%"></div>
+        </div>
+      ` : ''}
+      <div class="download-status-line">
+        <span style="color: ${d.state === 'completed' ? '#4ade80' : d.state === 'progressing' ? '#c7adff' : '#f87171'}">${d.state.toUpperCase()}</span>
+        <span>${formatBytes(d.receivedBytes)} / ${formatBytes(d.totalBytes)}</span>
+      </div>
+    `;
+
+    // Action clicks
+    item.querySelectorAll('.download-action-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const action = btn.getAttribute('data-action');
+        const id = btn.getAttribute('data-id');
+        if (action === 'open') window.browserAPI.openDownload(id);
+        else if (action === 'folder') window.browserAPI.showDownloadInFolder(id);
+        else if (action === 'cancel') window.browserAPI.cancelDownload(id);
+      });
+    });
+
+    downloadsList.appendChild(item);
+  });
+}
+
+function formatBytes(bytes) {
+  if (!bytes || bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return (bytes / Math.pow(k, i)).toFixed(1) + ' ' + sizes[i];
+}
+
+// ================= IN-PAGE FIND (Ctrl+F) =================
+function openFindBar() {
+  findBar.classList.remove('hidden');
+  findInput.focus();
+  findInput.select();
+  if (findInput.value) {
+    doFind();
+  }
+}
+
+function closeFindBar() {
+  findBar.classList.add('hidden');
+  window.browserAPI.stopFindInPage('clearSelection');
+  findCount.textContent = '0/0';
+}
+
+function doFind() {
+  const query = findInput.value.trim();
+  if (query) {
+    window.browserAPI.findInPage(query, { findNext: false });
+  } else {
+    window.browserAPI.stopFindInPage('clearSelection');
+    findCount.textContent = '0/0';
+  }
+}
+
+function findNext(forward = true) {
+  const query = findInput.value.trim();
+  if (query) {
+    window.browserAPI.findInPage(query, { findNext: true, forward });
+  }
+}
+
+function updateFindResult(result) {
+  if (result.matches !== undefined) {
+    findCount.textContent = `${result.activeMatchOrdinal || 0}/${result.matches}`;
+  }
+}
+
+// ================= SPOTLIGHT COMMAND PALETTE (Ctrl+K) =================
+const SYSTEM_COMMANDS = [
+  { title: 'New Tab', group: 'Actions', icon: '➕', shortcut: 'Ctrl+T', action: () => window.browserAPI.createTab('') },
+  { title: 'Toggle Split View', group: 'Actions', icon: '🪟', shortcut: 'Alt+S', action: () => window.browserAPI.toggleSplitView() },
+  { title: 'Find in Page', group: 'Actions', icon: '🔍', shortcut: 'Ctrl+F', action: () => openFindBar() },
+  { title: 'Open Settings', group: 'Actions', icon: '⚙️', shortcut: '', action: () => window.browserAPI.createTab('operecs://settings') },
+  { title: 'Open Downloads', group: 'Actions', icon: '📥', shortcut: 'Ctrl+J', action: () => window.browserAPI.createTab('operecs://downloads') },
+  { title: 'Toggle Privacy Shield', group: 'Actions', icon: '🛡️', shortcut: '', action: async () => {
+    const enabled = await window.browserAPI.toggleShield();
+    shieldToggleInput.checked = enabled;
+  }},
+  { title: 'Reopen Closed Tab', group: 'Actions', icon: '↺', shortcut: 'Ctrl+Shift+T', action: () => window.browserAPI.reopenClosedTab() },
+  { title: 'Toggle Collapsible Sidebar', group: 'Actions', icon: '◀', shortcut: 'Ctrl+S', action: () => toggleSidebar() },
+  { title: 'Zoom In', group: 'Actions', icon: '🔍+', shortcut: 'Ctrl++', action: () => window.browserAPI.zoomIn() },
+  { title: 'Zoom Out', group: 'Actions', icon: '🔍-', shortcut: 'Ctrl+-', action: () => window.browserAPI.zoomOut() },
+  { title: 'Reset Zoom (100%)', group: 'Actions', icon: '🔍100', shortcut: 'Ctrl+0', action: () => window.browserAPI.resetZoom() },
+  { title: 'Clear Browsing History', group: 'Actions', icon: '🧹', shortcut: '', action: () => window.browserAPI.clearHistory() }
+];
+
+async function openCommandPalette() {
+  cmdBackdrop.classList.remove('hidden');
+  cmdInput.value = '';
+  cmdInput.focus();
+  await filterCommandPalette('');
+}
+
+function closeCommandPalette() {
+  cmdBackdrop.classList.add('hidden');
+}
+
+async function filterCommandPalette(query) {
+  const q = query.toLowerCase().trim();
+  currentCmdItems = [];
+
+  // 1. Actions
+  const matchedActions = SYSTEM_COMMANDS.filter(cmd => !q || cmd.title.toLowerCase().includes(q));
+  matchedActions.forEach(a => currentCmdItems.push({ ...a, type: 'action' }));
+
+  // 2. Open Tabs
+  const matchedTabs = currentTabs.filter(t => !q || (t.title && t.title.toLowerCase().includes(q)) || (t.url && t.url.toLowerCase().includes(q)));
+  matchedTabs.forEach(t => currentCmdItems.push({
+    title: t.title || t.url || 'Tab',
+    group: 'Open Tabs',
+    icon: '📑',
+    shortcut: t.isActive ? 'Active' : 'Switch',
+    action: () => window.browserAPI.switchTab(t.id)
+  }));
+
+  // 3. Bookmarks
+  try {
+    const bookmarks = await window.browserAPI.getBookmarks();
+    if (bookmarks) {
+      const matchedBm = bookmarks.filter(b => !q || (b.title && b.title.toLowerCase().includes(q)) || (b.url && b.url.toLowerCase().includes(q))).slice(0, 5);
+      matchedBm.forEach(b => currentCmdItems.push({
+        title: b.title || b.url,
+        group: 'Bookmarks',
+        icon: '🔖',
+        shortcut: 'Navigate',
+        action: () => window.browserAPI.navigate(b.url)
+      }));
+    }
+  } catch (err) {}
+
+  selectedCmdIndex = 0;
+  renderCommandResults();
+}
+
+function renderCommandResults() {
+  cmdResults.innerHTML = '';
+  if (currentCmdItems.length === 0) {
+    cmdResults.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-secondary); font-size: 0.85rem;">No matching commands or pages</div>';
+    return;
+  }
+
+  let currentGroup = null;
+  currentCmdItems.forEach((item, index) => {
+    if (item.group !== currentGroup) {
+      currentGroup = item.group;
+      const groupEl = document.createElement('div');
+      groupEl.className = 'cmd-group-label';
+      groupEl.textContent = currentGroup;
+      cmdResults.appendChild(groupEl);
+    }
+
+    const itemEl = document.createElement('div');
+    itemEl.className = `cmd-item ${index === selectedCmdIndex ? 'selected' : ''}`;
+    itemEl.innerHTML = `
+      <div class="cmd-item-left">
+        <span class="cmd-item-icon">${item.icon}</span>
+        <span class="cmd-item-title">${escapeHtml(item.title)}</span>
+      </div>
+      ${item.shortcut ? `<span class="cmd-item-shortcut">${escapeHtml(item.shortcut)}</span>` : ''}
+    `;
+
+    itemEl.addEventListener('click', () => {
+      executeCommand(index);
+    });
+
+    itemEl.addEventListener('mouseenter', () => {
+      selectedCmdIndex = index;
+      updateCmdSelection();
+    });
+
+    cmdResults.appendChild(itemEl);
+  });
+}
+
+function updateCmdSelection() {
+  const items = cmdResults.querySelectorAll('.cmd-item');
+  items.forEach((el, idx) => {
+    if (idx === selectedCmdIndex) {
+      el.classList.add('selected');
+      el.scrollIntoView({ block: 'nearest' });
+    } else {
+      el.classList.remove('selected');
+    }
+  });
+}
+
+function handleCommandPaletteKey(e) {
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (currentCmdItems.length > 0) {
+      selectedCmdIndex = (selectedCmdIndex + 1) % currentCmdItems.length;
+      updateCmdSelection();
+    }
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (currentCmdItems.length > 0) {
+      selectedCmdIndex = (selectedCmdIndex - 1 + currentCmdItems.length) % currentCmdItems.length;
+      updateCmdSelection();
+    }
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    executeCommand(selectedCmdIndex);
+  } else if (e.key === 'Escape') {
+    e.preventDefault();
+    closeCommandPalette();
+  }
+}
+
+function executeCommand(index) {
+  const item = currentCmdItems[index];
+  if (item && item.action) {
+    closeCommandPalette();
+    item.action();
+  }
+}
+
+// ================= TAB CONTEXT MENU =================
+function openTabContextMenu(x, y, tab) {
+  contextMenuTargetTab = tab;
+  tabContextMenu.classList.remove('hidden');
+
+  const maxX = window.innerWidth - 180;
+  const maxY = window.innerHeight - 240;
+  tabContextMenu.style.left = `${Math.min(x, maxX)}px`;
+  tabContextMenu.style.top = `${Math.min(y, maxY)}px`;
+
+  ctxPin.querySelector('.ctx-label').textContent = tab.isPinned ? 'Unpin Tab' : 'Pin Tab';
+  ctxMute.querySelector('.ctx-label').textContent = tab.isMuted ? 'Unmute Tab' : 'Mute Tab';
+}
+
+function hideTabContextMenu() {
+  tabContextMenu.classList.add('hidden');
+  contextMenuTargetTab = null;
 }
 
 // Start app

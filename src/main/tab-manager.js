@@ -2,18 +2,21 @@ const { WebContentsView } = require('electron');
 const path = require('path');
 
 class TabManager {
-  constructor(mainWindow, store) {
+  constructor(mainWindow, store, shield) {
     this.mainWindow = mainWindow;
     this.store = store;
+    this.shield = shield;
     this.tabs = new Map(); // id -> tab object
     this.activeTabId = null;
     this.nextTabId = 1;
+    this.recentlyClosed = []; // URL stack for reopenClosedTab
 
     // Layout dimensions
     this.sidebarWidth = 240; // Default expanded sidebar width in pixels
     this.topBarHeight = 46;  // Slim top omnibox & navigation bar height in pixels
     this.newTabPath = `file://${path.join(__dirname, '../renderer/newtab.html').replace(/\\/g, '/')}`;
     this.settingsPath = `file://${path.join(__dirname, '../renderer/settings.html').replace(/\\/g, '/')}`;
+    this.downloadsPath = `file://${path.join(__dirname, '../renderer/downloads.html').replace(/\\/g, '/')}`;
 
     // Split View State
     this.isSplitView = false;
@@ -111,6 +114,9 @@ class TabManager {
     if (trimmed === 'browser://settings' || trimmed === 'operecs://settings') {
       return this.settingsPath;
     }
+    if (trimmed === 'browser://downloads' || trimmed === 'operecs://downloads') {
+      return this.downloadsPath;
+    }
     if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('file://')) {
       return trimmed;
     }
@@ -148,7 +154,11 @@ class TabManager {
       favicon: '',
       isLoading: false,
       canGoBack: false,
-      canGoForward: false
+      canGoForward: false,
+      isAudible: false,
+      isMuted: false,
+      isPinned: false,
+      zoomLevel: 0
     };
 
     this.tabs.set(id, tab);
@@ -158,6 +168,9 @@ class TabManager {
 
     wc.on('did-start-loading', () => {
       tab.isLoading = true;
+      if (this.shield) {
+        this.shield.resetTabCount(wc.id);
+      }
       this.notifyTabUpdated(tab);
     });
 
@@ -173,6 +186,10 @@ class TabManager {
         tab.url = 'operecs://settings';
         tab.displayUrl = 'operecs://settings';
         tab.title = 'Settings';
+      } else if (currentUrl.startsWith('file://') && currentUrl.includes('downloads.html')) {
+        tab.url = 'operecs://downloads';
+        tab.displayUrl = 'operecs://downloads';
+        tab.title = 'Downloads';
       } else {
         tab.url = currentUrl;
         tab.displayUrl = currentUrl;
@@ -186,6 +203,8 @@ class TabManager {
         tab.title = 'New Tab';
       } else if (tab.url === 'operecs://settings') {
         tab.title = 'Settings';
+      } else if (tab.url === 'operecs://downloads') {
+        tab.title = 'Downloads';
       } else {
         tab.title = title || 'Untitled';
       }
@@ -209,6 +228,10 @@ class TabManager {
         tab.url = 'operecs://settings';
         tab.displayUrl = 'operecs://settings';
         tab.title = 'Settings';
+      } else if (url.startsWith('file://') && url.includes('downloads.html')) {
+        tab.url = 'operecs://downloads';
+        tab.displayUrl = 'operecs://downloads';
+        tab.title = 'Downloads';
       } else {
         tab.url = url;
         tab.displayUrl = url;
@@ -224,6 +247,22 @@ class TabManager {
         tab.displayUrl = url;
       }
       this.notifyTabUpdated(tab);
+    });
+
+    wc.on('media-started-playing', () => {
+      tab.isAudible = true;
+      this.notifyTabUpdated(tab);
+    });
+
+    wc.on('media-paused', () => {
+      tab.isAudible = false;
+      this.notifyTabUpdated(tab);
+    });
+
+    wc.on('found-in-page', (_event, result) => {
+      if (!this.mainWindow.isDestroyed()) {
+        this.mainWindow.webContents.send('find:result', result);
+      }
     });
 
     // Handle new-window / target="_blank" to open in a new tab inside Operecs
@@ -413,6 +452,11 @@ class TabManager {
     const tabToClose = this.tabs.get(id);
     if (!tabToClose) return;
 
+    if (tabToClose.url && tabToClose.url !== 'operecs://newtab') {
+      this.recentlyClosed.push(tabToClose.url);
+      if (this.recentlyClosed.length > 25) this.recentlyClosed.shift();
+    }
+
     if (this.isSplitView) {
       // If closing one of the split panes
       if (id === this.leftTabId || id === this.rightTabId) {
@@ -493,6 +537,121 @@ class TabManager {
     }
   }
 
+  reopenClosedTab() {
+    if (this.recentlyClosed.length > 0) {
+      const url = this.recentlyClosed.pop();
+      return this.createTab(url, true);
+    }
+    return null;
+  }
+
+  toggleMuteTab(tabId) {
+    const tab = this.tabs.get(tabId || this.activeTabId);
+    if (tab && tab.view) {
+      const isMuted = tab.view.webContents.isAudioMuted();
+      tab.view.webContents.setAudioMuted(!isMuted);
+      tab.isMuted = !isMuted;
+      this.notifyTabUpdated(tab);
+      return tab.isMuted;
+    }
+    return false;
+  }
+
+  togglePinTab(tabId) {
+    const tab = this.tabs.get(tabId);
+    if (tab) {
+      tab.isPinned = !tab.isPinned;
+      this.notifyTabsChanged();
+      return tab.isPinned;
+    }
+    return false;
+  }
+
+  duplicateTab(tabId) {
+    const tab = this.tabs.get(tabId || this.activeTabId);
+    if (tab) {
+      return this.createTab(tab.url, true);
+    }
+    return null;
+  }
+
+  closeOtherTabs(keepTabId) {
+    const targetId = keepTabId || this.activeTabId;
+    const toClose = [];
+    for (const [id, tab] of this.tabs) {
+      if (id !== targetId && !tab.isPinned) {
+        toClose.push(id);
+      }
+    }
+    toClose.forEach(id => this.closeTab(id));
+  }
+
+  closeTabsToRight(tabId) {
+    const tabIds = Array.from(this.tabs.keys());
+    const index = tabIds.indexOf(tabId);
+    if (index !== -1) {
+      for (let i = index + 1; i < tabIds.length; i++) {
+        const id = tabIds[i];
+        const tab = this.tabs.get(id);
+        if (tab && !tab.isPinned) {
+          this.closeTab(id);
+        }
+      }
+    }
+  }
+
+  zoomIn(tabId) {
+    const tab = this.tabs.get(tabId || this.activeTabId);
+    if (tab && tab.view) {
+      const current = tab.view.webContents.getZoomLevel();
+      const next = Math.min(current + 0.5, 3.0);
+      tab.view.webContents.setZoomLevel(next);
+      tab.zoomLevel = next;
+      this.notifyTabUpdated(tab);
+      return next;
+    }
+    return 0;
+  }
+
+  zoomOut(tabId) {
+    const tab = this.tabs.get(tabId || this.activeTabId);
+    if (tab && tab.view) {
+      const current = tab.view.webContents.getZoomLevel();
+      const next = Math.max(current - 0.5, -2.0);
+      tab.view.webContents.setZoomLevel(next);
+      tab.zoomLevel = next;
+      this.notifyTabUpdated(tab);
+      return next;
+    }
+    return 0;
+  }
+
+  resetZoom(tabId) {
+    const tab = this.tabs.get(tabId || this.activeTabId);
+    if (tab && tab.view) {
+      tab.view.webContents.setZoomLevel(0);
+      tab.zoomLevel = 0;
+      this.notifyTabUpdated(tab);
+      return 0;
+    }
+    return 0;
+  }
+
+  findInPage(text, options = {}) {
+    const tab = this.tabs.get(this.activeTabId);
+    if (tab && tab.view && text) {
+      return tab.view.webContents.findInPage(text, options);
+    }
+    return null;
+  }
+
+  stopFindInPage(action = 'clearSelection') {
+    const tab = this.tabs.get(this.activeTabId);
+    if (tab && tab.view) {
+      tab.view.webContents.stopFindInPage(action);
+    }
+  }
+
   getActiveTab() {
     return this.tabs.get(this.activeTabId);
   }
@@ -500,6 +659,7 @@ class TabManager {
   getSerializedTabs() {
     return Array.from(this.tabs.values()).map(t => ({
       id: t.id,
+      wcId: t.view ? t.view.webContents.id : null,
       url: t.url,
       displayUrl: t.displayUrl,
       title: t.title,
@@ -508,6 +668,10 @@ class TabManager {
       canGoBack: t.canGoBack,
       canGoForward: t.canGoForward,
       isActive: t.id === this.activeTabId,
+      isAudible: !!t.isAudible,
+      isMuted: !!t.isMuted,
+      isPinned: !!t.isPinned,
+      zoomLevel: t.zoomLevel || 0,
       isSplitLeft: this.isSplitView && t.id === this.leftTabId,
       isSplitRight: this.isSplitView && t.id === this.rightTabId
     }));
@@ -530,6 +694,7 @@ class TabManager {
     if (!this.mainWindow.isDestroyed()) {
       this.mainWindow.webContents.send('tab-status-updated', {
         id: tab.id,
+        wcId: tab.view ? tab.view.webContents.id : null,
         url: tab.url,
         displayUrl: tab.displayUrl,
         title: tab.title,
@@ -537,7 +702,11 @@ class TabManager {
         isLoading: tab.isLoading,
         canGoBack: tab.canGoBack,
         canGoForward: tab.canGoForward,
-        isActive: tab.id === this.activeTabId
+        isActive: tab.id === this.activeTabId,
+        isAudible: !!tab.isAudible,
+        isMuted: !!tab.isMuted,
+        isPinned: !!tab.isPinned,
+        zoomLevel: tab.zoomLevel || 0
       });
     }
   }

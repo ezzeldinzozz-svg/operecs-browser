@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Downloads — Operecs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Azeret+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/fonts/fonts.css">
+  <style>
+    :root {
+      --font-display: "Outfit Variable", "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "Azeret Mono Variable", "Azeret Mono", Consolas, monospace;
+      --bg: #08070a;
+      --bg-card: rgba(255, 255, 255, 0.03);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f5f3f7;
+      --text-muted: #948fa3;
+      --accent: #7c3aed;
+      --accent-hover: #8b5cf6;
+      --accent-dot: #c7adff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-display);
+      letter-spacing: -0.01em;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 48px 24px;
+      overflow-y: auto;
+    }
+
+    .container {
+      max-width: 760px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header svg {
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(109, 40, 217, 0.35);
+    }
+
+    .title {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .downloads-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .empty-state {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .dl-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      transition: all 0.15s;
+    }
+
+    .dl-card:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .dl-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow: hidden;
+    }
+
+    .dl-filename {
+      font-size: 0.95rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dl-meta {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      display: flex;
+      gap: 12px;
+    }
+
+    .dl-status-completed { color: #4ade80; }
+    .dl-status-progressing { color: var(--accent-dot); }
+    .dl-status-interrupted, .dl-status-cancelled { color: #f87171; }
+
+    .dl-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+    }
+
+    .btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <svg viewBox="0 0 48 48" width="48" height="48">
+        <rect width="48" height="48" rx="12" fill="#151220"/>
+        <path d="M24 12v18M16 22l8 8 8-8M12 36h24" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div>
+        <h1 class="title">Downloads</h1>
+        <p class="subtitle">Manage files downloaded in Operecs</p>
+      </div>
+    </div>
+
+    <div class="downloads-container" id="dl-container">
+      <div class="empty-state">No downloads yet</div>
+    </div>
+  </div>
+
+  <script>
+    const container = document.getElementById('dl-container');
+
+    function formatBytes(bytes) {
+      if (!bytes || bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return (bytes / Math.pow(k, i)).toFixed(1) + ' ' + sizes[i];
+    }
+
+    function renderDownloads(list) {
+      if (!list || list.length === 0) {
+        container.innerHTML = '<div class="empty-state">No downloads yet</div>';
+        return;
+      }
+      container.innerHTML = '';
+      list.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'dl-card';
+        card.innerHTML = `
+          <div class="dl-info">
+            <div class="dl-filename">${item.fileName}</div>
+            <div class="dl-meta">
+              <span class="dl-status-${item.state}">${item.state.toUpperCase()}</span>
+              <span>${formatBytes(item.receivedBytes)} / ${formatBytes(item.totalBytes)}</span>
+            </div>
+          </div>
+          <div class="dl-buttons">
+            ${item.savePath ? `<button class="btn" onclick="openFile('${item.id}')">Open</button>` : ''}
+            ${item.savePath ? `<button class="btn" onclick="showFolder('${item.id}')">Folder</button>` : ''}
+            ${item.state === 'progressing' ? `<button class="btn" onclick="cancelDl('${item.id}')">Cancel</button>` : ''}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    const api = window.browserAPI || (window.opener ? window.opener.browserAPI : null);
+
+    if (api && api.getDownloads) {
+      api.getDownloads().then(renderDownloads);
+      if (api.onDownloadsUpdated) {
+        api.onDownloadsUpdated(renderDownloads);
+      }
+    }
+
+    function openFile(id) {
+      if (api && api.openDownload) api.openDownload(id);
+    }
+    function showFolder(id) {
+      if (api && api.showDownloadInFolder) api.showDownloadInFolder(id);
+    }
+    function cancelDl(id) {
+      if (api && api.cancelDownload) api.cancelDownload(id);
+    }
+  </script>
+</body>
+</html>

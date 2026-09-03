@@ -9,11 +9,37 @@ contextBridge.exposeInMainWorld('browserAPI', {
   stop: () => ipcRenderer.invoke('browser:stop'),
   openDevTools: () => ipcRenderer.invoke('browser:open-devtools'),
 
-  // Tabs
+  // Tabs & Tab Management
   createTab: (url) => ipcRenderer.invoke('tabs:create', url),
   closeTab: (tabId) => ipcRenderer.invoke('tabs:close', tabId),
   switchTab: (tabId) => ipcRenderer.invoke('tabs:switch', tabId),
   getTabs: () => ipcRenderer.invoke('tabs:get-all'),
+  toggleMuteTab: (tabId) => ipcRenderer.invoke('tabs:toggle-mute', tabId),
+  togglePinTab: (tabId) => ipcRenderer.invoke('tabs:toggle-pin', tabId),
+  duplicateTab: (tabId) => ipcRenderer.invoke('tabs:duplicate', tabId),
+  closeOtherTabs: (tabId) => ipcRenderer.invoke('tabs:close-others', tabId),
+  closeTabsToRight: (tabId) => ipcRenderer.invoke('tabs:close-right', tabId),
+  reopenClosedTab: () => ipcRenderer.invoke('tabs:reopen-closed'),
+
+  // Find in Page
+  findInPage: (text, options) => ipcRenderer.invoke('find:start', text, options),
+  stopFindInPage: (action) => ipcRenderer.invoke('find:stop', action),
+
+  // Page Zoom
+  zoomIn: () => ipcRenderer.invoke('zoom:in'),
+  zoomOut: () => ipcRenderer.invoke('zoom:out'),
+  resetZoom: () => ipcRenderer.invoke('zoom:reset'),
+
+  // Privacy Shield
+  toggleShield: () => ipcRenderer.invoke('shield:toggle'),
+  isShieldEnabled: () => ipcRenderer.invoke('shield:is-enabled'),
+  getBlockedCount: (wcId) => ipcRenderer.invoke('shield:get-count', wcId),
+
+  // Downloads
+  getDownloads: () => ipcRenderer.invoke('downloads:get'),
+  cancelDownload: (id) => ipcRenderer.invoke('downloads:cancel', id),
+  openDownload: (id) => ipcRenderer.invoke('downloads:open', id),
+  showDownloadInFolder: (id) => ipcRenderer.invoke('downloads:show-in-folder', id),
 
   // Split View & Sidebar
   toggleSplitView: (targetTabId) => ipcRenderer.invoke('split:toggle', targetTabId),
@@ -70,5 +96,30 @@ contextBridge.exposeInMainWorld('browserAPI', {
     const handler = () => callback();
     ipcRenderer.on('toggle-sidebar', handler);
     return () => ipcRenderer.removeListener('toggle-sidebar', handler);
+  },
+  onOpenCommandPalette: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on('open-command-palette', handler);
+    return () => ipcRenderer.removeListener('open-command-palette', handler);
+  },
+  onOpenFindBar: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on('open-find-bar', handler);
+    return () => ipcRenderer.removeListener('open-find-bar', handler);
+  },
+  onFindResult: (callback) => {
+    const handler = (_event, data) => callback(data);
+    ipcRenderer.on('find:result', handler);
+    return () => ipcRenderer.removeListener('find:result', handler);
+  },
+  onShieldCountUpdated: (callback) => {
+    const handler = (_event, data) => callback(data);
+    ipcRenderer.on('shield:count-updated', handler);
+    return () => ipcRenderer.removeListener('shield:count-updated', handler);
+  },
+  onDownloadsUpdated: (callback) => {
+    const handler = (_event, data) => callback(data);
+    ipcRenderer.on('downloads:updated', handler);
+    return () => ipcRenderer.removeListener('downloads:updated', handler);
   }
 });
