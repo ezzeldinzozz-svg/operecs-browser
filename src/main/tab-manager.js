@@ -8,8 +8,17 @@ class TabManager {
     this.tabs = new Map(); // id -> tab object
     this.activeTabId = null;
     this.nextTabId = 1;
-    this.toolbarHeight = 118; // Height in pixels for tab strip + omnibar + bookmarks bar
+
+    // Layout dimensions
+    this.sidebarWidth = 240; // Default expanded sidebar width in pixels
+    this.topBarHeight = 46;  // Slim top omnibox & navigation bar height in pixels
     this.newTabPath = `file://${path.join(__dirname, '../renderer/newtab.html').replace(/\\/g, '/')}`;
+
+    // Split View State
+    this.isSplitView = false;
+    this.leftTabId = null;
+    this.rightTabId = null;
+    this.focusedPane = 'left'; // 'left' | 'right'
 
     // Handle window resizing and maximize states to adjust active view bounds
     this.mainWindow.on('resize', () => this.updateActiveTabBounds());
@@ -47,31 +56,54 @@ class TabManager {
     }
   }
 
-  getTabBounds() {
-    const [width, height] = this.mainWindow.getContentSize();
-    return {
-      x: 0,
-      y: this.toolbarHeight,
-      width: width,
-      height: Math.max(0, height - this.toolbarHeight)
-    };
-  }
-
-  updateActiveTabBounds() {
-    const activeTab = this.tabs.get(this.activeTabId);
-    if (activeTab && activeTab.view) {
-      const bounds = this.getTabBounds();
-      activeTab.view.setBounds(bounds);
-    }
-  }
-
-  setToolbarHeight(height) {
-    this.toolbarHeight = height;
+  setSidebarWidth(width) {
+    this.sidebarWidth = Number(width) || 240;
     this.updateActiveTabBounds();
   }
 
+  updateActiveTabBounds() {
+    if (this.mainWindow.isDestroyed()) return;
+    const [winWidth, winHeight] = this.mainWindow.getContentSize();
+    const stageWidth = Math.max(0, winWidth - this.sidebarWidth);
+    const stageHeight = Math.max(0, winHeight - this.topBarHeight);
+
+    if (this.isSplitView) {
+      const leftTab = this.tabs.get(this.leftTabId);
+      const rightTab = this.tabs.get(this.rightTabId);
+      const halfWidth = Math.floor(stageWidth / 2);
+
+      if (leftTab && leftTab.view) {
+        leftTab.view.setBounds({
+          x: this.sidebarWidth,
+          y: this.topBarHeight,
+          width: Math.max(0, halfWidth - 1),
+          height: stageHeight
+        });
+      }
+
+      if (rightTab && rightTab.view) {
+        rightTab.view.setBounds({
+          x: this.sidebarWidth + halfWidth + 1,
+          y: this.topBarHeight,
+          width: Math.max(0, stageWidth - halfWidth - 1),
+          height: stageHeight
+        });
+      }
+    } else {
+      const activeTab = this.tabs.get(this.activeTabId);
+      if (activeTab && activeTab.view) {
+        activeTab.view.setBounds({
+          x: this.sidebarWidth,
+          y: this.topBarHeight,
+          width: stageWidth,
+          height: stageHeight
+        });
+      }
+    }
+  }
+
   resolveUrl(input) {
-    if (!input || input.trim() === '' || input === 'browser://newtab') {
+    if (!input || input.trim() === '' || input === 'browser://newtab' || input === 'operecs://newtab') {
       return this.newTabPath;
     }
     const trimmed = input.trim();
@@ -103,7 +135,7 @@ class TabManager {
     const tab = {
       id,
       view,
-      url: initialUrl || 'browser://newtab',
+      url: initialUrl || 'operecs://newtab',
       displayUrl: initialUrl || '',
       title: 'New Tab',
       favicon: '',
@@ -128,7 +160,7 @@ class TabManager {
       tab.canGoForward = this.canGoForward(wc);
       const currentUrl = wc.getURL();
       if (currentUrl.startsWith('file://') && currentUrl.includes('newtab.html')) {
-        tab.url = 'browser://newtab';
+        tab.url = 'operecs://newtab';
         tab.displayUrl = '';
       } else {
         tab.url = currentUrl;
@@ -139,7 +171,7 @@ class TabManager {
     });
 
     wc.on('page-title-updated', (event, title) => {
-      if (tab.url === 'browser://newtab') {
+      if (tab.url === 'operecs://newtab') {
         tab.title = 'New Tab';
       } else {
         tab.title = title || 'Untitled';
@@ -158,7 +190,7 @@ class TabManager {
       tab.canGoBack = this.canGoBack(wc);
       tab.canGoForward = this.canGoForward(wc);
       if (url.startsWith('file://') && url.includes('newtab.html')) {
-        tab.url = 'browser://newtab';
+        tab.url = 'operecs://newtab';
         tab.displayUrl = '';
       } else {
         tab.url = url;
@@ -188,46 +220,190 @@ class TabManager {
       console.warn(`Tab ${id} failed loading initial URL: ${targetUrl}`, err.message);
     });
 
-    if (makeActive || this.tabs.size === 1) {
-      this.switchTab(id);
+    if (this.isSplitView) {
+      if (makeActive) {
+        // If in split view, assign newly created tab to the focused pane
+        if (this.focusedPane === 'left') {
+          this.leftTabId = id;
+        } else {
+          this.rightTabId = id;
+        }
+        this.activeTabId = id;
+        this.attachViewSafely(view);
+        this.updateActiveTabBounds();
+        this.notifyTabsChanged();
+        this.notifyActiveTabChanged(tab);
+        this.notifySplitViewChanged();
+      } else {
+        this.notifyTabsChanged();
+      }
     } else {
-      this.notifyTabsChanged();
+      if (makeActive || this.tabs.size === 1) {
+        this.switchTab(id);
+      } else {
+        this.notifyTabsChanged();
+      }
     }
 
     return tab;
+  }
+
+  attachViewSafely(view) {
+    try {
+      const children = this.mainWindow.contentView.children || [];
+      if (!children.includes(view)) {
+        this.mainWindow.contentView.addChildView(view);
+      }
+    } catch (err) {
+      console.error('Failed to attach view:', err);
+    }
+  }
+
+  removeViewSafely(view) {
+    if (!view) return;
+    try {
+      this.mainWindow.contentView.removeChildView(view);
+    } catch (e) {}
   }
 
   switchTab(id) {
     const nextTab = this.tabs.get(id);
     if (!nextTab) return;
 
+    if (this.isSplitView) {
+      // If in split view, replace the focused pane with this tab
+      if (this.focusedPane === 'left') {
+        const prevLeft = this.tabs.get(this.leftTabId);
+        if (prevLeft && prevLeft.id !== id && prevLeft.id !== this.rightTabId) {
+          this.removeViewSafely(prevLeft.view);
+        }
+        this.leftTabId = id;
+      } else {
+        const prevRight = this.tabs.get(this.rightTabId);
+        if (prevRight && prevRight.id !== id && prevRight.id !== this.leftTabId) {
+          this.removeViewSafely(prevRight.view);
+        }
+        this.rightTabId = id;
+      }
+      this.activeTabId = id;
+      this.attachViewSafely(nextTab.view);
+      this.updateActiveTabBounds();
+      this.notifyTabsChanged();
+      this.notifyActiveTabChanged(nextTab);
+      this.notifySplitViewChanged();
+      return;
+    }
+
+    // Single-pane mode switch
     const prevTab = this.tabs.get(this.activeTabId);
     if (prevTab && prevTab.view && prevTab.id !== id) {
-      try {
-        this.mainWindow.contentView.removeChildView(prevTab.view);
-      } catch (e) {}
+      this.removeViewSafely(prevTab.view);
     }
 
     this.activeTabId = id;
-    try {
-      const children = this.mainWindow.contentView.children || [];
-      if (!children.includes(nextTab.view)) {
-        this.mainWindow.contentView.addChildView(nextTab.view);
-      }
-      this.updateActiveTabBounds();
-    } catch (err) {
-      console.error('Failed to attach tab view:', err);
-    }
+    this.attachViewSafely(nextTab.view);
+    this.updateActiveTabBounds();
 
     this.notifyTabsChanged();
     this.notifyActiveTabChanged(nextTab);
+  }
+
+  toggleSplitView(targetTabId = null) {
+    if (this.isSplitView) {
+      this.closeSplitView();
+      return;
+    }
+
+    // Enter split view
+    this.isSplitView = true;
+    this.leftTabId = this.activeTabId;
+
+    // Pick right tab
+    if (targetTabId && this.tabs.has(targetTabId) && targetTabId !== this.leftTabId) {
+      this.rightTabId = targetTabId;
+    } else {
+      // Find another available tab
+      const otherKey = Array.from(this.tabs.keys()).find(k => k !== this.leftTabId);
+      if (otherKey) {
+        this.rightTabId = otherKey;
+      } else {
+        // Create new tab for the right pane
+        const newTab = this.createTab('operecs://newtab', false);
+        this.rightTabId = newTab.id;
+      }
+    }
+
+    const leftTab = this.tabs.get(this.leftTabId);
+    const rightTab = this.tabs.get(this.rightTabId);
+
+    if (leftTab) this.attachViewSafely(leftTab.view);
+    if (rightTab) this.attachViewSafely(rightTab.view);
+
+    this.focusedPane = 'right';
+    this.activeTabId = this.rightTabId;
+
+    this.updateActiveTabBounds();
+    this.notifyTabsChanged();
+    this.notifySplitViewChanged();
+    if (rightTab) this.notifyActiveTabChanged(rightTab);
+  }
+
+  closeSplitView() {
+    if (!this.isSplitView) return;
+
+    const rightTab = this.tabs.get(this.rightTabId);
+    const leftTab = this.tabs.get(this.leftTabId);
+
+    // Keep the focused pane tab active, remove the other
+    let remainingTabId = this.focusedPane === 'right' && this.rightTabId ? this.rightTabId : this.leftTabId;
+    let closingTabId = remainingTabId === this.leftTabId ? this.rightTabId : this.leftTabId;
+
+    const closingTab = this.tabs.get(closingTabId);
+    if (closingTab) {
+      this.removeViewSafely(closingTab.view);
+    }
+
+    this.isSplitView = false;
+    this.leftTabId = null;
+    this.rightTabId = null;
+    this.focusedPane = 'left';
+    this.activeTabId = remainingTabId;
+
+    const activeTab = this.tabs.get(this.activeTabId);
+    if (activeTab) {
+      this.attachViewSafely(activeTab.view);
+    }
+
+    this.updateActiveTabBounds();
+    this.notifyTabsChanged();
+    this.notifySplitViewChanged();
+    if (activeTab) this.notifyActiveTabChanged(activeTab);
+  }
+
+  focusSplitPane(pane) {
+    if (!this.isSplitView) return;
+    this.focusedPane = pane === 'right' ? 'right' : 'left';
+    const targetId = this.focusedPane === 'right' ? this.rightTabId : this.leftTabId;
+    const tab = this.tabs.get(targetId);
+    if (tab) {
+      this.activeTabId = tab.id;
+      this.notifyActiveTabChanged(tab);
+      this.notifySplitViewChanged();
+    }
   }
 
   closeTab(id) {
     const tabToClose = this.tabs.get(id);
     if (!tabToClose) return;
 
-    // If closing active tab, find next tab to activate
+    if (this.isSplitView) {
+      // If closing one of the split panes
+      if (id === this.leftTabId || id === this.rightTabId) {
+        this.closeSplitView();
+      }
+    }
+
+    // Normal closing logic
     if (this.activeTabId === id) {
       const keys = Array.from(this.tabs.keys());
       const currentIndex = keys.indexOf(id);
@@ -241,26 +417,16 @@ class TabManager {
         }
       }
 
-      if (tabToClose.view) {
-        try {
-          this.mainWindow.contentView.removeChildView(tabToClose.view);
-        } catch (e) {}
-      }
-
+      this.removeViewSafely(tabToClose.view);
       this.tabs.delete(id);
 
       if (nextId) {
         this.switchTab(nextId);
       } else {
-        // If all tabs were closed, open a fresh new tab
         this.createTab('', true);
       }
     } else {
-      if (tabToClose.view) {
-        try {
-          this.mainWindow.contentView.removeChildView(tabToClose.view);
-        } catch (e) {}
-      }
+      this.removeViewSafely(tabToClose.view);
       this.tabs.delete(id);
       this.notifyTabsChanged();
     }
@@ -324,7 +490,9 @@ class TabManager {
       isLoading: t.isLoading,
       canGoBack: t.canGoBack,
       canGoForward: t.canGoForward,
-      isActive: t.id === this.activeTabId
+      isActive: t.id === this.activeTabId,
+      isSplitLeft: this.isSplitView && t.id === this.leftTabId,
+      isSplitRight: this.isSplitView && t.id === this.rightTabId
     }));
   }
 
@@ -332,7 +500,11 @@ class TabManager {
     if (!this.mainWindow.isDestroyed()) {
       this.mainWindow.webContents.send('tabs-updated', {
         tabs: this.getSerializedTabs(),
-        activeTabId: this.activeTabId
+        activeTabId: this.activeTabId,
+        isSplitView: this.isSplitView,
+        leftTabId: this.leftTabId,
+        rightTabId: this.rightTabId,
+        focusedPane: this.focusedPane
       });
     }
   }
@@ -363,7 +535,20 @@ class TabManager {
         favicon: tab.favicon,
         isLoading: tab.isLoading,
         canGoBack: tab.canGoBack,
-        canGoForward: tab.canGoForward
+        canGoForward: tab.canGoForward,
+        isSplitView: this.isSplitView,
+        focusedPane: this.focusedPane
+      });
+    }
+  }
+
+  notifySplitViewChanged() {
+    if (!this.mainWindow.isDestroyed()) {
+      this.mainWindow.webContents.send('split-view-changed', {
+        isSplitView: this.isSplitView,
+        leftTabId: this.leftTabId,
+        rightTabId: this.rightTabId,
+        focusedPane: this.focusedPane
       });
     }
   }

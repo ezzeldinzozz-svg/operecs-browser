@@ -15,6 +15,12 @@ contextBridge.exposeInMainWorld('browserAPI', {
   switchTab: (tabId) => ipcRenderer.invoke('tabs:switch', tabId),
   getTabs: () => ipcRenderer.invoke('tabs:get-all'),
 
+  // Split View & Sidebar
+  toggleSplitView: (targetTabId) => ipcRenderer.invoke('split:toggle', targetTabId),
+  closeSplitView: () => ipcRenderer.invoke('split:close'),
+  focusSplitPane: (pane) => ipcRenderer.invoke('split:focus-pane', pane),
+  setSidebarWidth: (width) => ipcRenderer.invoke('sidebar:set-width', width),
+
   // Bookmarks
   getBookmarks: () => ipcRenderer.invoke('bookmarks:get'),
   addBookmark: (bookmark) => ipcRenderer.invoke('bookmarks:add', bookmark),
@@ -46,9 +52,19 @@ contextBridge.exposeInMainWorld('browserAPI', {
     ipcRenderer.on('active-tab-changed', handler);
     return () => ipcRenderer.removeListener('active-tab-changed', handler);
   },
+  onSplitViewChanged: (callback) => {
+    const handler = (_event, data) => callback(data);
+    ipcRenderer.on('split-view-changed', handler);
+    return () => ipcRenderer.removeListener('split-view-changed', handler);
+  },
   onFocusOmnibox: (callback) => {
     const handler = () => callback();
     ipcRenderer.on('focus-omnibox', handler);
     return () => ipcRenderer.removeListener('focus-omnibox', handler);
+  },
+  onToggleSidebar: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on('toggle-sidebar', handler);
+    return () => ipcRenderer.removeListener('toggle-sidebar', handler);
   }
 });

@@ -93,6 +93,23 @@ ipcMain.handle('tabs:get-all', () => {
   return tabManager.getSerializedTabs();
 });
 
+// IPC Handlers: Split View & Sidebar
+ipcMain.handle('split:toggle', (_event, targetTabId) => {
+  tabManager.toggleSplitView(targetTabId);
+});
+
+ipcMain.handle('split:close', () => {
+  tabManager.closeSplitView();
+});
+
+ipcMain.handle('split:focus-pane', (_event, pane) => {
+  tabManager.focusSplitPane(pane);
+});
+
+ipcMain.handle('sidebar:set-width', (_event, width) => {
+  tabManager.setSidebarWidth(width);
+});
+
 // IPC Handlers: Bookmarks
 ipcMain.handle('bookmarks:get', () => {
   return store.getBookmarks();

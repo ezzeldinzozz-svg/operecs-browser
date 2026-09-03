@@ -1,8 +1,15 @@
 // Operecs Browser Renderer UI Logic
 
-// DOM Elements
+// DOM Elements: Sidebar
+const sidebar = document.getElementById('sidebar');
+const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
 const tabStrip = document.getElementById('tab-strip');
-const newTabBtn = document.getElementById('new-tab-btn');
+const btnNewTab = document.getElementById('btn-new-tab');
+const btnHistoryToggle = document.getElementById('btn-history-toggle');
+const btnDevtools = document.getElementById('btn-devtools');
+const pinnedItems = document.querySelectorAll('.pinned-item');
+
+// DOM Elements: Top Navigation & Omnibox
 const omniboxInput = document.getElementById('omnibox-input');
 const btnBack = document.getElementById('btn-back');
 const btnForward = document.getElementById('btn-forward');
@@ -12,36 +19,48 @@ const stopIcon = document.getElementById('stop-icon');
 const btnHome = document.getElementById('btn-home');
 const btnBookmark = document.getElementById('btn-bookmark');
 const starIcon = document.getElementById('star-icon');
-const bookmarksBar = document.getElementById('bookmarks-bar');
-const btnHistoryToggle = document.getElementById('btn-history-toggle');
-const historyDropdown = document.getElementById('history-dropdown');
-const historyList = document.getElementById('history-list');
-const btnClearHistory = document.getElementById('btn-clear-history');
-const btnDevtools = document.getElementById('btn-devtools');
 
-// Window Controls
+// DOM Elements: Split View
+const btnSplitToggle = document.getElementById('btn-split-toggle');
+const splitPaneBadges = document.getElementById('split-pane-badges');
+const badgePaneLeft = document.getElementById('badge-pane-left');
+const badgePaneRight = document.getElementById('badge-pane-right');
+const splitDivider = document.getElementById('split-divider');
+
+// DOM Elements: Windows Controls
 const btnMinimize = document.getElementById('btn-minimize');
 const btnMaximize = document.getElementById('btn-maximize');
 const btnClose = document.getElementById('btn-close');
 
-// State
+// DOM Elements: History Modal
+const historyDropdown = document.getElementById('history-dropdown');
+const historyList = document.getElementById('history-list');
+const btnClearHistory = document.getElementById('btn-clear-history');
+
+// Application State
 let currentTabs = [];
 let activeTabId = null;
 let activeTab = null;
 let isOmniboxFocused = false;
+let isSidebarCollapsed = false;
+let splitState = {
+  isSplitView: false,
+  leftTabId: null,
+  rightTabId: null,
+  focusedPane: 'left'
+};
 
 // ================= INITIALIZATION =================
 async function init() {
   setupEventListeners();
   setupIpcListeners();
-  loadBookmarks();
 
   // Fetch initial tabs if already loaded
   try {
     const tabs = await window.browserAPI.getTabs();
     if (tabs && tabs.length > 0) {
       currentTabs = tabs;
-      const active = tabs.find(t => t.isActive);
+      const active = tabs.find(t => t.isActive) || tabs[0];
       if (active) {
         activeTabId = active.id;
         activeTab = active;
@@ -56,9 +75,20 @@ async function init() {
 
 // ================= EVENT LISTENERS =================
 function setupEventListeners() {
-  // Tabs
-  newTabBtn.addEventListener('click', () => {
+  // Sidebar Collapse / Expand
+  btnToggleSidebar.addEventListener('click', toggleSidebar);
+
+  // New Tab
+  btnNewTab.addEventListener('click', () => {
     window.browserAPI.createTab('');
+  });
+
+  // Pinned Items
+  pinnedItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const url = item.getAttribute('data-url');
+      if (url) window.browserAPI.navigate(url);
+    });
   });
 
   // Navigation
@@ -71,8 +101,21 @@ function setupEventListeners() {
       window.browserAPI.reload();
     }
   });
-  btnHome.addEventListener('click', () => window.browserAPI.navigate('browser://newtab'));
+  btnHome.addEventListener('click', () => window.browserAPI.navigate('operecs://newtab'));
   btnDevtools.addEventListener('click', () => window.browserAPI.openDevTools());
+
+  // Split View Controls
+  btnSplitToggle.addEventListener('click', () => {
+    window.browserAPI.toggleSplitView();
+  });
+
+  badgePaneLeft.addEventListener('click', () => {
+    window.browserAPI.focusSplitPane('left');
+  });
+
+  badgePaneRight.addEventListener('click', () => {
+    window.browserAPI.focusSplitPane('right');
+  });
 
   // Window Controls
   btnMinimize.addEventListener('click', () => window.browserAPI.minimizeWindow());
@@ -109,7 +152,7 @@ function setupEventListeners() {
 
   // Bookmark Toggle
   btnBookmark.addEventListener('click', async () => {
-    if (!activeTab || !activeTab.url || activeTab.url === 'browser://newtab') return;
+    if (!activeTab || !activeTab.url || activeTab.url === 'operecs://newtab') return;
     const isBookmarked = await window.browserAPI.isBookmarked(activeTab.url);
     if (isBookmarked) {
       await window.browserAPI.removeBookmark(activeTab.url);
@@ -121,7 +164,6 @@ function setupEventListeners() {
       });
     }
     await checkBookmarkStatus(activeTab.url);
-    await loadBookmarks();
   });
 
   // History Dropdown Toggle
@@ -142,7 +184,7 @@ function setupEventListeners() {
     }
   });
 
-  // Keyboard Shortcuts
+  // Global Keyboard Shortcuts
   window.addEventListener('keydown', (e) => {
     if (e.ctrlKey && e.key.toLowerCase() === 't') {
       e.preventDefault();
@@ -150,6 +192,12 @@ function setupEventListeners() {
     } else if (e.ctrlKey && e.key.toLowerCase() === 'w') {
       e.preventDefault();
       if (activeTabId) window.browserAPI.closeTab(activeTabId);
+    } else if (e.ctrlKey && e.key.toLowerCase() === 's') {
+      e.preventDefault();
+      toggleSidebar();
+    } else if (e.altKey && e.key.toLowerCase() === 's') {
+      e.preventDefault();
+      window.browserAPI.toggleSplitView();
     } else if (e.ctrlKey && e.key.toLowerCase() === 'r') {
       e.preventDefault();
       window.browserAPI.reload();
@@ -170,12 +218,27 @@ function setupEventListeners() {
   });
 }
 
+// ================= SIDEBAR TOGGLE =================
+function toggleSidebar() {
+  isSidebarCollapsed = !isSidebarCollapsed;
+  if (isSidebarCollapsed) {
+    sidebar.classList.add('collapsed');
+    window.browserAPI.setSidebarWidth(56);
+  } else {
+    sidebar.classList.remove('collapsed');
+    window.browserAPI.setSidebarWidth(240);
+  }
+}
+
 // ================= IPC LISTENERS =================
 function setupIpcListeners() {
-  window.browserAPI.onTabsUpdated(({ tabs, activeTabId: newActiveId }) => {
+  window.browserAPI.onTabsUpdated(({ tabs, activeTabId: newActiveId, isSplitView, leftTabId, rightTabId, focusedPane }) => {
     currentTabs = tabs;
     activeTabId = newActiveId;
     activeTab = tabs.find(t => t.id === activeTabId) || null;
+    splitState = { isSplitView, leftTabId, rightTabId, focusedPane };
+
+    updateSplitUi();
     renderTabs();
     updateToolbar();
   });
@@ -195,22 +258,73 @@ function setupIpcListeners() {
   window.browserAPI.onActiveTabChanged((tab) => {
     activeTabId = tab.id;
     activeTab = tab;
+    if (tab.isSplitView !== undefined) {
+      splitState.isSplitView = tab.isSplitView;
+      splitState.focusedPane = tab.focusedPane || 'left';
+      updateSplitUi();
+    }
     renderTabs();
     updateToolbar();
+  });
+
+  window.browserAPI.onSplitViewChanged((state) => {
+    splitState = state;
+    updateSplitUi();
+    renderTabs();
+    if (activeTabId) {
+      activeTab = currentTabs.find(t => t.id === activeTabId) || null;
+      updateToolbar();
+    }
   });
 
   window.browserAPI.onFocusOmnibox(() => {
     omniboxInput.focus();
     omniboxInput.select();
   });
+
+  if (window.browserAPI.onToggleSidebar) {
+    window.browserAPI.onToggleSidebar(() => toggleSidebar());
+  }
+}
+
+// ================= SPLIT VIEW UI =================
+function updateSplitUi() {
+  if (splitState.isSplitView) {
+    btnSplitToggle.classList.add('active');
+    btnSplitToggle.querySelector('.split-label').textContent = 'Exit Split';
+    splitPaneBadges.classList.remove('hidden');
+    splitDivider.classList.remove('hidden');
+
+    if (splitState.focusedPane === 'left') {
+      badgePaneLeft.classList.add('active');
+      badgePaneRight.classList.remove('active');
+    } else {
+      badgePaneLeft.classList.remove('active');
+      badgePaneRight.classList.add('active');
+    }
+  } else {
+    btnSplitToggle.classList.remove('active');
+    btnSplitToggle.querySelector('.split-label').textContent = 'Split';
+    splitPaneBadges.classList.add('hidden');
+    splitDivider.classList.add('hidden');
+  }
 }
 
 // ================= TAB RENDERING =================
 function renderTabs() {
   tabStrip.innerHTML = '';
+
   currentTabs.forEach(tab => {
+    const isLeft = splitState.isSplitView && tab.id === splitState.leftTabId;
+    const isRight = splitState.isSplitView && tab.id === splitState.rightTabId;
+    const isActive = tab.id === activeTabId;
+
     const tabEl = document.createElement('div');
-    tabEl.className = `tab ${tab.id === activeTabId ? 'active' : ''}`;
+    let classes = ['tab'];
+    if (isActive) classes.push('active');
+    if (isLeft) classes.push('split-left');
+    if (isRight) classes.push('split-right');
+    tabEl.className = classes.join(' ');
     tabEl.id = `tab-el-${tab.id}`;
 
     // Icon or Spinner
@@ -235,6 +349,22 @@ function renderTabs() {
     titleEl.textContent = tab.title || 'New Tab';
     titleEl.title = tab.title || 'New Tab';
 
+    tabEl.appendChild(iconContainer);
+    tabEl.appendChild(titleEl);
+
+    // Split Badge if active in split view
+    if (isLeft) {
+      const badge = document.createElement('span');
+      badge.className = 'tab-badge';
+      badge.textContent = 'Left';
+      tabEl.appendChild(badge);
+    } else if (isRight) {
+      const badge = document.createElement('span');
+      badge.className = 'tab-badge';
+      badge.textContent = 'Right';
+      tabEl.appendChild(badge);
+    }
+
     // Close Button
     const closeBtn = document.createElement('button');
     closeBtn.className = 'tab-close';
@@ -250,14 +380,10 @@ function renderTabs() {
       window.browserAPI.closeTab(tab.id);
     });
 
-    tabEl.appendChild(iconContainer);
-    tabEl.appendChild(titleEl);
     tabEl.appendChild(closeBtn);
 
     tabEl.addEventListener('click', () => {
-      if (tab.id !== activeTabId) {
-        window.browserAPI.switchTab(tab.id);
-      }
+      window.browserAPI.switchTab(tab.id);
     });
 
     tabStrip.appendChild(tabEl);
@@ -320,7 +446,7 @@ async function updateToolbar() {
 }
 
 async function checkBookmarkStatus(url) {
-  if (!url || url === 'browser://newtab') {
+  if (!url || url === 'operecs://newtab') {
     btnBookmark.classList.remove('bookmarked');
     btnBookmark.title = 'Bookmark this tab';
     return;
@@ -333,33 +459,6 @@ async function checkBookmarkStatus(url) {
     btnBookmark.classList.remove('bookmarked');
     btnBookmark.title = 'Bookmark this tab';
   }
-}
-
-// ================= BOOKMARKS =================
-async function loadBookmarks() {
-  const bookmarks = await window.browserAPI.getBookmarks();
-  bookmarksBar.innerHTML = '';
-
-  bookmarks.forEach(bm => {
-    const bmBtn = document.createElement('button');
-    bmBtn.className = 'bookmark-item';
-    bmBtn.title = `${bm.title}\n${bm.url}`;
-
-    const icon = bm.favicon 
-      ? `<img class="bookmark-favicon" src="${bm.favicon}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'14\\' height=\\'14\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'%23909bb0\\' stroke-width=\\'2\\'><circle cx=\\'12\\' cy=\\'12\\' r=\\'10\\'/></svg>'">`
-      : `<svg class="bookmark-favicon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>`;
-
-    bmBtn.innerHTML = `
-      ${icon}
-      <span>${bm.title}</span>
-    `;
-
-    bmBtn.addEventListener('click', () => {
-      window.browserAPI.navigate(bm.url);
-    });
-
-    bookmarksBar.appendChild(bmBtn);
-  });
 }
 
 // ================= HISTORY =================
