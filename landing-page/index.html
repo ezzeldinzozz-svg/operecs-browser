@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbit Browser — Fast, Private, Built on Chromium</title>
+  <meta name="description" content="A fast, modern, and sandboxed multi-tab desktop browser built on Chromium with Electron.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="../assets/icon.svg">
+</head>
+<body>
+  <!-- Background Glows -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="#" class="brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 512 512" width="32" height="32">
+            <defs>
+              <linearGradient id="pGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#4facfe" />
+                <stop offset="100%" stop-color="#6b11ff" />
+              </linearGradient>
+            </defs>
+            <circle cx="256" cy="256" r="140" fill="url(#pGrad)" />
+            <ellipse cx="256" cy="256" rx="210" ry="70" fill="none" stroke="#00f2fe" stroke-width="24" transform="rotate(-30 256 256)" opacity="0.9" />
+          </svg>
+        </div>
+        <span class="brand-name">Orbit</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#download" class="nav-btn-highlight">Download</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      <span>Next-Gen Chromium Browser • v1.0.0</span>
+    </div>
+
+    <h1 class="hero-title">
+      The Speed of Chromium.<br>
+      <span class="gradient-text">The Freedom of Orbit.</span>
+    </h1>
+
+    <p class="hero-subtitle">
+      A fast, modern desktop browser engineered with Chromium’s high-performance Blink engine, OS-level tab sandboxing, and a distraction-free dark interface.
+    </p>
+
+    <div class="hero-cta-group">
+      <a href="#download" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4h-13.051M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.802"/>
+        </svg>
+        <span>Download for Windows</span>
+        <span class="btn-tag">64-bit</span>
+      </a>
+      <a href="https://github.com" target="_blank" class="btn btn-secondary" id="github-link">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        <span>GitHub Repository</span>
+      </a>
+    </div>
+
+    <!-- Interactive Mockup Preview -->
+    <div class="mockup-wrapper">
+      <div class="mockup-window">
+        <!-- Mockup Tab Strip -->
+        <div class="mockup-tabbar">
+          <div class="mockup-tabs">
+            <div class="mockup-tab active">
+              <span class="mockup-tab-dot"></span>
+              <span>Orbit Home</span>
+              <span class="mockup-close">✕</span>
+            </div>
+            <div class="mockup-tab">
+              <span>GitHub</span>
+              <span class="mockup-close">✕</span>
+            </div>
+            <div class="mockup-tab-new">+</div>
+          </div>
+          <div class="mockup-window-controls">
+            <span>—</span>
+            <span>□</span>
+            <span class="close">✕</span>
+          </div>
+        </div>
+
+        <!-- Mockup Toolbar -->
+        <div class="mockup-toolbar">
+          <div class="mockup-nav">
+            <span>‹</span>
+            <span>›</span>
+            <span>↻</span>
+          </div>
+          <div class="mockup-omnibox">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span class="mockup-url">orbit://newtab</span>
+            <span class="mockup-star">★</span>
+          </div>
+        </div>
+
+        <!-- Mockup Content Screen -->
+        <div class="mockup-viewport">
+          <div class="mockup-newtab">
+            <div class="mockup-clock">01:45</div>
+            <div class="mockup-greeting">Welcome to Orbit • Built on Chromium</div>
+            <div class="mockup-search">
+              <input type="text" placeholder="Search Google or enter address..." disabled />
+            </div>
+            <div class="mockup-tiles">
+              <div class="mockup-tile">Google</div>
+              <div class="mockup-tile">YouTube</div>
+              <div class="mockup-tile">GitHub</div>
+              <div class="mockup-tile">Reddit</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Features Grid -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Engineered for Power & Simplicity</h2>
+        <p class="section-subtitle">Everything you need in a modern browser, without the clutter.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Native Chromium Speed</h3>
+          <p>Powered by the Blink rendering engine and V8 JavaScript engine. Experience lightning-fast page execution, WebGL rendering, and fluid video streaming.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h3>Isolated Tab Sandboxing</h3>
+          <p>Each browser tab runs in its own native `WebContentsView` with OS-level sandboxing, context isolation, and zero Node.js access for maximum security.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3>Smart Omnibox</h3>
+          <p>Unified address bar and search engine with auto-protocol prefixing, instant domain resolution, and one-click bookmarking.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📑</div>
+          <h3>Hardware-Accelerated Tabs</h3>
+          <p>Open, close, and switch between dozens of tabs smoothly without page reloading or UI freezing.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>Private & Local Data</h3>
+          <p>Your bookmarks, settings, and browsing history remain 100% on your local computer. No telemetry and no mandatory cloud accounts.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <h3>Minimalist Dark Aesthetic</h3>
+          <p>Designed from the ground up with custom frameless window controls, glassmorphic styling, and clean ergonomics.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture Section -->
+  <section class="section section-dark" id="architecture">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Under the Hood</h2>
+        <p class="section-subtitle">Built on industry-proven open-source foundations.</p>
+      </div>
+
+      <div class="tech-stack-row">
+        <div class="tech-pill">
+          <strong>Chromium</strong>
+          <span>Blink & V8 Engine</span>
+        </div>
+        <div class="tech-pill">
+          <strong>Electron 34</strong>
+          <span>WebContentsView Architecture</span>
+        </div>
+        <div class="tech-pill">
+          <strong>Secure IPC</strong>
+          <span>ContextBridge Isolation</span>
+        </div>
+        <div class="tech-pill">
+          <strong>Modern Web</strong>
+          <span>HTML5, CSS3 & ES6+</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download Section -->
+  <section class="section" id="download">
+    <div class="container download-card">
+      <h2 class="download-title">Ready to Experience Orbit?</h2>
+      <p class="download-desc">Download Orbit Browser today and take control of your browsing experience.</p>
+      <div class="download-actions">
+        <a href="#" class="btn btn-primary btn-large">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4h-13.051M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.802"/>
+          </svg>
+          <div>
+            <div class="btn-main-text">Download Orbit Setup (.exe)</div>
+            <div class="btn-sub-text">Windows 10 / 11 (64-bit) • Free & Open Source</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-brand">
+        <strong>Orbit Browser</strong>
+        <p>A modern Chromium-based desktop browser.</p>
+      </div>
+      <div class="footer-copy">
+        &copy; 2026 Orbit Browser. Released under the MIT License.
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

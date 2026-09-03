@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Tab</title>
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at 50% 30%, #1c1f2e 0%, #0c0d14 100%);
+      --accent: #4f8cff;
+      --accent-hover: #3d79eb;
+      --text: #f0f3f8;
+      --text-muted: #8e9bb0;
+      --card-bg: rgba(255, 255, 255, 0.04);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      user-select: none;
+      overflow-y: auto;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      margin-top: -40px;
+    }
+
+    .time-section {
+      text-align: center;
+    }
+
+    .clock {
+      font-size: 4rem;
+      font-weight: 300;
+      letter-spacing: -1px;
+      color: #ffffff;
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .greeting {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 400;
+    }
+
+    .search-box {
+      width: 100%;
+      max-width: 620px;
+      position: relative;
+    }
+
+    .search-input-wrapper {
+      display: flex;
+      align-items: center;
+      background: rgba(26, 29, 43, 0.85);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 8px 18px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .search-input-wrapper:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.25), 0 10px 30px rgba(0, 0, 0, 0.45);
+      background: rgba(30, 34, 52, 0.95);
+    }
+
+    .search-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 1.05rem;
+      padding: 6px 0;
+    }
+
+    .search-input::placeholder {
+      color: #637085;
+    }
+
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      width: 100%;
+      max-width: 620px;
+    }
+
+    .shortcut-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 18px 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      color: var(--text);
+      text-decoration: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .shortcut-card:hover {
+      background: var(--card-hover);
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .shortcut-icon-wrapper {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .shortcut-icon-wrapper img {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+    }
+
+    .shortcut-name {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #c9d2e0;
+    }
+
+    @media (max-width: 600px) {
+      .shortcuts-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .clock {
+        font-size: 3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="time-section">
+      <div class="clock" id="clock">12:00</div>
+      <div class="greeting" id="greeting">Welcome to Orbit</div>
+    </div>
+
+    <form class="search-box" id="search-form">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="search-input" class="search-input" placeholder="Search Google or type a URL..." autofocus autocomplete="off" />
+      </div>
+    </form>
+
+    <div class="shortcuts-grid">
+      <a href="https://www.google.com" class="shortcut-card">
+        <div class="shortcut-icon-wrapper">
+          <img src="https://www.google.com/favicon.ico" alt="Google" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'%234f8cff\'><circle cx=\'12\' cy=\'12\' r=\'10\'/></svg>'">
+        </div>
+        <span class="shortcut-name">Google</span>
+      </a>
+
+      <a href="https://www.youtube.com" class="shortcut-card">
+        <div class="shortcut-icon-wrapper">
+          <img src="https://www.youtube.com/favicon.ico" alt="YouTube" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'%23ff4b4b\'><circle cx=\'12\' cy=\'12\' r=\'10\'/></svg>'">
+        </div>
+        <span class="shortcut-name">YouTube</span>
+      </a>
+
+      <a href="https://github.com" class="shortcut-card">
+        <div class="shortcut-icon-wrapper">
+          <img src="https://github.githubassets.com/favicons/favicon.png" alt="GitHub" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'%23ffffff\'><circle cx=\'12\' cy=\'12\' r=\'10\'/></svg>'">
+        </div>
+        <span class="shortcut-name">GitHub</span>
+      </a>
+
+      <a href="https://www.reddit.com" class="shortcut-card">
+        <div class="shortcut-icon-wrapper">
+          <img src="https://www.redditstatic.com/shreddit/assets/favicon/192x192.png" alt="Reddit" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'%23ff6314\'><circle cx=\'12\' cy=\'12\' r=\'10\'/></svg>'">
+        </div>
+        <span class="shortcut-name">Reddit</span>
+      </a>
+
+      <a href="https://www.wikipedia.org" class="shortcut-card">
+        <div class="shortcut-icon-wrapper">
+          <img src="https://www.wikipedia.org/static/favicon/wikipedia.ico" alt="Wikipedia" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'%23ffffff\'><circle cx=\'12\' cy=\'12\' r=\'10\'/></svg>'">
+        </div>
+        <span class="shortcut-name">Wikipedia</span>
+      </a>
+
+      <a href="https://chatgpt.com" class="shortcut-card">
+        <div class="shortcut-icon-wrapper">
+          <img src="https://chatgpt.com/favicon.ico" alt="ChatGPT" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'%2310a37f\'><circle cx=\'12\' cy=\'12\' r=\'10\'/></svg>'">
+        </div>
+        <span class="shortcut-name">ChatGPT</span>
+      </a>
+
+      <a href="https://x.com" class="shortcut-card">
+        <div class="shortcut-icon-wrapper">
+          <img src="https://abs.twimg.com/favicons/twitter.3.ico" alt="X" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'%23ffffff\'><circle cx=\'12\' cy=\'12\' r=\'10\'/></svg>'">
+        </div>
+        <span class="shortcut-name">X (Twitter)</span>
+      </a>
+
+      <a href="https://www.twitch.tv" class="shortcut-card">
+        <div class="shortcut-icon-wrapper">
+          <img src="https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" alt="Twitch" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'%239146ff\'><circle cx=\'12\' cy=\'12\' r=\'10\'/></svg>'">
+        </div>
+        <span class="shortcut-name">Twitch</span>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const timeStr = `${hours}:${minutes}`;
+      document.getElementById('clock').textContent = timeStr;
+
+      let greet = 'Good evening';
+      if (hours >= 5 && hours < 12) greet = 'Good morning';
+      else if (hours >= 12 && hours < 18) greet = 'Good afternoon';
+      document.getElementById('greeting').textContent = `${greet} • Welcome to Orbit`;
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    const form = document.getElementById('search-form');
+    const input = document.getElementById('search-input');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const query = input.value.trim();
+      if (!query) return;
+
+      const domainRegex = /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+(\/[^\s]*)?$/;
+      if (query.startsWith('http://') || query.startsWith('https://')) {
+        window.location.href = query;
+      } else if (domainRegex.test(query)) {
+        window.location.href = `https://${query}`;
+      } else {
+        window.location.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+      }
+    });
+  </script>
+</body>
+</html>
