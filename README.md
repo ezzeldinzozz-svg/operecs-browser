@@ -35,7 +35,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/orbit-browser.git
+git clone https://github.com/ezzeldinzozz-svg/orbit-browser.git
 cd orbit-browser
 
 # Install dependencies

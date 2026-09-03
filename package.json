@@ -2,7 +2,7 @@
   "name": "orbit-browser",
   "version": "1.0.0",
   "description": "A sleek, modern multi-tab desktop browser built on Chromium with Electron",
-  "author": "wordreward22",
+  "author": "ezzeldinzozz",
   "license": "MIT",
   "main": "src/main/index.js",
   "scripts": {
