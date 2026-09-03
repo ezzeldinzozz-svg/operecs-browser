@@ -4,7 +4,7 @@ const { app } = require('electron');
 
 class BrowserStore {
   constructor() {
-    this.filePath = path.join(app.getPath('userData'), 'orbit-browser-data.json');
+    this.filePath = path.join(app.getPath('userData'), 'operecs-browser-data.json');
     this.data = {
       bookmarks: [
         { title: 'Google', url: 'https://www.google.com', favicon: 'https://www.google.com/favicon.ico' },

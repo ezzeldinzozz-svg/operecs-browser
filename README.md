@@ -1,8 +1,8 @@
-# 🪐 Orbit Browser
+# 🪐 OperEcs Browser
 
 > A sleek, high-performance, multi-tab desktop browser built on Chromium with Electron.
 
-![Orbit Browser](assets/icon.svg)
+![OperEcs Browser](assets/icon.svg)
 
 ---
 
@@ -35,21 +35,21 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/ezzeldinzozz-svg/orbit-browser.git
-cd orbit-browser
+git clone https://github.com/ezzeldinzozz-svg/operecs-browser.git
+cd operecs-browser
 
 # Install dependencies
 npm install
 
-# Start Orbit Browser
+# Start OperEcs Browser
 npm start
 ```
 
 ### Packaging into Standalone Windows Executable (.exe)
 
 ```bash
-# Build Windows Installer (NSIS Setup .exe) and Portable .exe
-npm run build
+# Build Windows Portable .exe
+npm run build:portable
 
 # Build unpacked directory
 npm run build:dir
@@ -60,7 +60,7 @@ The generated installers will be located in the `dist/` directory.
 
 ## 🌐 Landing Page
 
-Orbit includes a modern product landing page located in [`landing-page/`](./landing-page/). You can open `landing-page/index.html` in any browser or host it for free on GitHub Pages, Vercel, or Cloudflare Pages.
+OperEcs includes a modern product landing page located in [`landing-page/`](./landing-page/). You can open `landing-page/index.html` in any browser or host it for free on GitHub Pages, Vercel, or Cloudflare Pages.
 
 ---
 
@@ -68,7 +68,7 @@ Orbit includes a modern product landing page located in [`landing-page/`](./land
 
 - **Context Isolation**: Renderer processes cannot directly access Node.js runtime APIs.
 - **OS Sandboxing**: Web tabs execute within low-integrity sandboxes.
-- **Navigation Guard**: Links requesting new windows (`target="_blank"`) are trapped and safely opened within internal Orbit tabs.
+- **Navigation Guard**: Links requesting new windows (`target="_blank"`) are trapped and safely opened within internal OperEcs tabs.
 - **Local Storage**: Bookmarks and history are saved strictly to user data on your local drive.
 
 ---

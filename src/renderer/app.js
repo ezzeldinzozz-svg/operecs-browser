@@ -1,4 +1,4 @@
-// Orbit Browser Renderer UI Logic
+// OperEcs Browser Renderer UI Logic
 
 // DOM Elements
 const tabStrip = document.getElementById('tab-strip');

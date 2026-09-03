@@ -1,5 +1,5 @@
 {
-  "name": "orbit-browser",
+  "name": "operecs-browser",
   "version": "1.0.0",
   "description": "A sleek, modern multi-tab desktop browser built on Chromium with Electron",
   "author": "ezzeldinzozz",
@@ -12,9 +12,9 @@
     "build:dir": "electron-builder --dir"
   },
   "build": {
-    "appId": "com.orbit.browser",
-    "productName": "Orbit Browser",
-    "copyright": "Copyright © 2026 Orbit",
+    "appId": "com.operecs.browser",
+    "productName": "OperEcs Browser",
+    "copyright": "Copyright © 2026 OperEcs",
     "directories": {
       "output": "dist"
     },
@@ -34,7 +34,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Orbit Browser"
+      "shortcutName": "OperEcs Browser"
     }
   },
   "devDependencies": {

@@ -12,7 +12,7 @@ let store = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    title: 'Orbit Browser',
+    title: 'OperEcs Browser',
     width: 1280,
     height: 850,
     minWidth: 700,

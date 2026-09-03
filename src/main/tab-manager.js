@@ -177,7 +177,7 @@ class TabManager {
       this.notifyTabUpdated(tab);
     });
 
-    // Handle new-window / target="_blank" to open in a new tab inside Orbit
+    // Handle new-window / target="_blank" to open in a new tab inside OperEcs
     wc.setWindowOpenHandler(({ url }) => {
       this.createTab(url, true);
       return { action: 'deny' };
