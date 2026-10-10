@@ -64,16 +64,72 @@ Edit freely: move lines between sections, delete what you don't want, add your o
 - [x] Share a single tab when screen sharing
 - [x] Client certificate selection
 - [x] Workspaces / spaces
-- ~~Built-in AI features (summaries, chat)~~ — skipped (decided 2026-10-10)
+- [ ] Built-in AI features — moved to "Later" below (2026-10-11)
 - [x] QR code for the current page
-- ~~Encrypted sync / send tab to another device~~ — skipped (decided 2026-10-10)
+- [ ] Encrypted sync / send tab to another device — moved to "Later" below (2026-10-11)
+
+## Later — after 1.0 (from the browser study, 2026-10-11)
+
+Ideas from Rill, Mind Browser, Search, Zephium and Deta Surf, and the things we put off. How each
+one works and how we'd build it: `research/browser-study-2026-10.md`. Rough order: the AI layer
+first, because most of the rest sits on it.
+
+**1. AI layer (the foundation)**
+- [ ] Models: use the Claude Code and Codex apps already signed in on the Mac (your own plan, no API keys, like Rill); or your own API keys (Anthropic, OpenAI, Gemini, OpenRouter, kept in the keychain); or a local model (Ollama, LM Studio) so nothing leaves the Mac
+- [ ] AI side panel beside the page (reuses split view): ask about this page, answers with links back to the source
+- [ ] Safety rules for every AI feature: read-only until you allow edits; stop before paying, sending, posting or deleting; never type into password, card or code fields; show every page the AI opens and what it sends to the model; one switch turns all AI off
+
+**2. Claude Code and Codex in the browser (Rill)**
+- [ ] Find your projects from Claude Code and Codex history, no setup
+- [ ] ⌘E from any page: ask about the page, or send it to a project as a task; the right project is picked automatically
+- [ ] Tasks keep running while you browse: an "At work" tray, a notification when done, a "Today in your projects" list
+- [ ] Agents browse in their own tabs without your logins; you can take over
+- [ ] Compare up to six tabs in one table; AI tab groups; history you can search by describing a page; projects map; voice (hold a key and speak)
+
+**3. Notes (Deta Surf, Mind, Zephium)**
+- [ ] Notes beside the page, each a Markdown file you own (edits from other apps show up)
+- [ ] Send highlighted text to a note with its source link
+- [ ] Smart notes: @-mention tabs, notes and PDFs as context; AI writes in the note; citations jump to the exact spot (page section, PDF page, video time) in split view
+- [ ] "/" menu (headings, lists, to-dos, code), suggested questions about the open page, web search inside a note
+- [ ] Summarize a page or all open tabs into a note
+- [ ] Small generated apps inside notes (Surf's "Surflets": a chart or demo from a sentence)
+
+**4. Work mode and canvas (Zephium)**
+- [ ] Browse / Work switch: the window flips between a normal browser and a work space, keeping personal browsing clean
+- [ ] Work canvas: describe an outcome; helpers browse in parallel in live tabs you can watch; results (tables, charts, diagrams, plans) stay on the canvas; tabs, files and images can be placed on it
+- [ ] Agents that reach past the browser: folders you grant, commands, MCP servers (Linear, Notion, Sentry…), hand coding jobs to Claude Code or Codex
+- [ ] Skills: ready-made jobs (research, compare and choose, plan my day, trip planning) and your own
+- [ ] Agent Mode roles from Mind: planner, navigator (drives tabs), researcher (with citations), writer, analyst
+
+**5. Built-in tools (Zephium, Mind)**
+- [ ] Tasks written the way you say them ("call Anna tomorrow at 3"), with the page you were on linked; a plan becomes tasks in one click
+- [ ] Time: time per site (on this Mac only) and focus sessions that block chosen sites
+- [ ] Launcher anywhere on the desktop (⌘⇧Space): tabs, history, notes, commands, new task
+- [ ] Command palette in the browser (⌘K): tabs, bookmarks, settings, actions
+- [ ] PDF editor: highlight, draw, type, sign
+- [ ] New tab extras: daily wallpaper, weather, clock, notes; News and Finance pages (optional)
+
+**6. Browsing ideas (Search, Mind)**
+- [ ] Hide any element on a site, for good (⇧⌘H, then click it)
+- [ ] Video that follows you: leaving a playing tab floats the video above other apps
+- [ ] Swipe between spaces with two fingers
+- [ ] Protection slider: Off / Standard / Strict (Strict adds HTTPS-only, referrer trimming, WebRTC leak blocking)
+- [ ] Onion mode: a separate in-memory window over Tor, for .onion sites (clearly "not Tor Browser")
+- [ ] Lighter and faster: sleep background tabs sooner, fewer processes, smaller download. (Search is 6 MB because it uses the Mac's own WebKit instead of carrying Chromium; matching that means a native WebKit edition, a rewrite — a decision, not a task)
+
+**7. Put off earlier**
+- [ ] Encrypted sync of bookmarks, history, settings, open tabs between your devices; send a tab to another device
+- [ ] Mobile view: see a page as it looks on a phone (device sizes, touch)
+
+**8. Website**
+- [ ] A landing page in the spirit of Mind Browser's: hero with download buttons, a real browser screenshot, numbered feature cards, privacy, shortcuts, closing download section
 
 ## Blocked — needs a paid account or a provider
 
 - [ ] Developer ID signing + notarization (removes "Open Anyway"; needs the $99/yr Apple Developer Program)
 - [ ] Passkeys / Touch ID / security keys (needs Developer ID + entitlements)
 - [ ] iCloud Passwords (needs Developer ID + Apple's web-browser entitlement)
-- [ ] Netflix / Spotify / Disney+ (DRM: castLabs Electron build + Widevine signing)
+- [ ] Netflix / Spotify / Disney+ (DRM: castLabs Electron build + Widevine signing). Mind Browser ships this way; castlabs' builds and EVS signing are free, so this may only need the switch and an EVS account (see `research/browser-study-2026-10.md`)
 - [ ] Safe Browsing / phishing and malware warnings (Google Web Risk is paid)
 - [ ] Opt-in crash reporting: built in (Settings → Privacy, off by default); waiting for the Sentry project's DSN in `SENTRY_DSN` (main.js)
 

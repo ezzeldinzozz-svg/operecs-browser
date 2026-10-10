@@ -143,6 +143,8 @@ Windows/Linux, but don't extend or test them. The working list is `FEATURES.md` 
 it: must have / should have / nice to have / blocked / parked); the old all-platform checklist is
 `research/features-archive.md`. Work top to bottom through "must have for 1.0".
 
+After 1.0: the "Later" section of `FEATURES.md` (AI layer first, then Claude Code/Codex in the browser, Notes, Work canvas, built-in tools, browsing ideas, sync, website), from the browser study in `research/browser-study-2026-10.md`.
+
 Blocked or decided against (don't pick up without the user):
 - Passkeys, Developer ID signing/notarization, iCloud Passwords: need the paid Apple Developer Program (the user's enrollment was under review on 2026-10-09). iCloud Passwords also needs Apple to grant `com.apple.developer.web-browser.public-key-credential`
 - Windows code signing (SignPath for OSS or a paid certificate)
