@@ -2,7 +2,8 @@
 
 // electron-builder afterPack hook, run before the DMG/zip are made:
 //   1. flip Electron fuses (scripts/fuses.js)
-//   2. on macOS, sign the app with our self-signed certificate
+//   2. castlabs VMP signature for DRM (scripts/vmp-sign.js)
+//   3. on macOS, sign the app with our self-signed certificate
 //
 // A stable certificate keeps the app's code identity the same across versions, so macOS
 // stops asking for keychain access ("Browser Safe Storage") after every update. Without the
@@ -11,6 +12,7 @@
 const { execFileSync } = require('child_process');
 const path = require('path');
 const flipAppFuses = require('./fuses').default;
+const { signVmp } = require('./vmp-sign');
 
 const CERT_NAME = 'Browser Self-Signed Code Signing';
 
@@ -27,6 +29,10 @@ function findIdentity() {
 
 exports.default = async function afterPack(context) {
   await flipAppFuses(context);
+  const vmp = signVmp(context);
+  if (vmp === 'missing') {
+    require('fs').writeFileSync(require('path').join(context.outDir, `vmp-missing-${context.electronPlatformName}-${context.arch}`), '');
+  }
   if (context.electronPlatformName !== 'darwin') return;
 
   const app = path.join(context.appOutDir, `${context.packager.appInfo.productFilename}.app`);

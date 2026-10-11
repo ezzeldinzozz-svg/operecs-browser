@@ -50,7 +50,7 @@ proxy), plus:
 - **Command palette**: tabs, bookmarks, settings and actions in one search.
 - **PDF editor**: highlight, draw, type, sign.
 - **New tab**: daily wallpaper, weather, clock, notes, headlines. **News** and **Finance** hubs.
-- **Onion Mode**: a separate in-memory window routed through a Tor process the browser starts.
+- **Onion Mode**: a separate in-memory window routed through a Tor process the browser starts (we decided not to do this, 2026-10-11).
 - **Protection slider**: Off / Standard / Strict (Strict adds fingerprint masking, HTTPS-only,
   referrer trimming, WebRTC leak blocking).
 - **DRM**: it ships on castlabs' Electron build (`castlabs/electron-releases`), which is how

@@ -162,6 +162,9 @@ function main() {
   fs.rmSync(dist, { recursive: true, force: true });
   sh('npm', ['run', 'build']);
   sh('npx', ['electron-builder', '--mac', ...(ALL ? [] : ['--arm64']), '--publish', 'never']);
+  if (fs.readdirSync(dist).some((f) => f.startsWith('vmp-missing-'))) {
+    console.warn('\n⚠ This build has no castlabs VMP signature: Netflix and similar services will refuse to play. Set up EVS (scripts/vmp-sign.js).\n');
+  }
   // CI doesn't build the Mac app, so check it here before anything is published.
   sh('node', ['scripts/smoke-test.js', path.join(dist, 'mac-arm64', 'Operecs.app', 'Contents', 'MacOS', 'Operecs')]);
 

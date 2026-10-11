@@ -102,7 +102,8 @@ const HISTORY_IMPORT_LIMIT = 50000; // visits taken from another browser's histo
 const DOWNLOADS_LIMIT = 200;
 
 // Granted silently; harmless or needed for basic page behaviour.
-const ALWAYS_ALLOWED = new Set(['clipboard-sanitized-write', 'fullscreen', 'pointerLock']);
+// mediaKeySystem: protected content (Widevine: Netflix, Spotify…), allowed by default as in Chrome
+const ALWAYS_ALLOWED = new Set(['clipboard-sanitized-write', 'fullscreen', 'pointerLock', 'mediaKeySystem']);
 // Asked about once per site; anything not listed here is denied.
 const PERM_LABELS = {
   camera: 'use your camera',
@@ -6632,8 +6633,25 @@ app.on('select-client-certificate', (event, wc, _url, certificateList, callback)
   });
 });
 
+// Protected content (Netflix, Spotify, Disney+…) needs the Widevine module. castlabs' Electron
+// build (package.json) downloads and updates it in the background; plain Electron has no
+// `components` and no DRM. Windows aren't held back for it: protected videos work once it's ready
+// (a few seconds on the very first run).
+function startWidevine() {
+  const { components } = require('electron');
+  if (!components || typeof components.whenReady !== 'function') return;
+  components
+    .whenReady()
+    .then(() => {
+      widevineReady = true;
+    })
+    .catch((err) => console.error('Widevine unavailable:', err && err.message ? err.message : err));
+}
+let widevineReady = false;
+
 app.whenReady().then(() => {
   if (!isPrimaryInstance) return;
+  startWidevine();
   protocol.handle(SCHEME, serveInternal);
   store = new Store(path.join(app.getPath('userData'), 'browser-data.json'));
   nativeTheme.themeSource = store.data.settings.theme || 'system';
