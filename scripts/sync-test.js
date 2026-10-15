@@ -40,7 +40,9 @@ async function cdp(wsUrl, method, params) {
 
 function launch(name, inspectPort) {
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), `operecs-sync-${name}-`));
-  const proc = spawn(require('electron'), [`--inspect=${inspectPort}`, '.'], {
+  // Linux test machines have no keyring; Chromium's basic store stands in for it there
+  const extra = process.platform === 'linux' ? ['--password-store=basic'] : [];
+  const proc = spawn(require('electron'), [`--inspect=${inspectPort}`, '.', ...extra], {
     cwd: ROOT,
     env: { ...process.env, BROWSER_PROFILE_DIR: profile },
     stdio: 'ignore',
