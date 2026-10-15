@@ -222,7 +222,24 @@ const PAGE_LIB = String.raw`
     el.dispatchEvent(new Event('change', { bubbles: true }));
     return { ok: true, chosen: opt.text.trim() };
   }
-  window.__op = { snapshot, read, find, target, focus, choose };
+  // After typing: did the text arrive? If the window had no keyboard focus it may not have, so set
+  // it the way a script would (with input/change events) as a fallback.
+  function ensureValue(ref, text) {
+    const el = get(ref);
+    if (!el || sensitive(el)) return { ok: false };
+    const current = 'value' in el ? el.value : el.textContent;
+    if (current === text) return { ok: true };
+    if ('value' in el) {
+      const proto = Object.getPrototypeOf(el);
+      const setter = Object.getOwnPropertyDescriptor(proto, 'value');
+      if (setter && setter.set) setter.set.call(el, text);
+      else el.value = text;
+    } else el.textContent = text;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+    return { ok: true, fallback: true };
+  }
+  window.__op = { snapshot, read, find, target, focus, choose, ensureValue };
 })();
 `;
 
@@ -410,8 +427,10 @@ const TOOLS = [
       const r = await inPage(t.wc, `focus(${JSON.stringify(String(ref))}, true)`);
       if (r.error) return { error: r.error };
       const before = t.wc.getURL();
-      if (String(text).length) t.wc.insertText(String(text));
+      t.wc.focus();
+      if (String(text).length) await t.wc.insertText(String(text));
       else t.wc.sendInputEvent({ type: 'keyDown', keyCode: 'Backspace' });
+      await inPage(t.wc, `ensureValue(${JSON.stringify(String(ref))}, ${JSON.stringify(String(text))})`);
       if (submit) {
         t.wc.sendInputEvent({ type: 'keyDown', keyCode: 'Return' });
         t.wc.sendInputEvent({ type: 'char', keyCode: '\r' });
