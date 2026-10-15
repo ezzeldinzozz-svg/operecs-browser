@@ -28,7 +28,7 @@ const MAX_PUT = 500; // records per upload
 const HISTORY_BATCH = 2000;
 
 // Settings that belong to this computer, not to you
-const LOCAL_SETTINGS = new Set(['downloadDir', 'proxyMode', 'proxyServer', 'proxyBypass', 'proxyPac', 'crashReports', 'disabledExtensions', 'installedApps']);
+const LOCAL_SETTINGS = new Set(['downloadDir', 'proxyMode', 'proxyServer', 'proxyBypass', 'proxyPac', 'crashReports', 'disabledExtensions', 'installedApps', 'agentAccess', 'agentReadTabs']);
 
 const TYPES = {
   settings: ['set'],

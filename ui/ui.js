@@ -352,6 +352,7 @@ function render(state) {
   }
   hideExtensionButtons(state.hiddenActions || []);
   $('private-badge').hidden = !state.private;
+  $('private-badge').textContent = state.agent ? 'Agent' : 'Private';
 
   const shield = state.shield;
   $('shield').hidden = !shield.available || tb.shield === false;

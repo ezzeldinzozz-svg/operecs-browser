@@ -899,3 +899,4 @@ button.danger { color: #f0627a; }
 a.button { display: inline-flex; align-items: center; height: 28px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: 999px; color: var(--fg); font-size: 12px; font-weight: 500; flex: none; }
 a.button:hover { text-decoration: none; background: var(--card); }
 #other-devices h2, #other-ext h2 { margin-top: 24px; }
+#agent-codex { white-space: pre-wrap; }

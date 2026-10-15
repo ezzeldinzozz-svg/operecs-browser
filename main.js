@@ -44,6 +44,7 @@ process.on('uncaughtException', (err) => {
 
 const updater = require('./updater');
 const sync = require('./sync');
+const agent = require('./agent');
 const adblock = require('./adblock');
 const i18n = require('./i18n');
 const historyDb = require('./history-db');
@@ -171,6 +172,7 @@ function applySettingEffects(key, value) {
   if (key === 'dns' || key === 'dnsCustom') applyDns();
   if (key === 'theme') nativeTheme.themeSource = value;
   if (key === 'historyKeepDays') pruneOldHistory();
+  if (key === 'agentAccess') agent.setEnabled(!!value);
   if (['compactMode', 'compactToolbar', 'verticalTabs', 'verticalTabsCollapsed', 'verticalTabsExpandOnHover', 'verticalNewTabUnderTabs', 'showBookmarksBar', 'bookmarksBarHover'].includes(key)) {
     windows.forEach((w) => {
       layout(w);
@@ -196,6 +198,8 @@ function defaultSettings() {
     restoreSession: true,
     blockThirdPartyCookies: true,
     crashReports: false, // opt-in: send crash reports to Sentry (read at startup)
+    agentAccess: false, // AI agents (Claude Code, Codex…) may control an Agent window over MCP (agent.js)
+    agentReadTabs: false, // …and read (not change) the user's own open tabs
     startup: null, // 'continue' | 'newtab' | 'pages' (null: derived from restoreSession)
     startupPages: [],
     showHomeButton: false,
@@ -714,6 +718,7 @@ function sendTabs(w) {
     splitId: w.splitId || null,
     activeWebContentsId: current && !w.private ? current.wc.id : null,
     private: w.private,
+    agent: !!w.agent,
     bookmarked: !!bookmarks.findByUrl(currentUrl),
     bookmarkBar: store.data.settings.showBookmarksBar ? bookmarks.tree().bar.children.map(bookmarks.summary) : null,
     canBookmark: isWeb(currentUrl),
@@ -1027,14 +1032,15 @@ function watchTheme() {
   });
 }
 
-function createWindow({ private: isPrivate = false, session: saved = null, ses: reuse = null, empty = false } = {}) {
+// agent: the window AI agents browse in (agent.js): a private (in-memory) window labelled "Agent"
+function createWindow({ private: isPrivate = false, agent: isAgent = false, session: saved = null, ses: reuse = null, empty = false } = {}) {
   const ses = isPrivate ? reuse || createPrivateSession() : session.defaultSession;
   watchTheme();
   const win = new BaseWindow({
     ...restoredBounds(saved),
     minWidth: 480,
     minHeight: 320,
-    title: isPrivate ? 'Operecs — Private' : readProfiles().length > 1 ? `Operecs — ${profileInfo().name}` : 'Operecs',
+    title: isAgent ? 'Operecs — Agent' : isPrivate ? 'Operecs — Private' : readProfiles().length > 1 ? `Operecs — ${profileInfo().name}` : 'Operecs',
     backgroundColor: canvasColor(isPrivate),
     // The tab strip is the title bar: traffic lights inset on macOS, overlay buttons on Windows.
     ...(isMac ? { titleBarStyle: 'hiddenInset', trafficLightPosition: { x: 15, y: 13 } } : {}),
@@ -1055,6 +1061,7 @@ function createWindow({ private: isPrivate = false, session: saved = null, ses: 
     workspaces: saved && Array.isArray(saved.workspaces) && saved.workspaces.length ? saved.workspaces : ['Default', 'Work', 'Personal'],
     activeWorkspace: (saved && saved.activeWorkspace) || 'Default',
     private: isPrivate,
+    agent: isAgent,
     ses,
     closedTabs: [], // most recent last
     multi: new Set(), // tab ids selected together (Cmd/Ctrl- or Shift-click)
@@ -5351,6 +5358,8 @@ function setupIpc() {
         'askDownloadLocation',
         'blockThirdPartyCookies',
         'crashReports',
+        'agentAccess',
+        'agentReadTabs',
         'showHomeButton',
         'showBookmarksBar',
         'confirmClose',
@@ -5523,6 +5532,11 @@ function setupIpc() {
     historyDb.clear();
     sync.historyDeleted({ op: 'all' });
     rebuildMenuSoon();
+  });
+  handle('agent:connection', fromInternal, () => agent.connection());
+  handle('agent:reset-token', fromInternal, () => {
+    agent.resetToken();
+    return agent.connection();
   });
   handle('sync:status', fromInternal, () => sync.status());
   handle('sync:start', fromInternal, async (_tab, opts) =>
@@ -6740,6 +6754,20 @@ app.whenReady().then(() => {
 
   setupIpc();
   setupSync();
+  agent.init({
+    version: app.getVersion(),
+    store,
+    agentWindow: () => windows.find((x) => x.agent && !x.win.isDestroyed()) || null,
+    createAgentWindow: () => createWindow({ private: true, agent: true, empty: true }),
+    createTab: (w, url) => createTab(w, url),
+    closeTab: (tab) => closeTab(tab.w, tab.id),
+    userTabs: () =>
+      windows
+        .filter((x) => !x.private && !x.agent)
+        .flatMap((x) => x.tabs)
+        .filter((t) => !t.pending && !t.wc.isDestroyed() && isWeb(t.wc.getURL()))
+        .map((t) => ({ id: t.id, title: t.wc.getTitle(), url: t.wc.getURL(), wc: t.wc })),
+  });
   buildMenu();
   if (isMac) {
     app.dock.setMenu(

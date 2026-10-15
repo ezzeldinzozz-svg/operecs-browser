@@ -76,10 +76,11 @@ first, because most of the rest sits on it.
 
 **1. AI layer (the foundation)**
 - [ ] Models: use the Claude Code and Codex apps already signed in on the Mac (your own plan, no API keys, like Rill); or your own API keys (Anthropic, OpenAI, Gemini, OpenRouter, kept in the keychain); or a local model (Ollama, LM Studio) so nothing leaves the Mac
-- [ ] AI side panel beside the page (reuses split view): ask about this page, answers with links back to the source
+- [ ] AI side panel beside the page (reuses split view): ask about this page, answers with links back to the source — on hold (owner, 2026-10-15)
 - [ ] Safety rules for every AI feature: read-only until you allow edits; stop before paying, sending, posting or deleting; never type into password, card or code fields; show every page the AI opens and what it sends to the model; one switch turns all AI off
 
 **2. Claude Code and Codex in the browser (Rill)**
+- [x] Agent-efficient browser control (like BrowserOS): a local MCP server (`agent.js`) so Claude Code, Codex and other MCP tools drive an Agent window with compact page outlines and refs instead of screenshots (~40x fewer characters than HTML on the test page); Settings → Privacy & Security → AI agents
 - [ ] Find your projects from Claude Code and Codex history, no setup
 - [ ] ⌘E from any page: ask about the page, or send it to a project as a task; the right project is picked automatically
 - [ ] Tasks keep running while you browse: an "At work" tray, a notification when done, a "Today in your projects" list

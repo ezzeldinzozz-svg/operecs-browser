@@ -119,6 +119,8 @@ if (location.protocol === 'browser:' && window === window.top) {
     endTask: call('tasks:end'),
     hideTile: call('data:hide-tile'),
     resetSettings: call('settings:reset'),
+    agentConnection: call('agent:connection'),
+    agentResetToken: call('agent:reset-token'),
     syncStatus: call('sync:status'),
     syncStart: call('sync:start'),
     syncStop: call('sync:stop'),

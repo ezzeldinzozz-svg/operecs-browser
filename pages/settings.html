@@ -224,6 +224,22 @@
         </div>
 
         <div class="settings-card">
+          <h2>AI agents</h2>
+          <label class="check"><input id="agent-access" type="checkbox"> Let AI agents on this Mac (Claude Code, Codex…) use Operecs</label>
+          <p class="hint">They browse in their own Agent window, with none of your logins, and you can watch and take over. Pages reach them as compact outlines instead of screenshots, so they use far fewer tokens. They can't type passwords, card numbers or one-time codes.</p>
+          <label class="check"><input id="agent-read-tabs" type="checkbox"> Also let them read my open tabs (read-only)</label>
+          <div id="agent-connect" hidden>
+            <p class="field-label">Claude Code: run this once in Terminal</p>
+            <code id="agent-claude" class="sync-code"></code>
+            <div class="row-actions"><button id="agent-copy-claude">Copy</button></div>
+            <p class="field-label">Codex: put the first line in your shell profile (~/.zshrc), then run the second once</p>
+            <code id="agent-codex" class="sync-code"></code>
+            <div class="row-actions"><button id="agent-copy-codex">Copy</button> <button id="agent-reset">New access key</button></div>
+            <p class="hint">The access key lets programs on this Mac control the Agent window; keep it private. A new key disconnects the agents you added.</p>
+          </div>
+        </div>
+
+        <div class="settings-card">
           <h2>Network &amp; DNS</h2>
           <label class="dns">Secure DNS
             <select id="dns">

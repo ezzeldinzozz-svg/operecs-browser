@@ -41,6 +41,7 @@
       "quick-answers.js",
       "qr.js",
       "sync.js",
+      "agent.js",
       "i18n.js",
       "locales/**",
       "package.json"

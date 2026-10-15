@@ -1616,3 +1616,30 @@ loadSync();
 setInterval(() => {
   if (!syncEl('sync-on').hidden) loadSync();
 }, 5000);
+
+// ---- AI agents (agent.js): local MCP server for Claude Code / Codex
+
+async function loadAgent() {
+  const s = await browserAPI.getSettings();
+  document.getElementById('agent-access').checked = !!s.agentAccess;
+  document.getElementById('agent-read-tabs').checked = !!s.agentReadTabs;
+  document.getElementById('agent-read-tabs').disabled = !s.agentAccess;
+  const c = await browserAPI.agentConnection();
+  document.getElementById('agent-connect').hidden = !c.on;
+  if (c.on) {
+    document.getElementById('agent-claude').textContent = c.claude;
+    document.getElementById('agent-codex').textContent = c.codex;
+  }
+}
+document.getElementById('agent-access').addEventListener('change', async (e) => {
+  await browserAPI.setSetting('agentAccess', e.target.checked);
+  setTimeout(loadAgent, 300); // the server starts in the background
+});
+document.getElementById('agent-read-tabs').addEventListener('change', (e) => browserAPI.setSetting('agentReadTabs', e.target.checked));
+document.getElementById('agent-copy-claude').addEventListener('click', () => navigator.clipboard.writeText(document.getElementById('agent-claude').textContent));
+document.getElementById('agent-copy-codex').addEventListener('click', () => navigator.clipboard.writeText(document.getElementById('agent-codex').textContent));
+document.getElementById('agent-reset').addEventListener('click', async () => {
+  await browserAPI.agentResetToken();
+  loadAgent();
+});
+loadAgent();
