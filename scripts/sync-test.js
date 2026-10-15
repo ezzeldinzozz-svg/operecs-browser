@@ -55,7 +55,7 @@ function launch(name, inspectPort) {
       awaitPromise: true,
       returnByValue: true,
     });
-    if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description || 'eval failed');
+    if (r.exceptionDetails) throw new Error(`${r.exceptionDetails.exception?.description || 'eval failed'}\n    in: ${expr.trim().slice(0, 120)}`);
     return r.result.value;
   };
   const ready = async () => {
@@ -141,7 +141,7 @@ function launch(name, inspectPort) {
     check('A stops syncing once the chain is deleted', aStatus.on === false, JSON.stringify(aStatus));
   } catch (err) {
     failures++;
-    console.log(`  FAIL test run stopped: ${err.message}`);
+    console.log(`  FAIL test run stopped: ${err.stack || err.message}`);
   } finally {
     for (const x of [a, b]) {
       x.proc.kill();

@@ -146,6 +146,7 @@ function ensureState() {
 function secret() {
   const s = state();
   if (!s || !s.codeEnc) return null;
+  keychainReady();
   try {
     return decodeCode(safeStorage.decryptString(Buffer.from(s.codeEnc, 'base64')));
   } catch {
@@ -529,8 +530,19 @@ function validServer(url) {
   }
 }
 
+// Linux without a keyring (no GNOME Keyring / KWallet): keep the code like Chrome does there, in
+// Chromium's basic store, rather than refusing to sync.
+function keychainReady() {
+  if (safeStorage.isEncryptionAvailable()) return true;
+  if (process.platform === 'linux' && typeof safeStorage.setUsePlainTextEncryption === 'function') {
+    safeStorage.setUsePlainTextEncryption(true);
+    return safeStorage.isEncryptionAvailable();
+  }
+  return false;
+}
+
 async function start({ server, code, deviceName }) {
-  if (!safeStorage.isEncryptionAvailable()) return { error: 'The system keychain is not available.' };
+  if (!keychainReady()) return { error: 'The system keychain is not available.' };
   const origin = validServer(server);
   if (!origin) return { error: 'The sync server must be an https:// address.' };
   const bytes = code ? decodeCode(code) : crypto.randomBytes(32);
