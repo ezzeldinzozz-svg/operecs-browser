@@ -1,0 +1,19 @@
+[Unit]
+Description=Operecs sync server
+After=network.target
+
+[Service]
+User=operecs-sync
+WorkingDirectory=/opt/operecs-sync
+ExecStart=/usr/bin/node /opt/operecs-sync/server.js
+Environment=PORT=8787 HOST=127.0.0.1 DATA=/var/lib/operecs-sync
+Restart=on-failure
+# hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/operecs-sync
+
+[Install]
+WantedBy=multi-user.target

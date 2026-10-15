@@ -41,6 +41,10 @@
           <svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8"/><path d="M5 20c0-3.8 3.1-6.5 7-6.5s7 2.7 7 6.5"/></svg>
           <span>Profiles &amp; Autofill</span>
         </button>
+        <button type="button" class="settings-tab" role="tab" aria-selected="false" data-tab="sync">
+          <svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14.3 4.9M4 12A8 8 0 0 1 18.3 7.1"/><path d="M18.5 3v4.3h-4.3M5.5 21v-4.3h4.3"/></svg>
+          <span>Sync</span>
+        </button>
         <button type="button" class="settings-tab" role="tab" aria-selected="false" data-tab="system">
           <svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.77 1.02 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           <span>Apps, System &amp; About</span>
@@ -385,6 +389,83 @@
             <div class="buttons"><button type="button" id="address-cancel">Cancel</button><button type="submit" class="primary">Save address</button></div>
           </form>
           <div class="buttons"><button id="address-add">Add address</button></div>
+        </div>
+      </section>
+
+      <!-- ==================== SYNC ==================== -->
+      <section class="settings-panel" data-tab="sync" role="tabpanel" hidden>
+        <div class="settings-panel-head">
+          <div class="settings-panel-title">Sync</div>
+          <div class="settings-panel-desc">Your settings, bookmarks, history, open tabs and more on all your devices. Encrypted on this device before it leaves: the sync server can't read any of it.</div>
+        </div>
+
+        <div class="settings-card" id="sync-off">
+          <h2>Set up sync</h2>
+          <label class="field-label" for="sync-server">Sync server</label>
+          <input id="sync-server" type="url" placeholder="https://sync.example.com" autocomplete="off" spellcheck="false">
+          <label class="field-label" for="sync-device">This device's name</label>
+          <input id="sync-device" type="text" maxlength="60" autocomplete="off">
+          <div class="row-actions">
+            <button id="sync-new" class="primary">Start a new sync chain</button>
+          </div>
+          <p class="hint">Already syncing another device? Open Settings → Sync there, show its sync code, and enter it here:</p>
+          <input id="sync-join-code" type="text" placeholder="XXXX-XXXX-XXXX-…" autocomplete="off" spellcheck="false">
+          <div class="row-actions">
+            <button id="sync-join">Join with this code</button>
+          </div>
+          <p id="sync-error" class="hint error" hidden></p>
+        </div>
+
+        <div id="sync-on" hidden>
+          <div class="settings-card">
+            <h2>Sync is on</h2>
+            <div class="about">
+              <div>
+                <div id="sync-state" class="t"></div>
+                <div id="sync-detail" class="u"></div>
+              </div>
+              <button id="sync-now">Sync now</button>
+            </div>
+            <label class="field-label" for="sync-device-on">This device's name</label>
+            <input id="sync-device-on" type="text" maxlength="60" autocomplete="off">
+          </div>
+
+          <div class="settings-card">
+            <h2>What to sync</h2>
+            <label class="check"><input type="checkbox" data-sync-type="settings"> Settings (except proxy and download folder)</label>
+            <label class="check"><input type="checkbox" data-sync-type="bookmarks"> Bookmarks</label>
+            <label class="check"><input type="checkbox" data-sync-type="history"> History</label>
+            <label class="check"><input type="checkbox" data-sync-type="tabs"> Open tabs (see them in History)</label>
+            <label class="check"><input type="checkbox" data-sync-type="addresses"> Addresses</label>
+            <label class="check"><input type="checkbox" data-sync-type="sites"> Site permissions, zoom and ad-block exceptions</label>
+            <label class="check"><input type="checkbox" data-sync-type="extensions"> Extensions list (offered on your other devices)</label>
+            <p class="hint">Passwords aren't synced by Operecs: your password manager extension syncs them.</p>
+          </div>
+
+          <div class="settings-card">
+            <h2>Your devices</h2>
+            <div id="sync-devices"></div>
+          </div>
+
+          <div class="settings-card">
+            <h2>Add another device</h2>
+            <p class="hint">Enter this sync code on the other device (Settings → Sync → Join). Anyone with it can read your synced data, so keep it private.</p>
+            <button id="sync-show-code">Show sync code</button>
+            <div id="sync-code-box" hidden>
+              <code id="sync-code" class="sync-code"></code>
+              <div id="sync-qr" class="sync-qr"></div>
+              <button id="sync-copy-code">Copy</button>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <h2>Stop syncing</h2>
+            <div class="row-actions">
+              <button id="sync-leave">Turn off sync on this device</button>
+              <button id="sync-erase" class="danger">Delete synced data from the server</button>
+            </div>
+            <p class="hint">Turning sync off keeps everything on this device. Deleting from the server stops sync on all your devices.</p>
+          </div>
         </div>
       </section>
 

@@ -218,8 +218,12 @@ function prune() {
 const setSiteIcon = (site, icon) => q.setIcon.run(site, icon, Date.now());
 const siteIcon = (site) => (q.getIcon.get(site) || {}).icon || '';
 
+// Sync: visits added after a row id (oldest first), and the newest row id.
+const visitsAfter = (id, limit = 1000) => db.prepare('SELECT id, url, title, time FROM visits WHERE id > ? ORDER BY id LIMIT ?').all(id, limit);
+const maxVisitId = () => (db.prepare('SELECT MAX(id) AS id FROM visits').get().id || 0);
+
 const all = () => q.all.all();
 const count = () => q.count.get().n;
 const close = () => db && db.close();
 
-module.exports = { setSiteIcon, siteIcon, open, addVisit, updateTitle, list, pagesMatching, topPages, recentPages, removeUrl, removeWhere, removeBefore, removeSince, clear, importVisits, all, count, close };
+module.exports = { setSiteIcon, siteIcon, open, addVisit, updateTitle, list, pagesMatching, topPages, recentPages, removeUrl, removeWhere, removeBefore, removeSince, clear, importVisits, visitsAfter, maxVisitId, all, count, close };

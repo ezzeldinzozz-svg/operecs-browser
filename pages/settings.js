@@ -126,7 +126,7 @@ function renderPaginatedList(container, items, pageSize, renderRow, emptyText, k
 
 // ---- Category Tabs & Tab Footer Pagination
 
-const TAB_ORDER = ['general', 'appearance', 'shortcuts', 'privacy', 'sites', 'profiles', 'system'];
+const TAB_ORDER = ['general', 'appearance', 'shortcuts', 'privacy', 'sites', 'profiles', 'sync', 'system'];
 const TAB_TITLES = {
   general: 'General & Search',
   appearance: 'Appearance & Toolbar',
@@ -134,6 +134,7 @@ const TAB_TITLES = {
   privacy: 'Privacy & Security',
   sites: 'Sites & Permissions',
   profiles: 'Profiles & Autofill',
+  sync: 'Sync',
   system: 'Apps, System & About',
 };
 let activeTabId = 'general';
@@ -1505,3 +1506,113 @@ window.addEventListener('focus', () => {
 });
 
 
+
+// ---- Sync (sync.js): set up a chain, join one, choose what syncs, see devices
+
+const syncEl = (id) => document.getElementById(id);
+const ago = (t) => {
+  if (!t) return 'never';
+  const s = Math.round((Date.now() - t) / 1000);
+  if (s < 60) return 'just now';
+  if (s < 3600) return `${Math.round(s / 60)} min ago`;
+  if (s < 86400) return `${Math.round(s / 3600)} h ago`;
+  return new Date(t).toLocaleDateString();
+};
+
+async function loadSync() {
+  const st = await browserAPI.syncStatus();
+  syncEl('sync-off').hidden = st.on;
+  syncEl('sync-on').hidden = !st.on;
+  if (!st.on) {
+    if (st.lastError && syncEl('sync-error').hidden) syncError(st.lastError);
+    if (!syncEl('sync-server').value) syncEl('sync-server').value = st.server || '';
+    if (!syncEl('sync-device').value) syncEl('sync-device').value = st.deviceName || '';
+    return;
+  }
+  syncEl('sync-state').textContent = st.syncing ? 'Syncing…' : st.lastError ? 'Last sync failed' : `Synced ${ago(st.lastSync)}`;
+  syncEl('sync-detail').textContent = st.lastError ? st.lastError : `Server: ${st.server}`;
+  if (document.activeElement !== syncEl('sync-device-on')) syncEl('sync-device-on').value = st.deviceName;
+  for (const box of document.querySelectorAll('[data-sync-type]')) box.checked = !!st.types[box.dataset.syncType];
+  const list = syncEl('sync-devices');
+  list.replaceChildren();
+  const rows = [{ name: `${st.deviceName} (this device)`, seen: Date.now() }, ...st.devices.sort((a, b) => b.seen - a.seen)];
+  for (const d of rows) {
+    const row = document.createElement('div');
+    row.className = 'row';
+    const main = document.createElement('div');
+    main.className = 'main';
+    const t = document.createElement('div');
+    t.className = 't';
+    t.textContent = d.name;
+    const u = document.createElement('div');
+    u.className = 'u';
+    u.textContent = d.platform ? `${{ darwin: 'Mac', win32: 'Windows', linux: 'Linux' }[d.platform] || d.platform} · last synced ${ago(d.seen)}` : 'Now';
+    main.append(t, u);
+    row.append(main);
+    list.append(row);
+  }
+}
+
+function syncError(message) {
+  syncEl('sync-error').hidden = !message;
+  syncEl('sync-error').textContent = message || '';
+}
+
+async function startSync(code) {
+  syncError('');
+  const buttons = [syncEl('sync-new'), syncEl('sync-join')];
+  buttons.forEach((b) => (b.disabled = true));
+  const res = await browserAPI.syncStart({ server: syncEl('sync-server').value, code, deviceName: syncEl('sync-device').value });
+  buttons.forEach((b) => (b.disabled = false));
+  if (res && res.error) return syncError(res.error);
+  syncEl('sync-join-code').value = '';
+  loadSync();
+}
+
+syncEl('sync-new').addEventListener('click', () => startSync(''));
+syncEl('sync-join').addEventListener('click', () => {
+  const code = syncEl('sync-join-code').value.trim();
+  if (!code) return syncError('Enter the sync code from your other device.');
+  startSync(code);
+});
+syncEl('sync-now').addEventListener('click', async () => {
+  syncEl('sync-state').textContent = 'Syncing…';
+  await browserAPI.syncNow();
+  loadSync();
+});
+syncEl('sync-device-on').addEventListener('change', (e) => browserAPI.syncSetDeviceName(e.target.value));
+for (const box of document.querySelectorAll('[data-sync-type]')) {
+  box.addEventListener('change', () => {
+    const types = {};
+    for (const b of document.querySelectorAll('[data-sync-type]')) types[b.dataset.syncType] = b.checked;
+    browserAPI.syncSetTypes(types);
+  });
+}
+syncEl('sync-show-code').addEventListener('click', async () => {
+  const box = syncEl('sync-code-box');
+  if (!box.hidden) {
+    box.hidden = true;
+    syncEl('sync-show-code').textContent = 'Show sync code';
+    return;
+  }
+  syncEl('sync-code').textContent = await browserAPI.syncCode();
+  syncEl('sync-qr').innerHTML = await browserAPI.syncCodeQr(); // our own SVG (qr.js), no page input
+  box.hidden = false;
+  syncEl('sync-show-code').textContent = 'Hide sync code';
+});
+syncEl('sync-copy-code').addEventListener('click', () => navigator.clipboard.writeText(syncEl('sync-code').textContent));
+syncEl('sync-leave').addEventListener('click', async () => {
+  await browserAPI.syncStop(false);
+  syncEl('sync-code-box').hidden = true;
+  loadSync();
+});
+syncEl('sync-erase').addEventListener('click', async () => {
+  const res = await browserAPI.syncStop(true);
+  if (res && res.error) alert(`The server couldn't delete the data: ${res.error}`);
+  syncEl('sync-code-box').hidden = true;
+  loadSync();
+});
+loadSync();
+setInterval(() => {
+  if (!syncEl('sync-on').hidden) loadSync();
+}, 5000);

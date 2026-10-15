@@ -137,3 +137,35 @@ document.getElementById('import').addEventListener('click', async () => {
     button.disabled = false;
   }
 });
+
+// ---- Tabs open on your other devices (sync)
+
+(async () => {
+  const devices = await browserAPI.syncOtherTabs();
+  const box = document.getElementById('other-devices');
+  for (const d of devices) {
+    const tabs = d.windows.flatMap((w) => w.tabs);
+    if (!tabs.length) continue;
+    const head = document.createElement('h2');
+    
+    head.textContent = `Open on ${d.device}`;
+    box.append(head);
+    for (const t of tabs.slice(0, 30)) {
+      if (!/^https?:\/\//i.test(t.url)) continue;
+      const row = document.createElement('div');
+      row.className = 'row';
+      const main = document.createElement('div');
+      main.className = 'main';
+      const a = document.createElement('a');
+      a.className = 't';
+      a.href = t.url;
+      a.textContent = t.title || t.url;
+      const u = document.createElement('div');
+      u.className = 'u';
+      u.textContent = t.url;
+      main.append(a, u);
+      row.append(main);
+      box.append(row);
+    }
+  }
+})();

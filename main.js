@@ -43,6 +43,7 @@ process.on('uncaughtException', (err) => {
 });
 
 const updater = require('./updater');
+const sync = require('./sync');
 const adblock = require('./adblock');
 const i18n = require('./i18n');
 const historyDb = require('./history-db');
@@ -164,6 +165,30 @@ const TOOLBAR_BUTTON_LABELS = {
 };
 
 // ---------------------------------------------------------------- storage
+
+// What changing a setting does besides storing it (also used for settings synced from another device).
+function applySettingEffects(key, value) {
+  if (key === 'dns' || key === 'dnsCustom') applyDns();
+  if (key === 'theme') nativeTheme.themeSource = value;
+  if (key === 'historyKeepDays') pruneOldHistory();
+  if (['compactMode', 'compactToolbar', 'verticalTabs', 'verticalTabsCollapsed', 'verticalTabsExpandOnHover', 'verticalNewTabUnderTabs', 'showBookmarksBar', 'bookmarksBarHover'].includes(key)) {
+    windows.forEach((w) => {
+      layout(w);
+      sendTabs(w);
+    });
+    buildMenu();
+  }
+  if (key === 'shortcuts') buildMenu();
+  if (key.startsWith('proxy')) {
+    applyProxy(session.defaultSession);
+    windows.filter((w) => w.private).forEach((w) => applyProxy(w.ses));
+  }
+  if (key === 'languages' || key === 'spellcheck') {
+    applyLanguages(session.defaultSession);
+    windows.filter((w) => w.private).forEach((w) => applyLanguages(w.ses));
+  }
+  sendAll();
+}
 
 // Settings a new profile starts with (and what Reset settings restores).
 function defaultSettings() {
@@ -2725,6 +2750,7 @@ function recordHistory(tab, url) {
   if (tab.w.private || !isWeb(url)) return;
   historyDb.addVisit(url, tab.wc.getTitle() || url);
   rebuildMenuSoon();
+  sync.localChanged();
 }
 
 function updateHistoryTitle(tab) {
@@ -4265,6 +4291,7 @@ async function clearBrowsingData(w, { range = 'hour', history, downloads, cookie
   if (history) {
     if (since === 0) historyDb.clear();
     else historyDb.removeSince(since);
+    sync.historyDeleted(since === 0 ? { op: 'all' } : { op: 'since', time: since });
     for (const win of windows) win.closedTabs = [];
     rebuildMenuSoon();
   }
@@ -4875,6 +4902,7 @@ function setupIpc() {
   handle('suggest:command', fromChrome, (w, id) => runAddressCommand(w, String(id || '')));
   handle('suggest:remove', fromChrome, (_w, url) => {
     historyDb.removeUrl(String(url));
+    sync.historyDeleted({ op: 'url', url: String(url) });
     rebuildMenuSoon();
   });
   handle('tab:switch', fromChrome, (w, tabId) => switchToTab(w, tabId));
@@ -5312,6 +5340,7 @@ function setupIpc() {
   });
   handle('data:history-remove', fromInternal, (_tab, url) => {
     historyDb.removeUrl(String(url));
+    sync.historyDeleted({ op: 'url', url: String(url) });
     rebuildMenuSoon();
   });
   handle('data:settings-set', fromInternal, (_tab, key, value) => {
@@ -5381,26 +5410,7 @@ function setupIpc() {
       }
     }
     store.save();
-    if (key === 'dns' || key === 'dnsCustom') applyDns();
-    if (key === 'theme') nativeTheme.themeSource = value;
-    if (key === 'historyKeepDays') pruneOldHistory();
-    if (['compactMode', 'compactToolbar', 'verticalTabs', 'verticalTabsCollapsed', 'verticalTabsExpandOnHover', 'verticalNewTabUnderTabs', 'showBookmarksBar', 'bookmarksBarHover'].includes(key)) {
-      windows.forEach((w) => {
-        layout(w);
-        sendTabs(w);
-      });
-      buildMenu();
-    }
-    if (key === 'shortcuts') buildMenu();
-    if (key.startsWith('proxy')) {
-      applyProxy(session.defaultSession);
-      windows.filter((w) => w.private).forEach((w) => applyProxy(w.ses));
-    }
-    if (key === 'languages' || key === 'spellcheck') {
-      applyLanguages(session.defaultSession);
-      windows.filter((w) => w.private).forEach((w) => applyLanguages(w.ses));
-    }
-    sendAll();
+    applySettingEffects(key, value);
   });
   handle('data:engine-add', fromInternal, (_tab, name, keyword, url) => {
     if (!validCustomEngine(name, keyword, url)) return 'invalid';
@@ -5506,11 +5516,44 @@ function setupIpc() {
   handle('data:licenses', fromInternal, async () => JSON.parse(await fs.promises.readFile(path.join(__dirname, 'gen', 'licenses.json'), 'utf8')));
   handle('data:history-remove-site', fromInternal, (_tab, site) => {
     historyDb.removeWhere((url) => siteOf(url) === site);
+    sync.historyDeleted({ op: 'site', site: String(site) });
     rebuildMenuSoon();
   });
   handle('data:history-clear', fromInternal, () => {
     historyDb.clear();
+    sync.historyDeleted({ op: 'all' });
     rebuildMenuSoon();
+  });
+  handle('sync:status', fromInternal, () => sync.status());
+  handle('sync:start', fromInternal, async (_tab, opts) =>
+    sync.start({ server: String((opts && opts.server) || ''), code: opts && opts.code ? String(opts.code) : '', deviceName: opts && opts.deviceName ? String(opts.deviceName) : '' }),
+  );
+  handle('sync:stop', fromInternal, async (_tab, erase) => {
+    if (erase) {
+      const { response } = await dialog.showMessageBox({
+        type: 'warning',
+        message: 'Delete your synced data from the server?',
+        detail: 'Sync stops on all your devices. What is on each device stays there.',
+        buttons: ['Delete', 'Cancel'],
+        defaultId: 1,
+        cancelId: 1,
+      });
+      if (response !== 0) return { cancelled: true };
+    }
+    return sync.stop({ erase: !!erase });
+  });
+  handle('sync:code', fromInternal, () => sync.code());
+  handle('sync:code-qr', fromInternal, () => {
+    const code = sync.code();
+    return code ? qr.svg(code) : '';
+  });
+  handle('sync:set-types', fromInternal, (_tab, types) => sync.setTypes(types && typeof types === 'object' ? types : {}));
+  handle('sync:device-name', fromInternal, (_tab, name) => sync.setDeviceName(String(name || '')));
+  handle('sync:now', fromInternal, () => sync.round());
+  handle('sync:other-tabs', fromInternal, () => sync.otherTabs());
+  handle('sync:other-extensions', fromInternal, () => {
+    const mine = new Set(extensionList().map((e) => e.id));
+    return sync.otherExtensions().filter((e) => !mine.has(e.id));
   });
   handle('ext:list', fromInternal, () => extensionList());
   handle('ext:remove', fromInternal, async (_tab, id) => {
@@ -6696,6 +6739,7 @@ app.whenReady().then(() => {
   app.on('login', onLogin);
 
   setupIpc();
+  setupSync();
   buildMenu();
   if (isMac) {
     app.dock.setMenu(
@@ -6849,6 +6893,50 @@ function setupExtensions() {
       return { action: response === 0 ? 'allow' : 'deny' };
     },
   }).catch((err) => console.error('Chrome Web Store setup failed:', err));
+}
+
+// ---------------------------------------------------------------- sync (sync.js, sync-server/)
+
+function setupSync() {
+  // every save of the profile (settings, bookmarks, addresses, permissions…) may need syncing
+  const save = store.save.bind(store);
+  store.save = () => {
+    save();
+    sync.localChanged();
+  };
+  sync.init({
+    store,
+    historyDb,
+    siteOf,
+    settingKeys: () => Object.keys(defaultSettings()),
+    applySetting: (key, value) => {
+      if (key === 'toolbarButtons') store.data.settings.showHomeButton = !!(value && value.home);
+      applySettingEffects(key, value);
+    },
+    openTabs: () => ({
+      windows: windows
+        .filter((w) => !w.private)
+        .map((w) => ({
+          tabs: w.tabs
+            .map((t) => {
+              const entry = t.pending && t.pending.entries[t.pending.index];
+              const url = entry ? entry.url : t.wc.isDestroyed() ? '' : t.wc.getURL();
+              const title = entry ? entry.title : t.wc.isDestroyed() ? '' : t.wc.getTitle();
+              return { url, title: trimLabel(title || displayUrl(url) || url, 120) };
+            })
+            .filter((t) => isWeb(t.url))
+            .slice(0, 100),
+        }))
+        .filter((w) => w.tabs.length),
+    }),
+    extensions: () => ({ list: extensionList().map((e) => ({ id: e.id, name: e.name })) }),
+    changed: () => {
+      store.save();
+      rebuildMenuSoon();
+      sendAll();
+    },
+    statusChanged: () => {},
+  });
 }
 
 function extensionList() {

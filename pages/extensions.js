@@ -61,3 +61,32 @@ browserAPI.listExtensions().then(render);
 setInterval(async () => {
   if (!document.activeElement || document.activeElement === document.body) render(await browserAPI.listExtensions());
 }, 3000);
+
+// ---- Extensions on your other devices that aren't here (sync)
+
+(async () => {
+  const list = await browserAPI.syncOtherExtensions();
+  const box = document.getElementById('other-ext');
+  if (!list.length) return;
+  const head = document.createElement('h2');
+  
+  head.textContent = 'On your other devices';
+  box.append(head);
+  for (const e of list) {
+    if (!/^[a-p]{32}$/.test(e.id)) continue;
+    const row = document.createElement('div');
+    row.className = 'row';
+    const main = document.createElement('div');
+    main.className = 'main';
+    const t = document.createElement('div');
+    t.className = 't';
+    t.textContent = e.name;
+    main.append(t);
+    const get = document.createElement('a');
+    get.className = 'button';
+    get.href = `https://chromewebstore.google.com/detail/${e.id}`;
+    get.textContent = 'Get';
+    row.append(main, get);
+    box.append(row);
+  }
+})();

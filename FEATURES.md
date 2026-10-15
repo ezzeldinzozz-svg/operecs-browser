@@ -66,7 +66,7 @@ Edit freely: move lines between sections, delete what you don't want, add your o
 - [x] Workspaces / spaces
 - [ ] Built-in AI features — moved to "Later" below (2026-10-11)
 - [x] QR code for the current page
-- [ ] Encrypted sync / send tab to another device — moved to "Later" below (2026-10-11)
+- [x] Encrypted sync — built 2026-10-15 (see "Later" → 7)
 
 ## Later — after 1.0 (from the browser study, 2026-10-11)
 
@@ -117,7 +117,8 @@ first, because most of the rest sits on it.
 - [ ] Lighter and faster: sleep background tabs sooner, fewer processes, smaller download. (Search is 6 MB because it uses the Mac's own WebKit instead of carrying Chromium; matching that means a native WebKit edition, a rewrite — a decision, not a task)
 
 **7. Put off earlier**
-- [ ] Encrypted sync of bookmarks, history, settings, open tabs between your devices; send a tab to another device
+- [x] Encrypted sync of settings, bookmarks, history, open tabs, addresses, site settings and the extension list (Settings → Sync; server in `sync-server/`, to be deployed on the VPS)
+- [ ] Send a tab to another device; sync on phones
 - [ ] Mobile view: see a page as it looks on a phone (device sizes, touch)
 
 **8. Website**

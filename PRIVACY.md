@@ -15,6 +15,7 @@ Besides the websites you visit, Operecs itself contacts:
 | Your search engine | The one you choose (DuckDuckGo by default) | When you search from the address bar | What you typed |
 | Search suggestions (off by default) | Your search engine's suggestion service | Only if you turn on "Show search suggestions": as you type in the address bar (not in private windows) | What you're typing, without cookies |
 | Page translation (only when you choose Translate) | Google Translate (`translate.googleapis.com`) | When you translate a page; never in private windows | The page's text, without cookies |
+| Sync (only if you set it up) | The sync server you choose (ours runs on our VPS) | Every few minutes and after changes, while sync is on | Your synced data (settings, bookmarks, history, open tabs, addresses, site settings, extension list), **encrypted on your device** with a key from your sync code that never leaves your devices; the server can't read it. It sees an id for your sync chain, record sizes and times, and your IP address |
 | Crash reports (only if you turn them on; off by default) | Sentry (`sentry.io`) | When Operecs itself crashes or hits an error | What went wrong (error, stack trace, Operecs version, operating system, and the computer's chip, memory and screen size). No web addresses, page content, browsing history, device name or home folder |
 | Site icons | The site you're visiting | When a page has an icon | A request for the icon, without cookies |
 
