@@ -246,7 +246,7 @@ export GH_TOKEN=$(gh auth token --user ezzeldinzozz-svg)
 gh release upload vX.Y.Z dist/Operecs-X.Y.Z-arm64-mac.zip dist/Operecs-X.Y.Z-arm64.dmg dist/latest-mac.json --repo ezzeldinzozz-svg/operecs-browser --clobber
 gh release edit vX.Y.Z --repo ezzeldinzozz-svg/operecs-browser --draft=false --latest
 ```
- Electron is pinned (currently 44.7.0): bump patch versions
+ Electron is pinned (currently 44.9.0): bump patch versions
 regularly for security fixes, then release.
 
 ## CI (GitHub Actions)
