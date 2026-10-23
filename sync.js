@@ -22,6 +22,7 @@ const crypto = require('crypto');
 const os = require('os');
 const { safeStorage, net } = require('electron');
 
+const DEFAULT_SERVER = 'https://operecs.ezzeddin.work'; // ours (Coolify on the VPS, see HANDOFF.md)
 const ROUND_EVERY = 2 * 60 * 1000; // background sync
 const LOCAL_DEBOUNCE = 5000; // after a local change
 const MAX_PUT = 500; // records per upload
@@ -607,7 +608,7 @@ function code() {
 
 function status() {
   const s = ctx.store.data.sync;
-  if (!s || !keys) return { on: false, deviceName: (s && s.deviceName) || os.hostname().replace(/\.local$/, ''), server: (s && s.server) || (s && s.lastServer) || '', lastError: (s && s.lastError) || '' };
+  if (!s || !keys) return { on: false, deviceName: (s && s.deviceName) || os.hostname().replace(/\.local$/, ''), server: (s && s.server) || (s && s.lastServer) || DEFAULT_SERVER, lastError: (s && s.lastError) || '' };
   const devices = Object.entries(s.remote.dev || {}).map(([id, d]) => ({ id, name: d.name, platform: d.platform, seen: d.m }));
   return {
     on: true,

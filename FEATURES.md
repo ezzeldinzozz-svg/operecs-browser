@@ -13,8 +13,8 @@ Edit freely: move lines between sections, delete what you don't want, add your o
 ## To do — must have for 1.0
 
 - [x] Check by hand: password-manager extensions sign in and autofill (Bitwarden confirmed 2026-10-10)
-- [ ] Check by hand: device chooser for Serial / Bluetooth in the installed app (macOS asks for Bluetooth permission)
-- [ ] Check by hand: dragging a file onto the window opens it (was broken; fixed 2026-10-10, opens on the page or in a new tab from the toolbar; re-check after the update)
+- [x] Check by hand: device chooser for Serial / Bluetooth in the installed app (confirmed 2026-10-23)
+- [x] Check by hand: dragging a file onto the window opens it (fixed and confirmed 2026-10-23)
 - [x] Check by hand: media keys / Now Playing control the playing tab (confirmed 2026-10-10)
 - [x] Storage: history in SQLite (History.sqlite; bookmarks stay in JSON — small and written rarely)
 - [x] Full-text history search (FTS5; every word as a prefix)
@@ -118,7 +118,7 @@ first, because most of the rest sits on it.
 - [ ] Lighter and faster: sleep background tabs sooner, fewer processes, smaller download. (Search is 6 MB because it uses the Mac's own WebKit instead of carrying Chromium; matching that means a native WebKit edition, a rewrite — a decision, not a task)
 
 **7. Put off earlier**
-- [x] Encrypted sync of settings, bookmarks, history, open tabs, addresses, site settings and the extension list (Settings → Sync; server in `sync-server/`, to be deployed on the VPS)
+- [x] Encrypted sync of settings, bookmarks, history, open tabs, addresses, site settings and the extension list (Settings → Sync; server at https://operecs.ezzeddin.work)
 - [ ] Send a tab to another device; sync on phones
 - [ ] Mobile view: see a page as it looks on a phone (device sizes, touch)
 
@@ -130,9 +130,9 @@ first, because most of the rest sits on it.
 - [ ] Developer ID signing + notarization (removes "Open Anyway"; needs the $99/yr Apple Developer Program)
 - [ ] Passkeys / Touch ID / security keys (needs Developer ID + entitlements)
 - [ ] iCloud Passwords (needs Developer ID + Apple's web-browser entitlement)
-- [ ] Netflix / Spotify / Disney+ (DRM: castLabs Electron build + Widevine signing) — in progress: code ready and tested with castlabs 44.5.1; waiting for castlabs to reach our Electron version and for the owner's free EVS account (HANDOFF.md). Mind Browser ships this way; castlabs' builds and EVS signing are free, so this may only need the switch and an EVS account (see `research/browser-study-2026-10.md`)
+- [ ] Netflix / Disney+ (DRM): castlabs Electron with Widevine is in (2026-10-23, `scripts/drm-test.js`); Netflix-class services also need the VMP signature, waiting for the owner's free EVS account (`~/.browser-release/evs/bin/python -m castlabs_evs.account signup`)
 - [ ] Safe Browsing / phishing and malware warnings (Google Web Risk is paid)
-- [ ] Opt-in crash reporting: built in (Settings → Privacy, off by default); waiting for the Sentry project's DSN in `SENTRY_DSN` (main.js)
+- [ ] Later: opt-in crash reporting (Sentry). Built in and hidden (Settings → Privacy, off by default); needs a Sentry project's DSN in `SENTRY_DSN` (main.js). Parked by the owner 2026-10-23
 
 ## Parked until we go public
 

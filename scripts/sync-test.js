@@ -11,7 +11,8 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const SERVER_PORT = 8797;
-const SERVER = `http://127.0.0.1:${SERVER_PORT}`;
+// SYNC_TEST_SERVER=https://operecs.ezzeddin.work tests against the real server instead of a local one
+const SERVER = process.env.SYNC_TEST_SERVER || `http://127.0.0.1:${SERVER_PORT}`;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 let failures = 0;
@@ -41,11 +42,12 @@ async function cdp(wsUrl, method, params) {
 function launch(name, inspectPort) {
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), `operecs-sync-${name}-`));
   // Linux test machines have no keyring; Chromium's basic store stands in for it there
-  const extra = process.platform === 'linux' ? ['--password-store=basic'] : [];
+  // and on the Mac a stand-in keychain, so a new Electron build never stops at macOS's keychain prompt
+  const extra = process.platform === 'linux' ? ['--password-store=basic'] : process.platform === 'darwin' ? ['--use-mock-keychain'] : [];
   const proc = spawn(require('electron'), [`--inspect=${inspectPort}`, '.', ...extra], {
     cwd: ROOT,
     env: { ...process.env, BROWSER_PROFILE_DIR: profile },
-    stdio: 'ignore',
+    stdio: process.env.SYNC_TEST_VERBOSE ? ['ignore', 'inherit', 'inherit'] : 'ignore',
   });
   // evaluate in the main process; `S` is sync.js, `M` main's helpers via require cache
   const main = async (expr) => {
@@ -75,10 +77,12 @@ function launch(name, inspectPort) {
 
 (async () => {
   const data = fs.mkdtempSync(path.join(os.tmpdir(), 'operecs-sync-server-'));
-  const server = spawn(process.execPath, [path.join(ROOT, 'sync-server', 'server.js')], {
-    env: { ...process.env, PORT: String(SERVER_PORT), DATA: data },
-    stdio: 'ignore',
-  });
+  const server = process.env.SYNC_TEST_SERVER
+    ? { kill() {} }
+    : spawn(process.execPath, [path.join(ROOT, 'sync-server', 'server.js')], {
+        env: { ...process.env, PORT: String(SERVER_PORT), DATA: data },
+        stdio: 'ignore',
+      });
   const a = launch('A', 9241);
   const b = launch('B', 9242);
   try {
@@ -145,6 +149,7 @@ function launch(name, inspectPort) {
   } finally {
     for (const x of [a, b]) {
       x.proc.kill();
+      setTimeout(() => x.proc.kill('SIGKILL'), 3000).unref(); // one stuck at a system prompt
     }
     server.kill();
     await sleep(1000);

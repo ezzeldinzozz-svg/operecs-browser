@@ -5,7 +5,9 @@
     "Terms of use (Settings → About)",
     "Fixed: the Extensions page's checkboxes and Remove button no longer overlap",
     "Sync (Settings → Sync): settings, bookmarks, history, open tabs, addresses, site settings and your extension list on all your devices, end-to-end encrypted",
-    "AI agents (Settings → Privacy & Security): let Claude Code, Codex or any MCP tool on your Mac browse in their own Agent window, reading pages as compact outlines that cost far fewer tokens than screenshots"
+    "AI agents (Settings → Privacy & Security): let Claude Code, Codex or any MCP tool on your Mac browse in their own Agent window, reading pages as compact outlines that cost far fewer tokens than screenshots",
+    "Protected streaming support (Widevine DRM). Some services, like Netflix, need one more step that comes in a later update",
+    "Security: the browser engine is updated with the latest fixes (Electron 44.9.3)"
   ],
   "0.22.3": [
     "Fixed: dragging a file (PDF, image, web page) onto a page opens it, and dropping it onto the tab strip or toolbar opens it in a new tab",
