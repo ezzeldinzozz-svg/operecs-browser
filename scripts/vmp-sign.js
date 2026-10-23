@@ -41,7 +41,17 @@ exports.signVmp = function signVmp(context) {
     console.warn('  • castlabs EVS not set up: no VMP signature, protected streams like Netflix won\'t play (see scripts/vmp-sign.js)');
     return 'missing';
   }
-  execFileSync(python(), ['-m', 'castlabs_evs.vmp', 'sign-pkg', context.appOutDir], { stdio: 'inherit' });
+  try {
+    execFileSync(python(), ['-m', 'castlabs_evs.vmp', 'sign-pkg', context.appOutDir], { stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8' });
+  } catch (err) {
+    const out = `${err.stdout || ''}${err.stderr || ''}`;
+    // EVS is installed but nobody has signed up yet (it would ask for an account name)
+    if (/NonInteractiveError|Account Name|not logged in|no account|reauth/i.test(out)) {
+      console.warn('  • castlabs EVS has no account yet: no VMP signature (run: ~/.browser-release/evs/bin/python -m castlabs_evs.account signup)');
+      return 'missing';
+    }
+    throw new Error(`VMP signing failed: ${out.trim().split('\n').slice(-3).join(' ')}`);
+  }
   execFileSync(python(), ['-m', 'castlabs_evs.vmp', 'verify-pkg', context.appOutDir], { stdio: 'inherit' });
   console.log(`  • VMP-signed ${path.basename(context.appOutDir)}`);
   return 'signed';
