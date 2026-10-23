@@ -1,0 +1,17 @@
+# For Coolify (or any Docker host): the server listens inside the container only; the reverse
+# proxy (Coolify's Traefik) adds HTTPS and the domain. Data lives in the sync-data volume.
+services:
+  sync:
+    build: .
+    restart: unless-stopped
+    environment:
+      - PORT=8787
+      - HOST=0.0.0.0
+      - DATA=/data
+    volumes:
+      - sync-data:/data
+    expose:
+      - '8787'
+
+volumes:
+  sync-data:

@@ -41,3 +41,9 @@ stays deleted (its other devices are told to stop).
 
 Copy `sync.sqlite` (with the service stopped, or `sqlite3 sync.sqlite ".backup backup.sqlite"`).
 A backup is as unreadable as the live data.
+
+## Run it with Docker / Coolify (what operecs.ezzeddin.work uses)
+
+`docker-compose.yml` and `Dockerfile` here: in Coolify, a Docker Compose application from this
+repository with base directory `/sync-server`, and the `sync` service's domain set to
+`https://operecs.ezzeddin.work:8787` (Coolify routes the domain to port 8787 and adds HTTPS).
