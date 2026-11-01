@@ -75,6 +75,9 @@ function tagAndPush(pkg, pkgPath, version, tag) {
     const { _comment, next, ...older } = log;
     fs.writeFileSync(logPath, JSON.stringify({ _comment, next: [], [version]: next, ...older }, null, 2) + '\n');
   }
+  // the website's Changes page and feed follow the changelog
+  sh('node', [path.join(ROOT, 'scripts', 'website-changes.js')]);
+  sh('git', ['add', 'website/changes.html', 'website/changes.xml']);
 
   // 1. version, commit, tag, push -> CI starts building Windows and Linux
   pkg.version = version;

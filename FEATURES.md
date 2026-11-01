@@ -124,7 +124,7 @@ first, because most of the rest sits on it.
 
 **8. Website**
 - [x] A landing page (`website/`, 2026-11-01): hero with download buttons, the browser window drawn in HTML, numbered feature panels, privacy, shortcuts, closing download section
-- [ ] Host it (domain not decided)
+- [x] Hosted at https://operecs.ezzeddin.work (2026-11-02), with a Changes page built from the changelog
 
 ## Blocked — needs a paid account or a provider
 

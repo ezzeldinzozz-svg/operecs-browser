@@ -238,6 +238,20 @@
     new IntersectionObserver(([e], o) => { if (e.isIntersecting) { startAuto(); o.disconnect(); } }, { threshold: .4 }).observe(kb);
   }
 
+  // Changes page: filter releases by kind of change.
+  const timeline = $('#timeline');
+  $$('.filters button').forEach((b) => b.addEventListener('click', () => {
+    const f = b.dataset.filter;
+    $$('.filters button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+    $$('.rel', timeline).forEach((rel) => {
+      let any = false;
+      $$('.grp, li[data-type]', rel).forEach((el) => { const on = f === 'all' || el.dataset.type === f; el.hidden = !on; any ||= on; });
+      rel.hidden = !any;
+      if (any) rel.classList.add('in');
+    });
+    $('.empty', timeline).hidden = $$('.rel:not([hidden])', timeline).length > 0;
+  }));
+
   // Copy the Homebrew command.
   const toast = $('#toast');
   let toastT = 0;

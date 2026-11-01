@@ -47,3 +47,8 @@ A backup is as unreadable as the live data.
 `docker-compose.yml` and `Dockerfile` here: in Coolify, a Docker Compose application from this
 repository with base directory `/sync-server`, and the `sync` service's domain set to
 `https://operecs.ezzeddin.work:8787` (Coolify routes the domain to port 8787 and adds HTTPS).
+
+The image also serves the Operecs website (the repository's `website/` folder) on every path outside
+`/v1/`, so it is built from the repository root: compose uses `context: ..`, and
+`Dockerfile.dockerignore` keeps everything but `server.js` and `website/` out of the build. Run
+without `WEBSITE` set, the server only answers `/v1/`.

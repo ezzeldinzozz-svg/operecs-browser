@@ -11,6 +11,9 @@
 //                                                                      later requests for it get 410 Gone)
 //   GET    /v1/health                                                -> { ok: true }
 //
+// Anything outside /v1 is the Operecs website, served from WEBSITE (a folder of static files; the
+// Docker image copies the repository's website/ there). Without WEBSITE those paths are 404.
+//
 // Every chain request carries "Authorization: Bearer <token>". The first request for a new chain
 // registers the token's SHA-256; later requests must match it.
 //
@@ -32,6 +35,7 @@ const MAX_RECORDS_PER_PUT = 1000;
 const MAX_RECORDS_PER_CHAIN = 500000;
 const MAX_BYTES_PER_CHAIN = 512 * 1024 * 1024;
 const MAX_CHAINS = Number(process.env.MAX_CHAINS || 1000);
+const WEBSITE = process.env.WEBSITE ? path.resolve(process.env.WEBSITE) : '';
 const RATE_PER_MINUTE = 240; // requests per chain per minute
 
 fs.mkdirSync(DATA, { recursive: true });
@@ -208,10 +212,49 @@ function deleteChain(res, chain) {
   res.writeHead(204).end();
 }
 
+// The website: static files, "/changes" finds changes.html, unknown paths get the 404 page.
+const TYPES = {
+  '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
+  '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.png': 'image/png', '.ico': 'image/x-icon',
+  '.xml': 'application/atom+xml; charset=utf-8', '.txt': 'text/plain; charset=utf-8', '.json': 'application/json',
+};
+function serveWebsite(req, res, url) {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return send(res, 405, { error: 'method not allowed' });
+  let rel;
+  try { rel = decodeURIComponent(url.pathname); } catch { return send(res, 400, { error: 'bad path' }); }
+  if (rel.endsWith('/')) rel += 'index.html';
+  const candidates = path.extname(rel) ? [rel] : [`${rel}.html`, `${rel}/index.html`];
+  for (const c of candidates) {
+    const file = path.join(WEBSITE, path.normalize(c));
+    if (!file.startsWith(WEBSITE + path.sep)) break;
+    let stat;
+    try { stat = fs.statSync(file); } catch { continue; }
+    if (!stat.isFile()) continue;
+    const ext = path.extname(file);
+    res.writeHead(200, {
+      'Content-Type': TYPES[ext] || 'application/octet-stream',
+      'Content-Length': stat.size,
+      // File names aren't versioned, so only fonts and images (which rarely change) cache long.
+      'Cache-Control': ['.woff2', '.png', '.ico'].includes(ext) ? 'public, max-age=86400' : 'public, max-age=300',
+      'X-Content-Type-Options': 'nosniff',
+      'Referrer-Policy': 'strict-origin-when-cross-origin',
+    });
+    if (req.method === 'HEAD') return res.end();
+    return fs.createReadStream(file).pipe(res);
+  }
+  const notFound = path.join(WEBSITE, '404.html');
+  if (fs.existsSync(notFound)) {
+    res.writeHead(404, { 'Content-Type': TYPES['.html'], 'Cache-Control': 'public, max-age=300' });
+    return req.method === 'HEAD' ? res.end() : fs.createReadStream(notFound).pipe(res);
+  }
+  return send(res, 404, { error: 'not found' });
+}
+
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://localhost');
     if (req.method === 'GET' && url.pathname === '/v1/health') return send(res, 200, { ok: true });
+    if (WEBSITE && !url.pathname.startsWith('/v1/')) return serveWebsite(req, res, url);
     const m = /^\/v1\/chains\/([^/]+)(\/records)?$/.exec(url.pathname);
     if (!m || !CHAIN_RE.test(m[1])) return send(res, 404, { error: 'not found' });
     const chain = m[1];
