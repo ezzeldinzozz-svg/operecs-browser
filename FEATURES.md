@@ -123,7 +123,8 @@ first, because most of the rest sits on it.
 - [ ] Mobile view: see a page as it looks on a phone (device sizes, touch)
 
 **8. Website**
-- [ ] A landing page in the spirit of Mind Browser's: hero with download buttons, a real browser screenshot, numbered feature cards, privacy, shortcuts, closing download section
+- [x] A landing page (`website/`, 2026-11-01): hero with download buttons, the browser window drawn in HTML, numbered feature panels, privacy, shortcuts, closing download section
+- [ ] Host it (domain not decided)
 
 ## Blocked — needs a paid account or a provider
 

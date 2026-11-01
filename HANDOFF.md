@@ -3,7 +3,7 @@
 Everything needed to pick this project up on any device. **Keep this file current:** update it
 in the same commit as any change to features, architecture, setup, or plans.
 
-_Last updated: 2026-10-24 · Current release: v0.23.0 (all platforms: Apple silicon + Intel Mac, Windows, Linux)_
+_Last updated: 2026-11-01 · Current release: v0.23.0 (all platforms: Apple silicon + Intel Mac, Windows, Linux)_
 
 **v0.21.8 added:** balanced outer card frame in vertical tabs mode — restored even 8px insets and rounded 12px corners with border outline and shadow around the webpage view, matching horizontal tabs mode.
 
@@ -176,6 +176,7 @@ See `research/browser-lessons.md` for the full research on how Brave and others 
 | `scripts/fuses.js` | Locks down the packaged Electron binary (no RunAsNode, asar-only with integrity check, cookie encryption…) |
 | `agent.js` | MCP server for AI agents (Claude Code, Codex) to drive an Agent window cheaply |
 | `sync.js`, `sync-server/` | Sync client (main process) and the sync server for the VPS (README, systemd unit, Caddyfile) |
+| `website/` | Landing page (static: `index.html`, `style.css`, `main.js`, fonts and brand SVGs copied from `brand/`). Same design language as ezzeddin.work. The browser window in the hero is drawn in HTML from `ui/style.css`, not a screenshot. Download buttons point at the latest release's `-arm64.dmg` via the GitHub API (falls back to the releases page). Preview: `python3 -m http.server 4321 --directory website` (or the `website` entry in `.claude/launch.json`). Not hosted yet |
 | `packaging/` | Homebrew tap is live: `ezzeldinzozz-svg/homebrew-operecs` (install: `brew tap ezzeldinzozz-svg/operecs`, `brew trust …`, `brew install --cask operecs`); `release.js` updates its cask on all-platform releases. Store listing files (Homebrew cask, winget manifests) and how to publish them; versions and checksums are per release |
 | `scripts/keygen.js`, `scripts/release.js` | Release signing key setup, and build+sign+publish |
 

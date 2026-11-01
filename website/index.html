@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Operecs, a quiet browser for Mac</title>
+<meta name="description" content="Operecs is a fast, private web browser for Mac. Ad and tracker blocking, vertical tabs, split view, encrypted sync and Chrome extensions. No account, no telemetry. Free and open source.">
+<meta name="theme-color" content="#050407">
+<meta property="og:title" content="Operecs, a quiet browser for Mac">
+<meta property="og:description" content="Fast, private, yours. No account, no telemetry, nothing to sign up for.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/outfit.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav" id="nav">
+  <a class="nav-brand pill" href="#top" aria-label="Operecs home">
+    <img src="wordmark.svg" alt="Operecs" width="98" height="12">
+  </a>
+  <nav class="nav-links pill" aria-label="Sections">
+    <a href="#features">Features</a>
+    <a href="#privacy">Privacy</a>
+    <a href="#keys">Shortcuts</a>
+    <a class="nav-cta" href="#download" data-download>Download</a>
+  </nav>
+</header>
+
+<main id="main">
+
+<!-- Hero -->
+<section class="hero" id="top">
+  <canvas class="stars" aria-hidden="true"></canvas>
+  <div class="glow" aria-hidden="true"></div>
+  <div class="wrap hero-copy">
+    <p class="eyebrow reveal">Operecs <span>·</span> a browser for Mac</p>
+    <h1 class="reveal">The web, quietly.<br><span class="dim">Fast, private and </span><span class="accent">yours.</span></h1>
+    <p class="lede reveal">No account. No telemetry. No ads following you around. Just a browser built by hand, that gets out of the way and keeps what you do on your Mac.</p>
+    <div class="cta-row reveal">
+      <a class="btn btn-primary magnetic" href="https://github.com/ezzeldinzozz-svg/operecs-browser/releases/latest" data-download>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 12.6c0-2.5 2.1-3.7 2.2-3.8-1.2-1.7-3-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.8 1.2 1.8 2.6 3.1 2.5 1.3 0 1.7-.8 3.3-.8 1.5 0 1.9.8 3.3.8 1.4 0 2.2-1.2 3-2.5 1-1.4 1.3-2.7 1.4-2.8-.1 0-2.6-1-2.4-4.2zM13.9 5.2c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1.1.1 2.1-.6 2.8-1.4z"/></svg>
+        Download for Mac
+      </a>
+      <button class="btn btn-ghost copy" type="button" data-copy="brew tap ezzeldinzozz-svg/operecs &amp;&amp; brew trust ezzeldinzozz-svg/operecs &amp;&amp; brew install --cask operecs" aria-label="Copy the Homebrew install command">
+        <span class="mono">Copy the Homebrew command</span>
+        <svg class="ico-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="3"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+      </button>
+    </div>
+    <p class="meta reveal"><span data-version>v0.23</span> · Apple silicon · Free and open source (GPL-3.0)</p>
+  </div>
+
+  <!-- The browser, drawn from the real Operecs chrome -->
+  <div class="stage" id="stage">
+    <div class="window" id="window" role="img" aria-label="The Operecs browser window: tabs in the title bar, an address bar, and the new tab page with a privacy counter.">
+      <div class="titlebar">
+        <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="tabs">
+          <button class="tab active" data-view="newtab" tabindex="-1"><span class="fav fav-o"></span>New Tab</button>
+          <button class="tab" data-view="article" tabindex="-1"><span class="fav fav-a"></span>The slow web, revisited</button>
+          <button class="tab" data-view="split" tabindex="-1"><span class="fav fav-s"></span>Split view</button>
+          <span class="tab-add" aria-hidden="true">+</span>
+        </div>
+      </div>
+      <div class="toolbar">
+        <span class="tb-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></span>
+        <span class="tb-ico dim" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        <span class="tb-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M19 12a7 7 0 1 1-2.1-5"/><path d="M19 4v4h-4"/></svg></span>
+        <div class="omnibox">
+          <svg class="lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          <span class="url" id="url"><span class="host">Search or type a URL</span></span>
+        </div>
+        <span class="shield" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/></svg>
+          <b id="shieldCount">14</b>
+        </span>
+        <span class="tb-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 4h4v3a2 2 0 1 0 0 4v0h3v4a2 2 0 1 1 0 4v1H7v-4a2 2 0 1 0 0-4V7h3"/></svg></span>
+        <span class="avatar" aria-hidden="true">E</span>
+      </div>
+      <div class="viewport">
+        <!-- New tab -->
+        <div class="view show" data-view="newtab">
+          <div class="nt">
+            <img class="nt-mark" src="wordmark.svg" alt="">
+            <div class="nt-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg><span class="typed" id="typed"></span><span class="caret"></span></div>
+            <div class="nt-tiles">
+              <span class="tile"><i style="--c:#ff6b4a">G</i>GitHub</span>
+              <span class="tile"><i style="--c:#4a8dff">M</i>Mail</span>
+              <span class="tile"><i style="--c:#20c997">F</i>Figma</span>
+              <span class="tile"><i style="--c:#f5b83d">N</i>News</span>
+              <span class="tile"><i style="--c:#9b6cff">C</i>Calendar</span>
+            </div>
+            <div class="nt-stats">
+              <div><b data-count="2847">0</b><span>trackers blocked this week</span></div>
+              <div><b data-count="96">0</b><span>cookie banners declined</span></div>
+              <div><b data-count="41" data-suffix=" min">0</b><span>of loading saved</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- Article -->
+        <div class="view" data-view="article">
+          <article class="read">
+            <p class="read-kicker">Essay · 6 min read</p>
+            <h3>The slow web, revisited</h3>
+            <p>Most pages carry more scripts than words. Take the trackers out and something odd happens: the page simply appears, the way pages used to.</p>
+            <p class="ghost-line w90"></p><p class="ghost-line w80"></p><p class="ghost-line w95"></p><p class="ghost-line w60"></p>
+          </article>
+        </div>
+        <!-- Split -->
+        <div class="view" data-view="split">
+          <div class="split">
+            <div class="pane"><p class="read-kicker">docs.operecs</p><p class="ghost-line w80"></p><p class="ghost-line w95"></p><p class="ghost-line w60"></p><div class="code"><span>const</span> tab = <em>split</em>(left, right);</div><p class="ghost-line w90"></p></div>
+            <div class="pane"><p class="read-kicker">localhost:3000</p><div class="mini-app"><i></i><i></i><i></i><i></i></div><p class="ghost-line w70"></p><p class="ghost-line w85"></p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="stage-note mono">Click the tabs. It's the real interface, drawn in HTML.</p>
+  </div>
+</section>
+
+<!-- Claims strip -->
+<section class="strip" aria-label="At a glance">
+  <div class="wrap strip-grid">
+    <div class="reveal"><b>0</b><span>accounts to make</span></div>
+    <div class="reveal"><b>0</b><span>analytics or telemetry</span></div>
+    <div class="reveal"><b>60+</b><span>shortcuts, all rebindable</span></div>
+    <div class="reveal"><b>1</b><span>click to install, then it updates itself</span></div>
+  </div>
+</section>
+
+<!-- Features, numbered like principles -->
+<section class="features" id="features">
+  <div class="wrap">
+    <p class="eyebrow reveal">Features</p>
+    <h2 class="reveal">The details you feel<br><span class="dim">but never notice.</span></h2>
+    <p class="section-lede reveal">Six things Operecs does differently. Each one is in the app you download today, not on a roadmap.</p>
+
+    <div class="principles reveal" id="principles">
+      <div class="p-list" role="tablist" aria-label="Features">
+        <button role="tab" aria-selected="true" aria-controls="p-tabs" id="t-tabs"><span class="n">01</span>Tabs<i class="bar"></i></button>
+        <button role="tab" aria-selected="false" aria-controls="p-bar" id="t-bar" tabindex="-1"><span class="n">02</span>Address bar<i class="bar"></i></button>
+        <button role="tab" aria-selected="false" aria-controls="p-private" id="t-private" tabindex="-1"><span class="n">03</span>Private windows<i class="bar"></i></button>
+        <button role="tab" aria-selected="false" aria-controls="p-ext" id="t-ext" tabindex="-1"><span class="n">04</span>Extensions<i class="bar"></i></button>
+        <button role="tab" aria-selected="false" aria-controls="p-sync" id="t-sync" tabindex="-1"><span class="n">05</span>Sync<i class="bar"></i></button>
+        <button role="tab" aria-selected="false" aria-controls="p-agents" id="t-agents" tabindex="-1"><span class="n">06</span>AI agents<i class="bar"></i></button>
+      </div>
+
+      <div class="p-panels">
+        <article class="p-panel show" role="tabpanel" id="p-tabs" aria-labelledby="t-tabs">
+          <div class="p-text">
+            <h3>Tabs that fit how you think.</h3>
+            <p>Across the top or down the side. Group them, name them, colour them, and put two side by side. Tabs you haven't touched in a while go to sleep, so forty open tabs still feel like four.</p>
+            <dl class="spec">
+              <div><dt>Layouts</dt><dd>Horizontal or vertical</dd></div>
+              <div><dt>Groups</dt><dd>Named, coloured, saved</dd></div>
+              <div><dt>Split view</dt><dd>Two tabs, one window</dd></div>
+              <div><dt>On battery</dt><dd>Idle tabs sleep after 10 min</dd></div>
+            </dl>
+          </div>
+          <div class="p-demo demo-tabs" data-layout="h">
+            <div class="seg" role="group" aria-label="Tab layout">
+              <button type="button" aria-pressed="true" data-layout="h">Horizontal</button>
+              <button type="button" aria-pressed="false" data-layout="v">Vertical</button>
+            </div>
+            <div class="mini">
+              <div class="mini-tabs"><i class="g1"></i><i class="g1"></i><i class="on"></i><i class="g2"></i><i></i></div>
+              <div class="mini-page"><p class="ghost-line w80"></p><p class="ghost-line w95"></p><p class="ghost-line w60"></p></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="p-panel" role="tabpanel" id="p-bar" aria-labelledby="t-bar" hidden>
+          <div class="p-text">
+            <h3>One bar that does the work.</h3>
+            <p>Sums, unit conversions and commands answer as you type, before you press Return. Type "clear history" and it clears history. The address shows the site, so you always know where you are.</p>
+            <dl class="spec">
+              <div><dt>Answers</dt><dd>Sums and unit conversions</dd></div>
+              <div><dt>Commands</dt><dd>"settings", "clear history" …</dd></div>
+              <div><dt>Search</dt><dd>DuckDuckGo by default</dd></div>
+              <div><dt>Suggestions</dt><dd>Off until you turn them on</dd></div>
+            </dl>
+          </div>
+          <div class="p-demo demo-bar">
+            <div class="bar-input"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg><span id="barTyped"></span><span class="caret"></span></div>
+            <div class="bar-answer" id="barAnswer" aria-live="polite"><span class="mono">=</span><b></b></div>
+          </div>
+        </article>
+
+        <article class="p-panel" role="tabpanel" id="p-private" aria-labelledby="t-private" hidden>
+          <div class="p-text">
+            <h3>Private windows look private.</h3>
+            <p>A deep violet frame, so you never mistake one for a normal window. Each private window gets its own session in memory, and when you close it, everything it saw is gone.</p>
+            <dl class="spec">
+              <div><dt>Frame</dt><dd>Violet, unmistakable</dd></div>
+              <div><dt>Storage</dt><dd>Memory only, per window</dd></div>
+              <div><dt>Recorded</dt><dd>Nothing. No history, no list</dd></div>
+              <div><dt>Shortcut</dt><dd>⌘ ⇧ N</dd></div>
+            </dl>
+          </div>
+          <div class="p-demo demo-private">
+            <div class="pw normal"><span>Normal</span></div>
+            <div class="pw priv"><span>Private</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><path d="M4 20L20 4"/></svg></div>
+          </div>
+        </article>
+
+        <article class="p-panel" role="tabpanel" id="p-ext" aria-labelledby="t-ext" hidden>
+          <div class="p-text">
+            <h3>Your extensions came with you.</h3>
+            <p>Install straight from the Chrome Web Store. Password managers sign in and fill, buttons sit in the toolbar, and you can switch any extension off without removing it.</p>
+            <dl class="spec">
+              <div><dt>Source</dt><dd>Chrome Web Store</dd></div>
+              <div><dt>Tested</dt><dd>Bitwarden signs in and fills</dd></div>
+              <div><dt>Control</dt><dd>On, off, hide, remove</dd></div>
+              <div><dt>Engine</dt><dd>Chromium, so sites just work</dd></div>
+            </dl>
+          </div>
+          <div class="p-demo demo-ext">
+            <div class="ext"><i style="--c:#175ddc">B</i><span>Bitwarden</span><em class="on"></em></div>
+            <div class="ext"><i style="--c:#e2483d">R</i><span>Raindrop</span><em class="on"></em></div>
+            <div class="ext"><i style="--c:#20c997">G</i><span>Grammar check</span><em></em></div>
+            <div class="ext"><i style="--c:#f5b83d">D</i><span>Dark Reader</span><em class="on"></em></div>
+          </div>
+        </article>
+
+        <article class="p-panel" role="tabpanel" id="p-sync" aria-labelledby="t-sync" hidden>
+          <div class="p-text">
+            <h3>Sync that can't read you.</h3>
+            <p>Bookmarks, history, open tabs and settings travel between your Macs, encrypted on your device with a key from your sync code. The code never leaves your devices, so the server only ever stores noise.</p>
+            <dl class="spec">
+              <div><dt>Account</dt><dd>None. A sync code instead</dd></div>
+              <div><dt>Cipher</dt><dd>AES-256-GCM, on device</dd></div>
+              <div><dt>Server sees</dt><dd>Sizes and times, not content</dd></div>
+              <div><dt>Pairing</dt><dd>Scan a QR code</dd></div>
+            </dl>
+          </div>
+          <div class="p-demo demo-sync">
+            <div class="dev">MacBook Air<small>bookmarks.json</small></div>
+            <div class="wire"><span class="cipher" id="cipher">a7f3…</span></div>
+            <div class="dev">Mac mini<small>bookmarks.json</small></div>
+          </div>
+        </article>
+
+        <article class="p-panel" role="tabpanel" id="p-agents" aria-labelledby="t-agents" hidden>
+          <div class="p-text">
+            <h3>Let your AI tools browse, on your terms.</h3>
+            <p>Turn it on, and Claude Code, Codex or other tools on your Mac can open pages and work in an Agent window. They connect locally with an access key. Your own tabs stay out of it unless you say so.</p>
+            <dl class="spec">
+              <div><dt>Default</dt><dd>Off</dd></div>
+              <div><dt>Connection</dt><dd>127.0.0.1 with an access key</dd></div>
+              <div><dt>Your tabs</dt><dd>Only if you allow it</dd></div>
+              <div><dt>Leaves your Mac</dt><dd>Nothing, from Operecs</dd></div>
+            </dl>
+          </div>
+          <div class="p-demo demo-agents">
+            <pre class="term" aria-label="A terminal where an agent opens a page in Operecs"><span class="t-dim">$</span> claude
+<span class="t-dim">›</span> check the checkout page on localhost
+<span class="t-acc">●</span> Operecs · open http://localhost:3000/checkout
+<span class="t-acc">●</span> Operecs · screenshot
+<span class="t-ok">✓</span> Button overlaps the total below 380px.</pre>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Privacy -->
+<section class="privacy" id="privacy">
+  <div class="wrap">
+    <p class="eyebrow reveal">Privacy</p>
+    <h2 class="reveal">Blocked before it loads.<br><span class="dim">Cleaned before you share.</span></h2>
+    <p class="section-lede reveal">Ads, trackers and third-party cookies are blocked from the first launch. Cookie banners are declined for you. And links lose their tracking tags the moment you open them.</p>
+
+    <div class="cleaner reveal">
+      <div class="cleaner-head">
+        <span class="mono">Tracking parameters</span>
+        <button class="btn btn-small" type="button" id="cleanBtn">Clean this link</button>
+      </div>
+      <p class="dirty mono" id="dirty" aria-live="polite"></p>
+      <p class="cleaner-foot mono" id="cleanFoot">utm_, fbclid, gclid and friends, removed automatically.</p>
+    </div>
+
+    <div class="ledger">
+      <div class="ledger-col reveal">
+        <h3>On by default</h3>
+        <ul class="checks">
+          <li>Ad and tracker blocking</li>
+          <li>Third-party cookie blocking</li>
+          <li>Cookie banners auto-declined</li>
+          <li>Fingerprinting protection</li>
+          <li>Global Privacy Control</li>
+          <li>Lookalike-domain warnings</li>
+        </ul>
+      </div>
+      <div class="ledger-col reveal">
+        <h3>Everything Operecs itself talks to</h3>
+        <p class="small">Besides the sites you visit, this is the whole list.</p>
+        <table class="net">
+          <tbody>
+            <tr><th>Updates</th><td>GitHub Releases</td><td class="mono">every 6 h</td></tr>
+            <tr><th>Block lists</th><td>Ghostery's CDN</td><td class="mono">weekly</td></tr>
+            <tr><th>Search</th><td>Your engine, DuckDuckGo first</td><td class="mono">when you search</td></tr>
+            <tr><th>Site icons</th><td>The site itself</td><td class="mono">no cookies</td></tr>
+          </tbody>
+        </table>
+        <p class="small">Translation, sync and crash reports only run if you turn them on. <a href="https://github.com/ezzeldinzozz-svg/operecs-browser/blob/main/PRIVACY.md">Read the privacy policy</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Shortcuts -->
+<section class="keys" id="keys">
+  <div class="wrap keys-grid">
+    <div>
+      <p class="eyebrow reveal">Keyboard</p>
+      <h2 class="reveal">Keys first.<br><span class="dim">Mouse optional.</span></h2>
+      <p class="section-lede reveal">More than sixty commands, every one rebindable in Settings, with conflicts caught as you type. Point at a shortcut to see it.</p>
+      <ul class="shortcuts reveal" id="shortcuts">
+        <li data-keys="cmd t"><span>New tab</span><kbd>⌘</kbd><kbd>T</kbd></li>
+        <li data-keys="cmd shift t"><span>Reopen closed tab</span><kbd>⌘</kbd><kbd>⇧</kbd><kbd>T</kbd></li>
+        <li data-keys="cmd l"><span>Go to the address bar</span><kbd>⌘</kbd><kbd>L</kbd></li>
+        <li data-keys="cmd shift n"><span>New private window</span><kbd>⌘</kbd><kbd>⇧</kbd><kbd>N</kbd></li>
+        <li data-keys="cmd f"><span>Find in page</span><kbd>⌘</kbd><kbd>F</kbd></li>
+        <li data-keys="cmd shift v"><span>Paste as plain text</span><kbd>⌘</kbd><kbd>⇧</kbd><kbd>V</kbd></li>
+      </ul>
+    </div>
+    <div class="kb reveal" id="kb" aria-hidden="true"></div>
+  </div>
+</section>
+
+<!-- Craft -->
+<section class="craft">
+  <div class="wrap">
+    <p class="eyebrow reveal">Built by hand</p>
+    <h2 class="reveal">Small team. <span class="dim">No shortcuts.</span></h2>
+    <div class="craft-grid">
+      <div class="card reveal"><span class="n mono">Engine</span><h3>Chromium, kept current.</h3><p>A weekly job checks for a newer Chromium patch and tests it, so security fixes land in days, not months.</p></div>
+      <div class="card reveal"><span class="n mono">Updates</span><h3>Signed with our own key.</h3><p>Every update is checked against an Ed25519 signature before it installs. A pill in the toolbar says when it's ready.</p></div>
+      <div class="card reveal"><span class="n mono">Source</span><h3>Open, GPL-3.0.</h3><p>Read every line on GitHub. If Operecs ever says it does something, you can check that it does.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="final" id="download">
+  <div class="glow glow-low" aria-hidden="true"></div>
+  <div class="wrap final-inner">
+    <img class="app-icon reveal" src="icon.svg" alt="" width="132" height="132">
+    <h2 class="reveal">Quiet down<br><span class="accent">the web.</span></h2>
+    <p class="section-lede reveal">Free for your Mac. Brings your bookmarks and history from Chrome, Brave, Edge, Arc or Vivaldi in one step.</p>
+    <div class="cta-row reveal">
+      <a class="btn btn-primary magnetic" href="https://github.com/ezzeldinzozz-svg/operecs-browser/releases/latest" data-download>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 12.6c0-2.5 2.1-3.7 2.2-3.8-1.2-1.7-3-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.8 1.2 1.8 2.6 3.1 2.5 1.3 0 1.7-.8 3.3-.8 1.5 0 1.9.8 3.3.8 1.4 0 2.2-1.2 3-2.5 1-1.4 1.3-2.7 1.4-2.8-.1 0-2.6-1-2.4-4.2zM13.9 5.2c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1.1.1 2.1-.6 2.8-1.4z"/></svg>
+        Download for Mac
+      </a>
+      <button class="btn btn-ghost copy" type="button" data-copy="brew tap ezzeldinzozz-svg/operecs &amp;&amp; brew trust ezzeldinzozz-svg/operecs &amp;&amp; brew install --cask operecs" aria-label="Copy the Homebrew install command">
+        <span class="mono">Copy the Homebrew command</span>
+        <svg class="ico-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="3"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+      </button>
+    </div>
+    <p class="meta reveal">macOS on Apple silicon (M1 and later) · <span data-version>v0.23</span> · First launch: System Settings → Privacy &amp; Security → Open Anyway · <a href="https://github.com/ezzeldinzozz-svg/operecs-browser/releases">All releases</a></p>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <img src="wordmark.svg" alt="Operecs" width="82" height="10">
+    <nav aria-label="Footer">
+      <a href="https://github.com/ezzeldinzozz-svg/operecs-browser">GitHub</a>
+      <a href="https://github.com/ezzeldinzozz-svg/operecs-browser/blob/main/PRIVACY.md">Privacy</a>
+      <a href="https://github.com/ezzeldinzozz-svg/operecs-browser/blob/main/TERMS.md">Terms</a>
+      <a href="https://ezzeddin.work">Made by Ezzeddin Magdy</a>
+    </nav>
+    <p class="mono">© 2026 Operecs</p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="main.js" defer></script>
+</body>
+</html>
