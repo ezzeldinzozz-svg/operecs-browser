@@ -4,8 +4,21 @@
     {
       "name": "website",
       "runtimeExecutable": "sh",
-      "runtimeArgs": ["-c", "WEBSITE=website DATA=\"${TMPDIR:-/tmp}/operecs-sync-dev\" PORT=4321 node sync-server/server.js"],
+      "runtimeArgs": [
+        "-c",
+        "WEBSITE=website DATA=\"${TMPDIR:-/tmp}/operecs-sync-dev\" PORT=4321 node sync-server/server.js"
+      ],
       "port": 4321
+    },
+    {
+      "name": "app-ui",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "4322"
+      ],
+      "port": 4322
     }
   ]
 }

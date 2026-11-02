@@ -1,5 +1,6 @@
-/* Operecs internal pages (browser://…). Same design language as the browser chrome and the brand:
-   near-black canvas with a violet glow, pill controls, rounded cards, Outfit + Azeret Mono. */
+/* Operecs internal pages (browser://…). Same design language as ezzeddin.work and the website:
+   near-black canvas, one quiet violet used only where it matters, sections divided by hairlines
+   instead of boxed in cards, gray mono labels, tight Outfit headings, pill controls. */
 
 @font-face { font-family: 'Outfit'; font-weight: 100 900; font-display: block; src: url('fonts/outfit-latin-wght-normal.woff2') format('woff2-variations'); }
 @font-face { font-family: 'Azeret Mono'; font-weight: 100 900; font-display: block; src: url('fonts/azeret-mono-latin-wght-normal.woff2') format('woff2-variations'); }
@@ -28,20 +29,20 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0a0810;
-    --fg: #f3f1f7;
-    --dim: #a6a3ac;
-    --quiet: #6f6c75;
-    --card: #13101a;
-    --card-hover: #1a1623;
-    --input: #16131d;
+    --bg: #050407;
+    --fg: #f2eff6;
+    --dim: #a8a3b2;
+    --quiet: #827d8c;
+    --card: #0c0b10;
+    --card-hover: #14121a;
+    --input: #0c0b10;
     --accent: #9b6cff;
-    --accent-text: #c3a6ff;
-    --accent-soft: rgba(155, 108, 255, 0.15);
-    --accent-line: rgba(168, 126, 255, 0.30);
-    --border: rgba(255, 255, 255, 0.08);
-    --border-strong: rgba(255, 255, 255, 0.14);
-    --glow: rgba(124, 74, 255, 0.24);
+    --accent-text: #c6aeff;
+    --accent-soft: rgba(155, 108, 255, 0.13);
+    --accent-line: rgba(168, 126, 255, 0.34);
+    --border: rgba(242, 239, 246, 0.09);
+    --border-strong: rgba(242, 239, 246, 0.16);
+    --glow: rgba(110, 60, 224, 0.30);
     --danger: #ff7a70;
     --card-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.9);
     color-scheme: dark;
@@ -54,21 +55,20 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(70% 420px at 50% -120px, var(--glow) 0%, transparent 100%),
+    radial-gradient(45% 420px at 82% -140px, var(--glow) 0%, transparent 100%),
     var(--bg);
   background-repeat: no-repeat;
   color: var(--fg);
   font: 14px/1.5 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Ubuntu, sans-serif;
-  letter-spacing: 0.005em;
 }
 ::selection { background: var(--accent-soft); }
 main { max-width: 780px; margin: 0 auto; padding: 48px 24px 64px; }
-h1 { font-size: 34px; font-weight: 600; letter-spacing: -0.025em; line-height: 1.1; margin: 0 0 24px; }
+h1 { font-size: 40px; font-weight: 500; letter-spacing: -0.04em; line-height: 1.05; margin: 0 0 24px; }
 h2 {
   display: flex; align-items: center; gap: 12px;
   margin: 40px 0 14px;
-  font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--accent-text);
+  font-family: var(--mono); font-size: 10.5px; font-weight: 400; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--quiet);
 }
 h2::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 a { color: var(--accent-text); text-decoration: none; }
@@ -121,7 +121,7 @@ select {
   display: flex; align-items: center; gap: 12px; padding: 10px 14px; margin-bottom: 4px;
   border: 1px solid transparent; border-radius: 14px;
 }
-.row:hover { background: var(--card); border-color: var(--border); }
+.row:hover { background: var(--card-hover); }
 .row .main { flex: 1; min-width: 0; }
 .row .t { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .row a.t { display: block; color: var(--fg); }
@@ -137,11 +137,10 @@ button.more { margin-top: 16px; }
 .hint { color: var(--dim); margin-top: 0; }
 .hint code { font-size: 0.8em; }
 
+/* a section (Welcome, What's new): a hairline above it, no box */
 .card {
-  padding: 20px 22px; margin-bottom: 14px;
-  border: 1px solid var(--border); border-radius: 22px;
-  background: radial-gradient(120% 120% at 100% 0%, var(--accent-soft) 0%, transparent 55%), var(--card);
-  box-shadow: var(--card-shadow);
+  padding: 24px 0 26px;
+  border-top: 1px solid var(--border);
 }
 .card h2 { margin: 0 0 8px; }
 .card h2::after { display: none; }
@@ -156,7 +155,7 @@ button.big { height: 44px; padding: 0 26px; font-size: 15px; margin-top: 10px; }
 .filtered-out { display: none !important; }
 #allowlist { margin-bottom: 28px; }
 .perm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px 20px; margin-bottom: 16px; }
-.perm-grid label, .perm-list label { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 6px 6px 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--card); }
+.perm-grid label, .perm-list label { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 6px 6px 14px; border: 1px solid var(--border); border-radius: 999px; }
 .perm-grid select, .perm-list select, .perm-add select { margin: 0; height: 28px; }
 .perm-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px 20px; margin-top: 6px; color: var(--dim); }
 .perm-add { display: flex; gap: 8px; margin: 12px 0 28px; }
@@ -180,9 +179,9 @@ button.big { height: 44px; padding: 0 26px; font-size: 15px; margin-top: 10px; }
 #dns-custom { margin: 0 0 20px; height: 34px; font-size: 13px; }
 .about {
   display: flex; align-items: center; gap: 12px; justify-content: space-between; margin-bottom: 28px;
-  padding: 16px 18px; border: 1px solid var(--border); border-radius: 20px; background: var(--card);
+  padding: 14px 0; border-bottom: 1px solid var(--border);
 }
-.about .t { font-weight: 600; }
+.about .t { font-weight: 500; }
 .about .u { margin-top: 2px; color: var(--dim); font-size: 13px; }
 .sitedata-tools { display: flex; gap: 8px; margin: 8px 0; }
 .sitedata-tools input { flex: 1; height: 34px; padding: 0 14px; font-size: 13px; }
@@ -198,7 +197,7 @@ main.newtab form { position: relative; max-width: 640px; margin: 0 auto; }
 main.newtab #q {
   height: 54px; padding: 0 26px; font-size: 16px;
   background: var(--card); border-color: var(--border-strong);
-  box-shadow: 0 18px 50px -24px rgba(110, 60, 224, 0.55);
+  box-shadow: 0 0 0 6px rgba(155, 108, 255, 0.05), 0 18px 50px -24px rgba(110, 60, 224, 0.45);
 }
 main.newtab #q:focus { border-color: var(--accent-line); box-shadow: 0 0 0 4px var(--accent-soft), 0 18px 50px -24px rgba(110, 60, 224, 0.7); }
 #tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 12px; max-width: 680px; margin: 40px auto 0; }
@@ -211,9 +210,9 @@ main.newtab #q:focus { border-color: var(--accent-line); box-shadow: 0 0 0 4px v
 .tile .letter {
   width: 48px; height: 48px; border-radius: 16px;
   display: flex; align-items: center; justify-content: center;
-  border: 1px solid var(--accent-line);
-  background: radial-gradient(120% 120% at 100% 0%, rgba(155, 108, 255, 0.35) 0%, transparent 60%), var(--accent-soft);
-  font-size: 19px; font-weight: 600; color: var(--accent-text);
+  border: 1px solid var(--border-strong);
+  background: var(--card);
+  font-size: 19px; font-weight: 500; color: var(--accent-text);
 }
 .tile .name { max-width: 100%; font-size: 12.5px; color: var(--dim); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .tile .hide {
@@ -222,7 +221,7 @@ main.newtab #q:focus { border-color: var(--accent-line); box-shadow: 0 0 0 4px v
 }
 .tile:hover .hide { opacity: 1; }
 .tile .hide:hover { background: var(--card-hover); color: var(--fg); }
-main.newtab h2 { max-width: 680px; margin: 44px auto 12px; }
+main.newtab h2 { max-width: 680px; margin: 48px auto 14px; }
 #sites { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 680px; margin: 0 auto; }
 #sites a {
   max-width: 200px; padding: 7px 14px; border: 1px solid var(--border); border-radius: 999px;
@@ -234,6 +233,7 @@ main.newtab h2 { max-width: 680px; margin: 44px auto 12px; }
 /* the Operecs logo: Syne ExtraBold outlines (brand/wordmark.svg), drawn in the text colour with
    the lavender period, sized like a word of the surrounding text (its baseline sits on the text's) */
 .wordmark { display: inline-block; height: 0.86em; width: auto; vertical-align: -0.2em; overflow: visible; }
+h1 .wordmark { margin-inline-start: 0.14em; } /* headings are tightly tracked; keep the space before the logo */
 .wordmark .dot { fill: #c5abfe; }
 @media (prefers-color-scheme: light) { .wordmark .dot { fill: #8a5cf6; } }
 
@@ -306,19 +306,19 @@ body.bg-color.bg-light { --fg: #17141f; --dim: #4a4656; --card: rgba(255, 255, 2
 .tile:hover .tile-more, .tile .tile-more:focus-visible { opacity: 1; }
 .tile .tile-more:hover { background: var(--card-hover); color: var(--fg); }
 .tile .pin-mark { position: absolute; top: 9px; left: 10px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-.tile-menu { position: absolute; top: 32px; right: 6px; z-index: 5; display: flex; flex-direction: column; min-width: 120px; padding: 4px; border: 1px solid var(--accent-line); border-radius: 12px; background: var(--card); box-shadow: var(--card-shadow); backdrop-filter: blur(16px); }
+.tile-menu { position: absolute; top: 32px; right: 6px; z-index: 5; display: flex; flex-direction: column; min-width: 120px; padding: 4px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--card); box-shadow: var(--card-shadow); backdrop-filter: blur(16px); }
 .tile-menu button { height: 30px; border: 0; border-radius: 8px; text-align: left; background: transparent; }
 .tile-menu button:hover { background: var(--accent-soft); }
-.tile-form { max-width: 380px; margin: 24px auto 0; padding: 18px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--accent-line); border-radius: 20px; background: var(--card); text-align: left; }
+.tile-form { max-width: 380px; margin: 24px auto 0; padding: 18px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-strong); border-radius: 20px; background: var(--card); text-align: left; }
 .tile-form[hidden] { display: none; }
 .tile-form-title { font-weight: 600; }
 .tile-form .buttons { justify-content: flex-end; }
 .customize { position: fixed; right: 20px; bottom: 20px; height: 34px; background: var(--card); backdrop-filter: blur(12px); }
-.customize-panel { position: fixed; right: 20px; bottom: 64px; width: 280px; padding: 16px; border: 1px solid var(--accent-line); border-radius: 22px; background: var(--card); box-shadow: var(--card-shadow); backdrop-filter: blur(20px); text-align: left; z-index: 10; }
+.customize-panel { position: fixed; right: 20px; bottom: 64px; width: 280px; padding: 16px; border: 1px solid var(--border-strong); border-radius: 22px; background: var(--card); box-shadow: var(--card-shadow); backdrop-filter: blur(20px); text-align: left; z-index: 10; }
 .customize-panel[hidden] { display: none; }
 .panel-head { display: flex; justify-content: space-between; align-items: center; font-weight: 600; margin-bottom: 8px; }
 .panel-head button { width: 28px; height: 28px; padding: 0; border: 0; }
-.panel-label { margin: 12px 0 8px; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-text); }
+.panel-label { margin: 12px 0 8px; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--quiet); }
 .swatches { display: flex; flex-wrap: wrap; gap: 7px; }
 .swatch { width: 24px; height: 24px; padding: 0; border-radius: 50%; border: 1px solid var(--border-strong); }
 .swatch.none { background: linear-gradient(135deg, transparent 45%, var(--dim) 45%, var(--dim) 55%, transparent 55%), var(--card); }
@@ -328,7 +328,7 @@ body.bg-color.bg-light { --fg: #17141f; --dim: #4a4656; --card: rgba(255, 255, 2
 .customize-panel .check { margin: 6px 0; }
 
 /* settings: address form */
-.address-form { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 12px; padding: 16px; border: 1px solid var(--border); border-radius: 20px; background: var(--card); }
+.address-form { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 12px; padding: 16px; border: 1px solid var(--border-strong); border-radius: 20px; background: var(--card); }
 .address-form[hidden] { display: none; }
 .address-form input { height: 36px; font-size: 13.5px; }
 .addr-row { display: flex; gap: 8px; }
@@ -338,7 +338,7 @@ body.bg-color.bg-light { --fg: #17141f; --dim: #4a4656; --card: rgba(255, 255, 2
 .profile-row .profile-dot { width: 26px; height: 26px; padding: 0; border-radius: 50%; border: 2px solid var(--card); box-shadow: 0 0 0 1px var(--border-strong); flex: none; }
 .profile-row .profile-name { height: 32px; max-width: 280px; font-size: 14px; }
 
-.stats { margin: 16px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-text); }
+.stats { margin: 16px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--quiet); }
 
 /* accent color themes */
 :root[data-accent="blue"] {
@@ -416,23 +416,22 @@ main.settings-shell {
   top: 24px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 18px 16px;
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  background: radial-gradient(140% 140% at 0% 0%, var(--accent-soft) 0%, transparent 65%), var(--card);
-  box-shadow: var(--card-shadow);
+  gap: 18px;
+  padding: 8px 0;
 }
 
 .settings-brand h1 {
-  font-size: 26px;
-  margin: 0 0 2px;
+  font-size: 34px;
+  margin: 0 0 4px;
 }
 
 .settings-sub {
   margin: 0;
-  font-size: 12.5px;
-  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--quiet);
 }
 
 .settings-search-wrap #settings-search {
@@ -445,7 +444,7 @@ main.settings-shell {
 .settings-tabs {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  border-top: 1px solid var(--border);
 }
 
 .settings-tab {
@@ -453,28 +452,41 @@ main.settings-shell {
   align-items: center;
   gap: 11px;
   width: 100%;
-  height: 40px;
-  padding: 0 14px;
-  border: 1px solid transparent;
-  border-radius: 14px;
+  height: 44px;
+  padding: 0 4px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
   background: transparent;
-  color: var(--dim);
-  font-size: 13.5px;
-  font-weight: 500;
+  color: var(--quiet);
+  font-size: 14px;
+  font-weight: 400;
   text-align: left;
+  position: relative;
 }
 
 .settings-tab:hover {
-  background: var(--card-hover);
-  border-color: var(--border);
-  color: var(--fg);
+  background: transparent;
+  color: var(--dim);
 }
 
 .settings-tab.active {
-  background: var(--accent-soft);
-  border-color: var(--accent-line);
-  color: var(--accent-text);
-  font-weight: 600;
+  background: transparent;
+  color: var(--fg);
+}
+
+.settings-tab.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.settings-tab.active .tab-ico {
+  color: var(--accent);
 }
 
 .settings-tab .tab-ico {
@@ -492,7 +504,7 @@ main.settings-shell {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 0;
 }
 
 .settings-panel[hidden] {
@@ -502,32 +514,31 @@ main.settings-shell {
 .settings-panel {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 0;
 }
 
 .settings-panel-head {
-  padding: 4px 4px 6px;
+  padding: 8px 0 28px;
 }
 
 .settings-panel-title {
-  font-size: 24px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+  font-size: 40px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
 }
 
 .settings-panel-desc {
-  margin-top: 4px;
+  margin-top: 10px;
+  max-width: 34em;
   color: var(--dim);
-  font-size: 13.5px;
+  font-size: 15px;
 }
 
+/* a section of settings: no box, a hairline above it */
 .settings-card {
-  padding: 20px 24px;
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  background: radial-gradient(130% 130% at 100% 0%, var(--accent-soft) 0%, transparent 55%), var(--card);
-  box-shadow: var(--card-shadow);
+  padding: 26px 0 30px;
+  border-top: 1px solid var(--border);
 }
 
 .settings-card > h2:first-child,
@@ -535,13 +546,20 @@ main.settings-shell {
   margin: 0 0 12px;
 }
 
+/* the section's own hairline is the divider; labels don't draw a second one */
+.settings-card > h2::after,
+.settings-card .card-head-row h2::after {
+  display: none;
+}
+
 .settings-card .about {
-  margin-bottom: 12px;
-  background: var(--bg);
+  margin-bottom: 0;
 }
 
 .settings-card .about:last-child {
   margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
 }
 
 .settings-card select {
@@ -598,7 +616,7 @@ main.settings-shell {
   padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: var(--bg);
+  background: transparent;
   color: var(--dim);
   text-align: left;
   transition: border-color 0.15s, background-color 0.15s, transform 0.12s;
@@ -724,11 +742,8 @@ main.settings-shell {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 8px;
-  padding: 14px 18px;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  background: var(--card);
+  padding: 18px 0;
+  border-top: 1px solid var(--border);
 }
 
 .settings-tab-pager[hidden] {
@@ -769,10 +784,11 @@ main.settings-shell {
   .settings-tabs {
     flex-direction: row;
     flex-wrap: wrap;
+    gap: 0 18px;
   }
   .settings-tab {
     width: auto;
-    flex: 1 1 auto;
+    flex: 0 1 auto;
   }
 }
 
@@ -797,11 +813,10 @@ main.settings-shell {
 .shortcuts-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
 }
 
 .shortcuts-group-card {
-  padding: 18px 22px;
+  padding: 22px 0 24px;
 }
 
 .shortcuts-rows {
@@ -818,7 +833,6 @@ main.settings-shell {
 
 .shortcut-row:hover {
   background: var(--card-hover);
-  border-color: var(--border);
 }
 
 .shortcut-main {
@@ -892,7 +906,7 @@ kbd.shortcut-kbd.conflict {
 .row-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 4px 0 12px; }
 .hint.error { color: #f0627a; }
 button.danger { color: #f0627a; }
-.sync-code { display: block; margin: 12px 0; padding: 12px 14px; border-radius: 10px; background: var(--card); border: 1px solid var(--border); font-family: var(--mono); font-size: 13px; letter-spacing: 0.04em; word-break: break-all; user-select: all; }
+.sync-code { display: block; margin: 12px 0; padding: 12px 14px; border-radius: 12px; background: var(--card); border: 1px solid var(--border-strong); font-family: var(--mono); font-size: 13px; letter-spacing: 0.04em; word-break: break-all; user-select: all; }
 .sync-qr { width: 160px; margin-bottom: 12px; background: #fff; border-radius: 10px; padding: 8px; }
 .sync-qr svg { display: block; width: 100%; height: auto; }
 #sync-devices .row .u { white-space: normal; }

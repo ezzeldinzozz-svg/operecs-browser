@@ -1,6 +1,8 @@
 {
   "_comment": "Shown on browser://whatsnew after an update. Add user-visible changes to \"next\" as they land; `npm run release` renames \"next\" to the version it releases (and refuses to release without notes).",
-  "next": [],
+  "next": [
+    "A new look that matches the Operecs website: Settings, the new tab page, Welcome, History and the other built-in pages are calmer, with sections divided by thin lines instead of boxes, and the dark theme is a deeper black"
+  ],
   "0.23.0": [
     "The collapsed vertical tabs sidebar is slimmer (icons only, like Brave)",
     "Terms of use (Settings → About)",

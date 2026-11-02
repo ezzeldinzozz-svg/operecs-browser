@@ -64,7 +64,7 @@ const SIDEBAR_COLLAPSED_W = 40; // collapsed (icons-only) vertical tabs sidebar 
 const PAGE_INSET = 8;
 const PAGE_RADIUS = 12;
 // Window background behind the toolbar and around the page card; keep in sync with --canvas in ui/style.css.
-const CANVAS = { light: '#ecebf1', dark: '#0c0a11', private: '#120a22' };
+const CANVAS = { light: '#ecebf1', dark: '#08070b', private: '#120a22' };
 const canvasColor = (isPrivate) => (isPrivate ? CANVAS.private : nativeTheme.shouldUseDarkColors ? CANVAS.dark : CANVAS.light);
 const windowsTitleBar = (isPrivate) => ({
   color: canvasColor(isPrivate),

@@ -1,5 +1,5 @@
-/* Operecs browser chrome. Same design language as the Operecs brand: a near-black canvas,
-   violet accent, pill shapes, Outfit for text and Azeret Mono for small labels. */
+/* Operecs browser chrome. Same design language as ezzeddin.work and the Operecs pages: a
+   near-black canvas, violet accent, pill shapes, Outfit for text and Azeret Mono for small labels. */
 
 @font-face { font-family: 'Outfit'; font-weight: 100 900; font-display: block; src: url('fonts/outfit.woff2') format('woff2-variations'); }
 @font-face { font-family: 'Azeret Mono'; font-weight: 100 900; font-display: block; src: url('fonts/azeret-mono.woff2') format('woff2-variations'); }
@@ -36,18 +36,18 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --canvas: #0c0a11;
-    --surface: #16131d;
-    --surface-hover: #1b1824;
-    --raised: #221e2d;
-    --panel: #14111c;
-    --fg: #f3f1f7;
-    --fg-dim: #a6a3ac;
-    --quiet: #6f6c75;
-    --line: rgba(255, 255, 255, 0.07);
-    --line-strong: rgba(255, 255, 255, 0.13);
+    --canvas: #08070b;
+    --surface: #121017;
+    --surface-hover: #18151f;
+    --raised: #1f1b28;
+    --panel: #0f0d14;
+    --fg: #f2eff6;
+    --fg-dim: #a8a3b2;
+    --quiet: #827d8c;
+    --line: rgba(242, 239, 246, 0.07);
+    --line-strong: rgba(242, 239, 246, 0.13);
     --violet: #9b6cff;
-    --violet-text: #c3a6ff;
+    --violet-text: #c6aeff;
     --violet-soft: rgba(155, 108, 255, 0.16);
     --violet-line: rgba(168, 126, 255, 0.30);
     --glow: rgba(138, 92, 255, 0.22);
