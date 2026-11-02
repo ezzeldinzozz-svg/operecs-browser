@@ -439,3 +439,6 @@ a.ver:hover { border-color: var(--accent); color: var(--accent-ink); }
   .rel-tags, .rel-count { margin: 0; }
   .rel-side time { width: 100%; }
 }
+.nt-stats { display: block; text-align: center; margin: 0; padding: 10px 22px; border-radius: 16px; background: rgba(22,19,29,.8); border: 1px solid rgba(255,255,255,.06); font: 400 clamp(9px, .9vw, 12px)/1.4 var(--mono); color: #8b8794; }
+.nt-stats b { color: #c3a6ff; font-weight: 500; font-variant-numeric: tabular-nums; }
+.note { margin: 14px auto 0; max-width: 34em; font-size: 13px; color: var(--ink-3); }
