@@ -9,7 +9,7 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
-const SITE = 'https://operecs.ezzeddin.work';
+const SITE = 'https://browser.operecs.com';
 const pagePath = path.join(ROOT, 'website', 'changes.html');
 const feedPath = path.join(ROOT, 'website', 'changes.xml');
 

@@ -109,6 +109,7 @@ function send(res, status, body) {
     'content-type': 'application/json',
     'cache-control': 'no-store',
     'x-content-type-options': 'nosniff',
+    'x-robots-tag': 'noindex, nofollow, noarchive',
   });
   res.end(json);
 }
@@ -218,7 +219,20 @@ const TYPES = {
   '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.png': 'image/png', '.ico': 'image/x-icon',
   '.xml': 'application/atom+xml; charset=utf-8', '.txt': 'text/plain; charset=utf-8', '.json': 'application/json',
 };
+// The site is private to people who have the link: no indexing, no crawling, no archiving.
+const NOINDEX = { 'X-Robots-Tag': 'noindex, nofollow, noarchive, nosnippet' };
+const NEW_HOST = 'browser.operecs.com';
 function serveWebsite(req, res, url) {
+  // The old address keeps answering /v1 for installed apps; its pages move to the new host.
+  const host = String(req.headers.host || '').split(':')[0].toLowerCase();
+  if (host === 'operecs.ezzeddin.work') {
+    res.writeHead(301, { Location: `https://${NEW_HOST}${url.pathname}${url.search}`, ...NOINDEX });
+    return res.end();
+  }
+  if (url.pathname === '/robots.txt') {
+    res.writeHead(200, { 'Content-Type': TYPES['.txt'], 'Cache-Control': 'public, max-age=300', ...NOINDEX });
+    return res.end(req.method === 'HEAD' ? undefined : 'User-agent: *\nDisallow: /\n');
+  }
   if (req.method !== 'GET' && req.method !== 'HEAD') return send(res, 405, { error: 'method not allowed' });
   let rel;
   try { rel = decodeURIComponent(url.pathname); } catch { return send(res, 400, { error: 'bad path' }); }
@@ -238,13 +252,14 @@ function serveWebsite(req, res, url) {
       'Cache-Control': ['.woff2', '.png', '.ico'].includes(ext) ? 'public, max-age=86400' : 'public, max-age=300',
       'X-Content-Type-Options': 'nosniff',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
+      ...NOINDEX,
     });
     if (req.method === 'HEAD') return res.end();
     return fs.createReadStream(file).pipe(res);
   }
   const notFound = path.join(WEBSITE, '404.html');
   if (fs.existsSync(notFound)) {
-    res.writeHead(404, { 'Content-Type': TYPES['.html'], 'Cache-Control': 'public, max-age=300' });
+    res.writeHead(404, { 'Content-Type': TYPES['.html'], 'Cache-Control': 'public, max-age=300', ...NOINDEX });
     return req.method === 'HEAD' ? res.end() : fs.createReadStream(notFound).pipe(res);
   }
   return send(res, 404, { error: 'not found' });

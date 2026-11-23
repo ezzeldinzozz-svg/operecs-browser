@@ -22,7 +22,7 @@ const crypto = require('crypto');
 const os = require('os');
 const { safeStorage, net } = require('electron');
 
-const DEFAULT_SERVER = 'https://operecs.ezzeddin.work'; // ours (Coolify on the VPS, see HANDOFF.md)
+const DEFAULT_SERVER = 'https://browser.operecs.com'; // ours (Coolify on the VPS, see HANDOFF.md)
 const ROUND_EVERY = 2 * 60 * 1000; // background sync
 const LOCAL_DEBOUNCE = 5000; // after a local change
 const MAX_PUT = 500; // records per upload

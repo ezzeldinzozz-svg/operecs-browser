@@ -118,13 +118,13 @@ first, because most of the rest sits on it.
 - [ ] Lighter and faster: sleep background tabs sooner, fewer processes, smaller download. (Search is 6 MB because it uses the Mac's own WebKit instead of carrying Chromium; matching that means a native WebKit edition, a rewrite — a decision, not a task)
 
 **7. Put off earlier**
-- [x] Encrypted sync of settings, bookmarks, history, open tabs, addresses, site settings and the extension list (Settings → Sync; server at https://operecs.ezzeddin.work)
+- [x] Encrypted sync of settings, bookmarks, history, open tabs, addresses, site settings and the extension list (Settings → Sync; server at https://browser.operecs.com)
 - [ ] Send a tab to another device; sync on phones
 - [ ] Mobile view: see a page as it looks on a phone (device sizes, touch)
 
 **8. Website**
 - [x] A landing page (`website/`, 2026-11-01): hero with download buttons, the browser window drawn in HTML, numbered feature panels, privacy, shortcuts, closing download section
-- [x] Hosted at https://operecs.ezzeddin.work (2026-11-02), with a Changes page built from the changelog
+- [x] Hosted at https://browser.operecs.com (2026-11-02), with a Changes page built from the changelog
 
 ## Blocked — needs a paid account or a provider
 

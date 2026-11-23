@@ -11,7 +11,7 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const SERVER_PORT = 8797;
-// SYNC_TEST_SERVER=https://operecs.ezzeddin.work tests against the real server instead of a local one
+// SYNC_TEST_SERVER=https://browser.operecs.com tests against the real server instead of a local one
 const SERVER = process.env.SYNC_TEST_SERVER || `http://127.0.0.1:${SERVER_PORT}`;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
